@@ -119,11 +119,16 @@
         <div><span class="n">step 4</span><b>Nudge</b>move every weight a little that way (gradient descent)</div>
       </div>
       <div class="lab">
-        <div class="lab-head"><p class="lab-title">The loop with one single weight</p><p class="lab-hint">The model is y = w · x. It must learn w from five examples.</p></div>
-        <div class="controls"><button class="btn" id="lp-next">Next step</button><button class="btn ghost" id="lp-run">Run 20 rounds</button><button class="btn ghost small" id="lp-reset">Start again</button><span class="status" id="lp-status"></span></div>
-        <div class="lab-body"><div class="lab-grid"><div class="plot" id="lp-plot"></div><div class="calc" id="lp-calc" style="grid-template-columns:1fr"></div></div></div>
+        <div class="lab-head"><p class="lab-title">Watch a network learn: should the street light turn on?</p><p class="lab-hint">Two sensors, three hidden neurons, one output. The light should turn on only when it is <b>dark</b> and there is <b>motion</b>.</p></div>
+        <div class="controls" id="wl-ctl"><button class="btn ghost small" id="wl-ff">Fast-forward 300 rounds</button><span class="status" id="wl-status"></span></div>
+        <div class="stepbar" id="wl-bar"></div>
+        <div class="lab-body"><div class="lab-grid" style="grid-template-columns:minmax(0,1.45fr) minmax(0,1fr)">
+          <div><div id="wl-net"></div><div class="narr" id="wl-narr"></div></div>
+          <div><p class="kicker">The four training examples</p><table class="clean mono" id="wl-table"></table><div class="plot" id="wl-loss" style="margin-top:1rem"></div><p class="plot-cap"><b>Average cost</b> over the four examples, per round</p></div>
+        </div></div>
+        <div class="lab-foot"><b>Watch for:</b> blue dots carry numbers forward; orange dots carry the error back; then every line gets a little thicker or thinner. Green lines are positive weights, red negative. After a few hundred rounds the table on the right is right for all four cases.</div>
       </div>
-      <p>Our digit network does exactly this, with 13,002 weights instead of one. Part 1 is what is inside the network (step 1); Part 2 is how the loop works (steps 2–4).</p>
+      <p>Our digit network does exactly this, with 13,002 weights instead of 13. Part 1 is what is inside the network (step 1); Part 2 is how the loop works (steps 2–4).</p>
     </section>
 
     <section id="map" class="chapter">
@@ -168,6 +173,7 @@
 <script src="assets/vendor/katex/katex.min.js"></script>
 <script src="assets/vendor/katex/auto-render.min.js"></script>
 <script src="assets/js/lib.js"></script>
+<script src="assets/js/anim.js"></script>
 <script src="assets/js/tips.js"></script>
 <script src="assets/js/data/samples.js"></script>
 <script src="assets/js/overview.js"></script>

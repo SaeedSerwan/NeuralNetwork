@@ -14,6 +14,7 @@
   const NP = new UL.Plot('#dr-net', { w: 560, h: 440, pad: { l: 0, r: 0, t: 0, b: 0 } }), small = UL.pixPlot('#dr-small', 112);
   const LX = [40, 250, 400, 530], foot = $('#dr-foot');
   const ys = (n, top = 40, bot = 420) => Array.from({ length: n }, (_, k) => top + ((k + 0.5) * (bot - top)) / n);
+  let rev = 3; // how far the forward pass has travelled: 0 = only the picture, 3 = all layers
   function renderNet() {
     const net = model(drawModel), out = Float64Array.from(net.forward(px)), a1 = net.a[1], a2 = net.a[2], H1 = net.sizes[1], H2 = net.sizes[2];
     const c = NP.ctx, Y1 = ys(H1), Y2 = ys(H2), Y3 = ys(10, 60, 400);
@@ -24,26 +25,34 @@
     c.font = '500 11px "IBM Plex Sans", sans-serif'; c.fillStyle = '#111'; c.textAlign = 'center';
     c.fillText('784 inputs', LX[0] + 26, 150); c.fillText('hidden 1', LX[1], 22); c.fillText('hidden 2', LX[2], 22); c.fillText('output', LX[3], 22);
     // input → hidden 1: one fan per neuron, coloured by the sign of its weighted sum contribution
-    for (let j = 0; j < H1; j++) { const z = net.z[1][j]; c.strokeStyle = z > 0 ? 'rgba(27,140,92,.25)' : 'rgba(214,64,69,.18)'; c.lineWidth = Math.min(3, 0.3 + Math.abs(z) * 0.15); c.beginPath(); c.moveTo(LX[0] + 83, 216); c.lineTo(LX[1] - 9, Y1[j]); c.stroke(); }
+    const k1 = Math.max(0, Math.min(1, rev)), k2 = Math.max(0, Math.min(1, rev - 1)), k3 = Math.max(0, Math.min(1, rev - 2));
+    if (rev < 3) { const fx = rev < 1 ? LX[0] + 83 + (LX[1] - LX[0] - 83) * k1 : rev < 2 ? LX[1] + (LX[2] - LX[1]) * k2 : LX[2] + (LX[3] - LX[2]) * k3; const gr = c.createLinearGradient(fx - 40, 0, fx + 6, 0); gr.addColorStop(0, 'rgba(42,120,214,0)'); gr.addColorStop(1, 'rgba(42,120,214,.28)'); c.fillStyle = gr; c.fillRect(fx - 40, 30, 46, 400); }
+    for (let j = 0; j < H1 && k1 > 0; j++) { const z = net.z[1][j]; c.strokeStyle = z > 0 ? 'rgba(27,140,92,.25)' : 'rgba(214,64,69,.18)'; c.lineWidth = Math.min(3, 0.3 + Math.abs(z) * 0.15); c.beginPath(); c.moveTo(LX[0] + 83, 216); c.lineTo(LX[1] - 9, Y1[j]); c.stroke(); }
     const fan = (A, YA, XA, YB, XB, W, nIn, nOut) => {
       const items = []; for (let j = 0; j < nOut; j++) for (let i = 0; i < nIn; i++) items.push([W[j * nIn + i] * A[i], i, j]);
       items.sort((p, q) => Math.abs(q[0]) - Math.abs(p[0]));
       items.slice(0, 70).forEach(([v, i, j], r) => { c.strokeStyle = v > 0 ? `rgba(27,140,92,${0.15 + 0.6 * (1 - r / 70)})` : `rgba(214,64,69,${0.12 + 0.5 * (1 - r / 70)})`; c.lineWidth = Math.min(3, 0.4 + Math.abs(v) * 0.9); c.beginPath(); c.moveTo(XA + 9, YA[i]); c.lineTo(XB - 9, YB[j]); c.stroke(); });
     };
-    fan(a1, Y1, LX[1], Y2, LX[2], net.W[1], H1, H2); fan(a2, Y2, LX[2], Y3, LX[3], net.W[2], H2, 10);
+    if (k1 >= 1) fan(a1, Y1, LX[1], Y2, LX[2], net.W[1], H1, H2); if (k2 >= 1) fan(a2, Y2, LX[2], Y3, LX[3], net.W[2], H2, 10);
     const node = (x, y, a, hi, r = 8.5) => { const g = Math.round(255 * (1 - a)); c.fillStyle = `rgb(${g},${g},${g})`; c.beginPath(); c.arc(x, y, r, 0, 2 * Math.PI); c.fill(); c.lineWidth = hi ? 2.5 : 1; c.strokeStyle = hi ? '#eb6834' : '#111'; c.stroke(); };
-    Y1.forEach((y, j) => node(LX[1], y, a1[j], hoverN && hoverN[0] === 1 && hoverN[1] === j, H1 > 16 ? 5 : 8.5));
-    Y2.forEach((y, j) => node(LX[2], y, a2[j], hoverN && hoverN[0] === 2 && hoverN[1] === j, H2 > 16 ? 5 : 8.5));
+    Y1.forEach((y, j) => node(LX[1], y, a1[j] * k1, hoverN && hoverN[0] === 1 && hoverN[1] === j, H1 > 16 ? 5 : 8.5));
+    Y2.forEach((y, j) => node(LX[2], y, a2[j] * k2, hoverN && hoverN[0] === 2 && hoverN[1] === j, H2 > 16 ? 5 : 8.5));
     const top = UL.argmax(out);
-    Y3.forEach((y, j) => { node(LX[3], y, out[j], j === top, 10); c.fillStyle = j === top ? '#111' : '#6b6b68'; c.font = (j === top ? '600 ' : '') + '12px "IBM Plex Mono", monospace'; c.textAlign = 'left'; c.fillText(String(j), LX[3] + 16, y + 4); });
+    Y3.forEach((y, j) => { node(LX[3], y, out[j] * k3, j === top && k3 >= 1, 10); c.fillStyle = j === top ? '#111' : '#6b6b68'; c.font = (j === top ? '600 ' : '') + '12px "IBM Plex Mono", monospace'; c.textAlign = 'left'; c.fillText(String(j), LX[3] + 16, y + 4); });
     UL.drawDigit(small.ctx, px, 0, 0, 112);
     const empty = px.every((v) => v === 0);
-    UL.outbars('dr-out', out);
+    UL.outbars('dr-out', Array.from(out, (v) => v * k3));
     const sorted = Array.from(out).map((v, j) => [v, j]).sort((p, q) => q[0] - p[0]);
-    $('#dr-ans').innerHTML = empty ? '<span class="k">Answer</span><span>draw something</span>' : `<span class="k">Answer</span><span class="big-num">${top}</span><span class="k">Runner-up</span><span>${sorted[1][1]} (${sorted[1][0].toFixed(2)})</span>`;
+    $('#dr-ans').innerHTML = !empty && k3 < 1 ? '<span class="k">Answer</span><span>the signal is on its way…</span>' : empty ? '<span class="k">Answer</span><span>draw something</span>' : `<span class="k">Answer</span><span class="big-num">${top}</span><span class="k">Runner-up</span><span>${sorted[1][1]} (${sorted[1][0].toFixed(2)})</span>`;
     NP._Y = [Y1, Y2];
   }
   const pad = new UL.DrawPad('#dr-pad', { onchange: (p) => { px = p; renderNet(); listeners.forEach((f) => f()); } });
+  const clockW = new UL.Clock();
+  async function wave() { // replay the forward pass layer by layer, so students see the signal travel
+    clockW.cancel(); try { await clockW.tween(1500, (t, raw) => { rev = raw * 3; renderNet(); }); } catch (e) { return; } rev = 3; renderNet();
+  }
+  pad.cv.addEventListener('mouseup', wave); pad.cv.addEventListener('touchend', wave);
+  const setAndWave = (p) => { pad.setPixels(p); wave(); };
   $('#dr-clear').addEventListener('click', () => pad.clear());
   UL.seg('dr-model', (v) => { drawModel = v; if (v === 'mine' && !mineTrained) foot.innerHTML = '<b>Your network has not been trained yet</b>: its weights are random. Train it in § 03 first.'; renderNet(); });
   NP.cv.addEventListener('mousemove', (e) => {
@@ -121,7 +130,7 @@
     if (!D) return; const net = model(miModel), conf = Array.from({ length: 10 }, () => new Array(10).fill(0)), wrong = [];
     for (let k = 0; k < D.nTest; k++) { const i = D.nTrain + k, p = net.predict(D.get(i)); conf[D.y[i]][p]++; if (p !== D.y[i]) wrong.push([i, p]); }
     const el = $('#mi-grid'); el.innerHTML = '';
-    wrong.slice(0, 48).forEach(([i, p]) => { const f = document.createElement('figure'); f.style.margin = 0; f.style.textAlign = 'center'; f.style.font = '.7rem var(--mono)'; const c = document.createElement('canvas'); c.width = 28; c.height = 28; c.style.width = '42px'; c.style.height = '42px'; UL.drawDigit(c.getContext('2d'), D.get(i), 0, 0, 28); c.title = `said ${p}, was ${D.y[i]}`; c.addEventListener('click', () => { pad.setPixels(D.get(i)); document.getElementById('draw').scrollIntoView(); }); f.appendChild(c); f.insertAdjacentHTML('beforeend', `<figcaption><b class="neg">${p}</b> · ${D.y[i]}</figcaption>`); el.appendChild(f); });
+    wrong.slice(0, 48).forEach(([i, p]) => { const f = document.createElement('figure'); f.style.margin = 0; f.style.textAlign = 'center'; f.style.font = '.7rem var(--mono)'; const c = document.createElement('canvas'); c.width = 28; c.height = 28; c.style.width = '42px'; c.style.height = '42px'; UL.drawDigit(c.getContext('2d'), D.get(i), 0, 0, 28); c.title = `said ${p}, was ${D.y[i]}`; c.addEventListener('click', () => { setAndWave(D.get(i)); document.getElementById('draw').scrollIntoView(); }); f.appendChild(c); f.insertAdjacentHTML('beforeend', `<figcaption><b class="neg">${p}</b> · ${D.y[i]}</figcaption>`); el.appendChild(f); });
     $('#mi-status').innerHTML = `<b>${wrong.length}</b> wrong out of ${D.nTest} test digits · accuracy <b>${(100 - (wrong.length * 100) / D.nTest).toFixed(1)}%</b>`;
     $('#mi-conf').innerHTML = `<tr><th>true ↓ · said →</th>${[...Array(10).keys()].map((j) => `<th>${j}</th>`).join('')}</tr>` + conf.map((row, i) => `<tr><th>${i}</th>${row.map((v, j) => `<td class="${i === j ? 'good' : v >= 3 ? 'bad' : ''}">${v || ''}</td>`).join('')}</tr>`).join('');
   }
@@ -150,7 +159,7 @@
   status.textContent = 'loading 6,000 digits…';
   UL.digits().then((d) => {
     D = d; status.textContent = 'ready: press Train'; resetMine(); mistakes();
-    $('#dr-rand').addEventListener('click', () => pad.setPixels(D.get(D.nTrain + Math.floor(Math.random() * D.nTest))));
+    $('#dr-rand').addEventListener('click', () => setAndWave(D.get(D.nTrain + Math.floor(Math.random() * D.nTest))));
   }).catch(() => { status.textContent = 'Could not load the digit data.'; });
   drawLearned();
 

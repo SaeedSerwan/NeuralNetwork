@@ -32,8 +32,10 @@
         const i = Math.floor(pos / 26), j = pos % 26, s = 10;
         PI.ctx.strokeStyle = '#eb6834'; PI.ctx.lineWidth = 2.5; PI.ctx.strokeRect(j * s, i * s, 3 * s, 3 * s);
         PO.ctx.strokeStyle = '#111'; PO.ctx.lineWidth = 2; PO.ctx.strokeRect(j * 10, i * 10, 10, 10);
-        const terms = []; let sum = 0; for (let u = 0; u < 3; u++) for (let v = 0; v < 3; v++) { const xv = x[(i + u) * 28 + j + v], kv = k[u * 3 + v]; sum += xv * kv; if (Math.abs(xv) > 0.01) terms.push(`${f2(kv)}·${xv.toFixed(2)}`); }
-        calc.innerHTML = `<div><b>Position (${i + 1}, ${j + 1})</b></div><div>${terms.length ? terms.join(' + ') : 'all 9 pixels are black'}</div><div>sum = <b>${f2(sum)}</b>${relu.checked ? ` → ReLU → <b>${f2(Math.max(0, sum))}</b>` : ''}</div><div style="font-family:var(--font);color:var(--muted);font-size:.84rem">Bright where the patch matches the filter’s pattern; 0 on flat areas.</div>`;
+        const P = [], Pr = []; let sum = 0; for (let u = 0; u < 3; u++) for (let v = 0; v < 3; v++) { const xv = x[(i + u) * 28 + j + v], kv = k[u * 3 + v]; P.push(xv); Pr.push(xv * kv); sum += xv * kv; }
+        const grid = (vals, kind) => `<div class="mgrid">${vals.map((v) => { const bg = kind === 'px' ? `rgb(${Math.round(v * 255)},${Math.round(v * 255)},${Math.round(v * 255)})` : UL.div(v, kind === 'k' ? Math.max(...k.map(Math.abs)) : Math.max(0.5, ...Pr.map(Math.abs))); const fg = kind === 'px' ? (v > 0.5 ? '#000' : '#fff') : '#111'; return `<span style="background:${bg};color:${fg}">${kind === 'px' ? v.toFixed(1) : UL.fmt(v, kind === 'k' ? 1 : 2)}</span>`; }).join('')}</div>`;
+        const out = relu.checked ? Math.max(0, sum) : sum;
+        calc.innerHTML = `<div><b>Position (${i + 1}, ${j + 1})</b></div><div class="convf">${grid(P, 'px')}<span class="op">⊙</span>${grid(k, 'k')}<span class="op">=</span>${grid(Pr, 'p')}</div><div style="font-size:.86rem">pixels under the filter · filter weights · products</div><div>add the 9 products: <b>${f2(sum)}</b>${relu.checked ? ` → ReLU → <b>${f2(out)}</b>` : ''}</div><div style="font-family:var(--font);color:var(--muted);font-size:.84rem">That one number becomes the outlined pixel of the feature map.</div>`;
       } else calc.innerHTML = `<div><b>The filter</b></div><div style="font-family:var(--font)">9 weights, the same at all 26 × 26 = 676 positions. Each output number is the sum of 9 products: filter weight × pixel under it.</div><div style="font-family:var(--font);color:var(--muted);font-size:.84rem">Hover the feature map, or press Play.</div>`;
     }
     UL.seg('cv-k', (v) => { k = KER[v].slice(); syncGrid(); draw(); });
@@ -41,8 +43,8 @@
     UL.thumbs('cv-thumbs', picks, (i) => { idx = i; draw(); }, { select: 0 });
     PO.cv.addEventListener('mousemove', (e) => { if (loop.on) return; const [X, Y] = PO.pointer(e); pos = Math.min(675, Math.floor(Y / 10) * 26 + Math.floor(X / 10)); draw(); });
     PO.cv.addEventListener('mouseleave', () => { if (!loop.on) { pos = -1; draw(); } });
-    let t = 0; const loop = UL.loop((dt) => { t += dt; if (t > 0.03) { t = 0; pos += 3; if (pos > 675) { pos = -1; draw(); $('#cv-play').textContent = 'Play'; return false; } draw(); } });
-    $('#cv-play').addEventListener('click', () => { if (loop.on) { loop.stop(); $('#cv-play').textContent = 'Play'; } else { pos = 0; loop.start(); $('#cv-play').textContent = 'Pause'; } });
+    let t = 0, slowEnd = 0; const loop = UL.loop((dt) => { t += dt; if (t > (pos < slowEnd ? 0.4 : 0.02)) { t = 0; pos += pos < slowEnd ? 1 : 3; if (pos > 675) { pos = -1; draw(); $('#cv-play').textContent = 'Play'; return false; } draw(); } });
+    $('#cv-play').addEventListener('click', () => { if (loop.on) { loop.stop(); $('#cv-play').textContent = 'Play'; } else { const x0 = S.get(idx); let r0 = 0; while (r0 < 25 && ![...Array(28).keys()].some((c) => x0[(r0 + 2) * 28 + c] > 0.3)) r0++; pos = r0 * 26 + 6; slowEnd = pos + 14; loop.start(); $('#cv-play').textContent = 'Pause'; } });
     draw();
   })();
 

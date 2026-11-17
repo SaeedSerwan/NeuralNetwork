@@ -73,7 +73,7 @@
 
     <section id="draw" class="chapter">
       <h2><span class="chap">01</span>Draw a digit</h2>
-      <p>Draw in the black box. Your drawing is cropped, scaled to 20 × 20 pixels and centred in a 28 × 28 frame, just like the MNIST digits the network learned from. Then the 784 numbers flow through the network: each layer is \(a^{(1)} = \sigma\big(W a^{(0)} + b\big)\). Darker circles are more active neurons; coloured lines show the strongest contributions (green pushes up, red pushes down).</p>
+      <p>Draw in the black box. Your drawing is cropped, scaled to 20 × 20 pixels and centred in a 28 × 28 frame, just like the MNIST digits the network learned from. When you lift the pen, watch the 784 numbers flow through the network from left to right: each layer is \(a^{(1)} = \sigma\big(W a^{(0)} + b\big)\). Darker circles are more active neurons; coloured lines show the strongest contributions (green pushes up, red pushes down).</p>
       <div class="lab">
         <div class="lab-head"><p class="lab-title">The forward pass, live</p><p class="lab-hint">Hover a hidden neuron to see what it looks for.</p></div>
         <div class="controls">
@@ -177,6 +177,7 @@
 <script src="assets/vendor/katex/katex.min.js"></script>
 <script src="assets/vendor/katex/auto-render.min.js"></script>
 <script src="assets/js/lib.js"></script>
+<script src="assets/js/anim.js"></script>
 <script src="assets/js/tips.js"></script>
 <script src="assets/js/data/samples.js"></script>
 <script src="assets/js/data/net.js"></script>

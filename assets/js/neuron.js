@@ -91,6 +91,43 @@
     svg.addEventListener('mouseleave', () => { light([]); $$('g.dg rect', svg).forEach((r) => r.setAttribute('fill', '#fff')); });
   })();
 
+  /* ------------------------------------------------------------ 04a one neuron, animated */
+  (function () {
+    const words = [['prize', 2.0], ['money', 1.5], ['dear', -1.0], ['win', 1.0]], b = -1.5, on = new Set(['money', 'prize']);
+    const el = $('#on-words');
+    el.innerHTML = words.map(([w, v]) => `<label data-w="${w}">${w} <small>w = ${v > 0 ? '+' : '−'}${Math.abs(v).toFixed(1)}</small></label>`).join('') + '<span class="pill">bias b = −1.5</span>';
+    const A = new UL.NetAnim('on-net', [{ n: 4, label: 'inputs (words)', names: words.map((w) => w[0]), gap: 62 }, { n: 1, label: 'neuron', names: [''] }], { w: 480, h: 300, r: 20, left: 90, right: 150, labelAt: 0.42 });
+    const SP = new UL.Plot('#on-sig', { w: 360, h: 150, pad: { l: 30, r: 8, t: 8, b: 22 } });
+    let x, terms, sum, z, a, zShown = null;
+    const calc = () => { x = words.map(([w]) => (on.has(w) ? 1 : 0)); terms = words.map(([, w], i) => w * x[i]); sum = terms.reduce((p, q) => p + q, 0); z = sum + b; a = UL.sigmoid(z); };
+    function sigPlot(zz) {
+      SP.clear(); SP.domain(-5, 5, -0.05, 1.05); SP.axes({ nx: 5, ny: 2 });
+      const pts = []; for (let t = -5; t <= 5; t += 0.05) pts.push([t, UL.sigmoid(t)]); SP.poly(pts, { color: UL.INK, w: 2 });
+      SP.line(-5, 0.5, 5, 0.5, { color: UL.FAINT, dash: [3, 3], w: 1 });
+      if (zz != null) { SP.line(zz, 0, zz, UL.sigmoid(zz), { color: UL.COLORS[0], dash: [3, 3], w: 1.2 }); SP.marker(zz, UL.sigmoid(zz), { r: 6, fill: UL.COLORS[0] }); SP.text(`σ(${UL.fmt(zz, 1)}) = ${UL.sigmoid(zz).toFixed(2)}`, zz, Math.min(0.95, UL.sigmoid(zz) + 0.12), { color: UL.COLORS[0], font: '11px "IBM Plex Mono", monospace', align: zz > 1 ? 'right' : 'left' }); }
+    }
+    const base = () => { calc(); A.setWeights([[words.map((w) => w[1])]], { max: 2 }); A.setLayer(0, x.map(() => null)); A.setLayer(1, [null]); A.clearEdgeLabels(); A.sub(1, 0, ''); A.nodes[1][0].side.textContent = ''; A.clearRings(); zShown = null; sigPlot(null); A.edgeLabels(0, (i) => ({ text: 'w=' + UL.fmt(words[i][1], 1), color: words[i][1] >= 0 ? '#1b8c5c' : '#d64045' })); };
+    const steps = [
+      { title: 'Read the inputs', text: () => `Each word becomes a number: 1 if it is in the email, 0 if not. This email: ${words.map(([w], i) => `${w} = <b>${x[i]}</b>`).join(', ')}.`,
+        run: async () => { await A.fillLayer(0, x, { texts: x.map(String), ms: 600 }); }, show: () => A.setLayer(0, x, { texts: x.map(String) }) },
+      { title: 'Multiply each input by its weight', text: () => `Each input travels along its connection and is multiplied by the weight: ${words.map(([w, v], i) => `${x[i]} × ${UL.fmt(v, 1)} = <b>${UL.fmt(terms[i], 1)}</b>`).join(', ')}. Absent words send 0.`,
+        run: async () => { await A.pulse(0, 'fwd', { size: (i) => Math.abs(terms[i]) / 2, color: (i) => (terms[i] >= 0 ? '#1b8c5c' : '#d64045'), ms: 1200 }); }, show: () => A.edgeLabels(0, (i) => ({ text: `${x[i]}×${UL.fmt(words[i][1], 1)} = ${UL.fmt(terms[i], 1)}`, color: terms[i] === 0 ? '#a3a3a0' : terms[i] > 0 ? '#1b8c5c' : '#d64045' })) },
+      { title: 'Add them up', text: () => `The neuron adds what arrives: ${terms.map((t) => UL.fmt(t, 1)).join(' + ')} = <b>${UL.fmt(sum, 1)}</b>. This is the <b>weighted sum</b>.`,
+        run: async () => { await A.clock.tween(700, (t) => A.setNode(1, 0, 0, { text: UL.fmt(sum * t, 1) })); }, show: () => { A.setNode(1, 0, 0, { text: UL.fmt(sum, 1) }); A.sub(1, 0, 'sum = ' + UL.fmt(sum, 1)); } },
+      { title: 'Add the bias', text: () => `Then the bias: ${UL.fmt(sum, 1)} + (−1.5) = <b>z = ${UL.fmt(z, 1)}</b>. The bias says how much evidence is needed before the neuron fires.`,
+        run: async () => { await A.clock.tween(600, (t) => A.setNode(1, 0, 0, { text: UL.fmt(sum + b * t, 1) })); }, show: () => { A.setNode(1, 0, 0, { text: UL.fmt(z, 1) }); A.sub(1, 0, 'z = ' + UL.fmt(z, 1)); } },
+      { title: 'Squish with the sigmoid', text: () => `The activation function σ turns z into a number between 0 and 1: σ(${UL.fmt(z, 1)}) = <b>${a.toFixed(2)}</b>. Watch the point slide along the curve.`,
+        run: async () => { await A.clock.tween(900, (t) => sigPlot(z * t)); await A.fillLayer(1, [a], { texts: [a.toFixed(2)] }); }, show: () => { sigPlot(z); A.setNode(1, 0, a, { text: a.toFixed(2) }); } },
+      { title: 'The decision', text: () => `The output is ${a.toFixed(2)}. With the rule “spam if ≥ 0.5” this email is <b>${a >= 0.5 - 1e-9 ? (Math.abs(a - 0.5) < 1e-9 ? 'exactly on the edge' : 'SPAM') : 'NOT spam'}</b>. Change the words above and play again.`,
+        run: async () => { await A.flash(1, 0, a >= 0.5 ? '#d64045' : '#1b8c5c', 700); }, show: () => { A.ring(1, 0, a >= 0.5 ? '#d64045' : '#1b8c5c'); A.nodes[1][0].side.textContent = a >= 0.5 ? '→ spam' : '→ not spam'; } },
+    ];
+    calc();
+    const P = new UL.Player({ controls: 'on-ctl', narration: 'on-narr', progress: 'on-bar', clock: A.clock, steps, base, pause: 900, intro: 'This email contains “prize” and “money”. Press <b>▶ Play</b> to watch the neuron decide.' });
+    const chips = () => $$('label', el).forEach((l) => l.classList.toggle('on', on.has(l.dataset.w)));
+    $$('label', el).forEach((l) => l.addEventListener('click', () => { const w = l.dataset.w; if (on.has(w)) on.delete(w); else on.add(w); chips(); P.pause(); P.goto(-1); }));
+    chips();
+  })();
+
   /* ------------------------------------------------------------ 04 weighted sum */
   (function () {
     const net = UL.pretrained();
@@ -104,14 +141,17 @@
       learned: (() => { let best = 0, bs = -1; for (let k = 0; k < 16; k++) { let s = 0; for (let i = 0; i < 784; i++) s += Math.abs(net.W[0][k * 784 + i]); if (s > bs) { bs = s; best = k; } } return Float32Array.from(net.W[0].subarray(best * 784, best * 784 + 784)); })(),
     };
     const TH = [S.ofDigit(4), S.ofDigit(7), S.ofDigit(1), S.ofDigit(9), S.ofDigit(0), S.ofDigit(2), 3, S.ofDigit(5)];
-    let wk = 'h', hover = -1, idx = TH.reduce((best, i) => { const sc = (j) => S.get(j).reduce((t, v, k) => t + v * W.h[k], 0); return sc(i) > sc(best) ? i : best; }, TH[0]);
+    let scan = -1, wk = 'h', hover = -1, idx = TH.reduce((best, i) => { const sc = (j) => S.get(j).reduce((t, v, k) => t + v * W.h[k], 0); return sc(i) > sc(best) ? i : best; }, TH[0]);
     const bias = UL.range('ws-b', () => draw());
     function draw() {
       const a = S.get(idx), w = W[wk], sc = wk === 'learned' ? 1.2 : 1, prod = new Float32Array(784); let sum = 0, pos = 0, neg = 0;
       for (let i = 0; i < 784; i++) { prod[i] = w[i] * a[i]; sum += prod[i]; if (prod[i] > 0) pos += prod[i]; else neg += prod[i]; }
-      UL.drawDigit(PA.ctx, a, 0, 0, 224); UL.drawDigit(PW.ctx, w, 0, 0, 224, { signed: true, scale: sc }); UL.drawDigit(PP.ctx, prod, 0, 0, 224, { signed: true, scale: sc });
+      const shown = scan < 0 ? prod : prod.map((v, i) => (Math.floor(i / 28) <= scan ? v : 0)); let run = 0; if (scan >= 0) for (let i = 0; i < (scan + 1) * 28; i++) run += prod[i];
+      UL.drawDigit(PA.ctx, a, 0, 0, 224); UL.drawDigit(PW.ctx, w, 0, 0, 224, { signed: true, scale: sc }); PP.clear(); UL.drawDigit(PP.ctx, shown, 0, 0, 224, { signed: true, scale: sc });
+      if (scan >= 0) [PA, PW, PP].forEach((P) => { P.ctx.fillStyle = 'rgba(235,104,52,.25)'; P.ctx.fillRect(0, scan * 8, 224, 8); P.ctx.strokeStyle = '#eb6834'; P.ctx.lineWidth = 1.5; P.ctx.strokeRect(0.5, scan * 8 + 0.5, 223, 7); });
       if (hover >= 0) [PA, PW, PP].forEach((P) => { P.ctx.strokeStyle = '#eb6834'; P.ctx.lineWidth = 2; P.ctx.strokeRect((hover % 28) * 8, Math.floor(hover / 28) * 8, 8, 8); });
       const b = bias.v, z = sum + b, act = UL.sigmoid(z);
+      if (scan >= 0) { calc.innerHTML = `<span class="k">Row</span><span>${scan + 1} of 28: multiply its 28 pixels by their weights</span><span class="k">Running sum</span><span class="hl" style="font-size:1.2rem">${UL.fmt(run, 1)}</span><span class="k">Still to add</span><span>${27 - scan} rows</span>`; return; }
       calc.innerHTML = (hover >= 0 ? `<span class="k">This pixel</span><span>a = ${a[hover].toFixed(2)}, w = ${f2(w[hover])}, w × a = <b>${f2(prod[hover])}</b></span>` : '') +
         `<span class="k">Sum of green products</span><span class="pos">+${pos.toFixed(1)}</span><span class="k">Sum of red products</span><span class="neg">${UL.fmt(neg, 1)}</span>` +
         `<span class="k">Weighted sum</span><span class="hl">${UL.fmt(sum, 1)}</span><span class="k">+ bias</span><span>${UL.fmt(b, 0)} → z = ${UL.fmt(z, 1)}</span>` +
@@ -119,7 +159,9 @@
     }
     UL.seg('ws-w', (v) => { wk = v; if (v === 'learned') bias.set(0); else if (bias.v === 0) bias.set(-10); draw(); });
     UL.thumbs('ws-thumbs', TH, (i) => { idx = i; draw(); }, { select: TH.indexOf(idx) });
-    PP.cv.addEventListener('mousemove', (e) => { const [X, Y] = PP.pointer(e); hover = Math.floor(Y / 8) * 28 + Math.floor(X / 8); draw(); });
+    let tacc = 0; const sl = UL.loop((dt) => { tacc += dt; if (tacc > 0.09) { tacc = 0; scan++; if (scan > 27) { scan = -1; draw(); $('#ws-anim').textContent = '▶ Animate the sum'; return false; } draw(); } });
+    $('#ws-anim').addEventListener('click', () => { if (sl.on) { sl.stop(); scan = -1; draw(); $('#ws-anim').textContent = '▶ Animate the sum'; } else { scan = -1; hover = -1; sl.start(); $('#ws-anim').textContent = '■ Stop'; } });
+    PP.cv.addEventListener('mousemove', (e) => { if (scan >= 0) return; const [X, Y] = PP.pointer(e); hover = Math.floor(Y / 8) * 28 + Math.floor(X / 8); draw(); });
     PP.cv.addEventListener('mouseleave', () => { hover = -1; draw(); });
     draw();
   })();

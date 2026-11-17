@@ -467,3 +467,23 @@ canvas.drawpad { display: block; width: 100%; max-width: 280px; aspect-ratio: 1;
 .neuron-map > div.on { background: #fff4d6; }
 .neuron-map .h { font: 500 .7rem var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--muted); background: var(--soft); }
 .kw-demo { border-bottom: 1px dotted #8a94a6; }
+
+/* ---------------------------------------------------- animation engine */
+svg.anim .elab { font: 500 12px var(--mono); paint-order: stroke; stroke: #fff; stroke-width: 3px; }
+svg.anim .nval { font: 700 13px var(--mono); pointer-events: none; }
+svg.anim .nsub { font: 11.5px var(--mono); fill: var(--muted); }
+svg.anim .nside { font: 14px var(--font); fill: var(--ink-2); }
+svg.anim .llab { font: 600 13px var(--font); fill: var(--ink); }
+.narr { margin-top: .6rem; min-height: 6.5rem; padding: .8rem 1rem; border-left: 3px solid var(--ink); background: var(--soft); border-radius: 0 var(--radius) var(--radius) 0; font-size: .93rem; line-height: 1.65; color: var(--ink-2); }
+.narr .nhead { font-weight: 600; color: var(--ink); margin-bottom: .25rem; }
+.narr .nstep { font: 500 .72rem var(--mono); color: var(--muted); margin-right: .4rem; }
+.stepbar { display: flex; gap: 4px; padding: 0 1.25rem .6rem; flex-wrap: wrap; }
+.stepbar span { font: .7rem var(--mono); width: 1.6rem; height: 1.6rem; display: grid; place-items: center; border-radius: 50%; border: 1px solid var(--line-2); color: var(--muted); cursor: pointer; transition: background .2s; }
+.stepbar span.done { background: var(--soft); color: var(--ink); }
+.stepbar span.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+.notice { font-size: .88rem; color: var(--ink-2); background: #fffaf0; border: 1px solid #f3e2bd; border-radius: var(--radius); padding: .6rem .9rem; margin: .8rem 0; }
+.notice b { color: var(--ink); }
+.convf { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin: .3rem 0; }
+.convf .op { font: 500 1.2rem var(--mono); color: var(--muted); }
+.mgrid { display: inline-grid; grid-template-columns: repeat(3, 2.15rem); gap: 2px; }
+.mgrid span { font: 500 .68rem var(--mono); text-align: center; padding: .35rem 0; border-radius: 3px; border: 1px solid var(--line); }

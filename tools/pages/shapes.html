@@ -29,11 +29,13 @@
 
     <section id="inside" class="chapter">
       <h2><span class="chap">02</span>What happens inside, step by step</h2>
-      <p>Press <b>Next</b> to follow your drawing through the network. The numbers are the real ones for the shape currently on the pad. At steps 8 and 9, tell the network a different “real answer” to watch it correct a mistake.</p>
+      <p>Press <b>▶ Play</b> to watch your drawing travel through the network, or <b>Next step</b> to go one step at a time. All numbers are the real ones for the shape on the pad. Draw a different shape and the animation follows it.</p>
       <div class="lab">
-        <div class="lab-head"><p class="lab-title">From pixels to an answer, and back</p><p class="lab-hint">784 inputs → 16 hidden neurons → 3 outputs. Only some neurons are drawn.</p></div>
-        <div class="controls"><button class="btn" id="st-next">Next</button><button class="btn ghost small" id="st-back">Back</button><span class="ctl">the real answer is</span><div class="seg" id="st-truth"><button data-v="auto" class="on">as drawn</button><button data-v="0">○</button><button data-v="1">□</button><button data-v="2">△</button></div><span class="status" id="st-status"></span></div>
-        <div class="lab-body"><div class="lab-grid"><div id="st-svg"></div><div class="calc" id="st-calc" style="grid-template-columns:1fr"></div></div></div>
+        <div class="lab-head"><p class="lab-title">From pixels to an answer, and back</p><p class="lab-hint">784 inputs → 16 hidden neurons → 3 outputs. The brightest 6 pixels and 6 most useful hidden neurons are drawn.</p></div>
+        <div class="controls" id="st-ctl"><span class="ctl">the real answer is</span><div class="seg" id="st-truth"><button data-v="auto" class="on">as drawn</button><button data-v="0">○</button><button data-v="1">□</button><button data-v="2">△</button></div></div>
+        <div class="stepbar" id="st-bar"></div>
+        <div class="lab-body"><div class="lab-grid" style="grid-template-columns:minmax(0,1.4fr) minmax(0,1fr)"><div id="st-svg"></div><div class="narr" id="st-narr" style="margin-top:0"></div></div></div>
+        <div class="lab-foot"><b>Watch for:</b> blue dots = signals moving forward, orange dots = the error moving back. Darker neurons are more active. Green lines are positive weights, red negative.</div>
       </div>
     </section>
 

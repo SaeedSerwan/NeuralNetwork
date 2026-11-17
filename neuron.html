@@ -120,10 +120,19 @@
       <h2><span class="chap">04</span>One neuron: a weighted sum of the layer before</h2>
       <p>Each connection between two neurons has a <strong>weight</strong>, a number. Positive weights are drawn green, negative ones red. To compute one neuron of the next layer, multiply each pixel by its weight and add all 784 products: a <strong>weighted sum</strong>.</p>
       <div class="formula">\[ a = \sigma\big(w_1 a_1 + w_2 a_2 + \dots + w_n a_n + b\big) \]</div>
-      <p>The neuron below was set by hand to look for a horizontal stroke: green weights across the middle, red weights above and below. Its sum is large only when the middle is bright and the rows above and below are dark. Try other digits and other weight patterns.</p>
+      <div class="lab">
+        <div class="lab-head"><p class="lab-title">One neuron, step by step</p><p class="lab-hint">A spam detector with four inputs: 1 if the word is in the email, 0 if not. Click words to change the email, then press ▶ Play.</p></div>
+        <div class="controls"><div class="wordchips" id="on-words"></div></div>
+        <div class="controls" id="on-ctl"></div>
+        <div class="stepbar" id="on-bar"></div>
+        <div class="lab-body"><div class="lab-grid" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)"><div id="on-net"></div><div><div class="narr" id="on-narr" style="margin-top:0"></div><div class="plot" id="on-sig" style="margin-top:.8rem"></div></div></div></div>
+        <div class="lab-foot"><b>Watch for:</b> words that are absent send nothing (their input is 0, so input × weight = 0). Red weights push the sum down. The bias shifts the sum before the squish.</div>
+      </div>
+      <p>The same happens with pictures, just with 784 inputs instead of four. The neuron below was set by hand to look for a horizontal stroke: green weights across the middle, red weights above and below. Its sum is large only when the middle is bright and the rows above and below are dark. Try other digits and other weight patterns.</p>
       <div class="lab">
         <div class="lab-head"><p class="lab-title">Multiply, then add</p><p class="lab-hint">Hover the product picture to see one pixel × its weight.</p></div>
         <div class="controls">
+          <button class="btn" id="ws-anim">▶ Animate the sum</button>
           <div class="seg" id="ws-w"><button data-v="h" class="on">Horizontal edge</button><button data-v="v">Vertical edge</button><button data-v="loop">Loop up top</button><button data-v="right">Line on the right</button><button data-v="learned">A learned neuron</button></div>
           <div class="thumbs" id="ws-thumbs"></div>
           <label class="ctl">bias b <input type="range" id="ws-b" min="-40" max="20" step="1" value="-10"><output></output></label>
@@ -256,6 +265,7 @@
 <script src="assets/vendor/katex/katex.min.js"></script>
 <script src="assets/vendor/katex/auto-render.min.js"></script>
 <script src="assets/js/lib.js"></script>
+<script src="assets/js/anim.js"></script>
 <script src="assets/js/tips.js"></script>
 <script src="assets/js/data/samples.js"></script>
 <script src="assets/js/data/net.js"></script>

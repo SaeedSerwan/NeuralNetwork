@@ -100,7 +100,7 @@
       <p>A <strong>CNN</strong> keeps the picture as a grid. It looks at small patches with a <strong>filter</strong>, for example 3 × 3 weights, and uses the same 9 weights at every position:</p>
       <div class="formula">\[ y_{i,j} = \sum_{u}\sum_{v} k_{u,v}\, x_{i+u,\,j+v} \]</div>
       <div class="lab">
-        <div class="lab-head"><p class="lab-title">Slide a filter over a digit</p><p class="lab-hint">Press Play, or hover the feature map to see the 9 products at one position. Edit the filter weights too.</p></div>
+        <div class="lab-head"><p class="lab-title">Slide a filter over a digit</p><p class="lab-hint">Press Play: the filter moves slowly at first so you can follow the numbers, then speeds up. Or hover the feature map to inspect any position. You can edit the filter weights.</p></div>
         <div class="controls">
           <div class="seg" id="cv-k"><button data-v="vert" class="on">vertical edge</button><button data-v="horz">horizontal edge</button><button data-v="diag">diagonal</button><button data-v="blur">blur</button><button data-v="sharp">sharpen</button></div>
           <div class="kgrid" id="cv-grid"></div>
@@ -109,7 +109,7 @@
         </div>
         <div class="controls"><div class="thumbs" id="cv-thumbs"></div></div>
         <div class="lab-body">
-          <div class="lab-grid three">
+          <div class="lab-grid" style="grid-template-columns:minmax(0,.85fr) minmax(0,.85fr) minmax(0,1.9fr)">
             <div><div class="plot" id="cv-in"></div><p class="plot-cap"><b>Input</b> 28 × 28</p></div>
             <div><div class="plot" id="cv-out"></div><p class="plot-cap"><b>Feature map</b> 26 × 26: green +, red −</p></div>
             <div class="calc" id="cv-calc" style="grid-template-columns:1fr"></div>
@@ -220,6 +220,7 @@
 <script src="assets/vendor/katex/katex.min.js"></script>
 <script src="assets/vendor/katex/auto-render.min.js"></script>
 <script src="assets/js/lib.js"></script>
+<script src="assets/js/anim.js"></script>
 <script src="assets/js/tips.js"></script>
 <script src="assets/js/data/samples.js"></script>
 <script src="assets/js/types.js"></script>

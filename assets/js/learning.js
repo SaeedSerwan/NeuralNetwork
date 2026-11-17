@@ -110,58 +110,52 @@
     $('#kn-new').addEventListener('click', () => { seed++; run(); }); $('#kn-batch').addEventListener('click', () => { bseed++; run(); }); run();
   })();
 
-  /* ------------------------------------------------------------ 06 backpropagation by hand */
+  /* ------------------------------------------------------------ 06 backpropagation by hand, animated */
   (function () {
-    const sig = UL.sigmoid, x = [1.0, 0.5], y = 1, eta = 1;
-    let W1, b1, W2, b2;
-    const init = () => { W1 = [[0.4, -0.6], [0.7, 0.2]]; b1 = [0.1, -0.3]; W2 = [0.5, -0.8]; b2 = 0.2; };
-    init();
+    const sig = UL.sigmoid, x = [1.0, 0.5], y = 1, eta = 1, f4 = (v) => UL.fmt(v, 4), sg = (v) => (v < 0 ? '− ' : '+ ') + Math.abs(v).toFixed(2);
+    let W1, b1, W2, b2, V, round, costs;
+    const init = () => { W1 = [[0.4, -0.6], [0.7, 0.2]]; b1 = [0.1, -0.3]; W2 = [0.5, -0.8]; b2 = 0.2; round = 1; costs = []; V = compute(); };
     function compute() {
       const z1 = W1.map((r, j) => r[0] * x[0] + r[1] * x[1] + b1[j]), a1 = z1.map(sig), z2 = W2[0] * a1[0] + W2[1] * a1[1] + b2, a2 = sig(z2), C = (a2 - y) ** 2;
-      const dCda2 = 2 * (a2 - y), da2dz2 = a2 * (1 - a2), d2 = dCda2 * da2dz2, gW2 = a1.map((a) => d2 * a), gb2 = d2;
-      const d1 = a1.map((a, j) => d2 * W2[j] * a * (1 - a)), gW1 = d1.map((d) => x.map((xi) => d * xi)), gb1 = d1;
-      return { z1, a1, z2, a2, C, dCda2, da2dz2, d2, gW2, gb2, d1, gW1, gb1 };
+      const dCda2 = 2 * (a2 - y), da2dz2 = a2 * (1 - a2), d2 = dCda2 * da2dz2, gW2 = a1.map((a) => d2 * a);
+      const d1 = a1.map((a, j) => d2 * W2[j] * a * (1 - a)), gW1 = d1.map((d) => x.map((xi) => d * xi));
+      const nW1 = W1.map((r, j) => r.map((w, i) => w - eta * gW1[j][i])), nb1 = b1.map((b, j) => b - eta * d1[j]), nW2 = W2.map((w, j) => w - eta * gW2[j]), nb2 = b2 - eta * d2;
+      const za = nW1.map((r, j) => r[0] * x[0] + r[1] * x[1] + nb1[j]).map(sig), Cn = (sig(nW2[0] * za[0] + nW2[1] * za[1] + nb2) - y) ** 2;
+      return { z1, a1, z2, a2, C, dCda2, da2dz2, d2, gW2, d1, gW1, nW1, nb1, nW2, nb2, Cn };
     }
-    let base = compute(), k = 0;
-    const NX = [70, 280, 490], NY = [[90, 250], [90, 250], [170]], el = $('#bp-svg'), calc = $('#bp-calc'), st = $('#bp-status');
-    const STEPS = [
-      { t: 'The network', show: [], txt: () => 'Inputs x = (1.0, 0.5). The weights are written on the connections, the biases under the neurons. We want the output to be <b>1</b>.' },
-      { t: 'Forward: hidden neuron 1', show: ['h0'], txt: (v) => `z = 0.4·1.0 + (−0.6)·0.5 + 0.1 = <b>${f3(v.z1[0])}</b><br>a = σ(z) = <b>${f3(v.a1[0])}</b>` },
-      { t: 'Forward: hidden neuron 2', show: ['h0', 'h1'], txt: (v) => `z = 0.7·1.0 + 0.2·0.5 − 0.3 = <b>${f3(v.z1[1])}</b><br>a = σ(z) = <b>${f3(v.a1[1])}</b>` },
-      { t: 'Forward: output neuron', show: ['h0', 'h1', 'o'], txt: (v) => `z = 0.5·${f3(v.a1[0])} + (−0.8)·${f3(v.a1[1])} + 0.2 = <b>${f3(v.z2)}</b><br>a = σ(z) = <b>${f3(v.a2)}</b>` },
-      { t: 'The cost', show: ['h0', 'h1', 'o', 'C'], txt: (v) => `C = (a − y)² = (${f3(v.a2)} − 1)² = <b>${f3(v.C)}</b>. The output is too low.` },
-      { t: 'Backward: ∂C/∂a at the output', show: ['h0', 'h1', 'o', 'C', 'dC'], back: true, txt: (v) => `∂C/∂a = 2(a − y) = <b>${f3(v.dCda2)}</b>. Negative: raising the output lowers the cost.` },
-      { t: 'Backward: through the sigmoid', show: ['h0', 'h1', 'o', 'C', 'dC', 'd2'], back: true, txt: (v) => `∂a/∂z = a(1 − a) = ${f3(v.da2dz2)}<br>δ = ∂C/∂z = ${f3(v.dCda2)} × ${f3(v.da2dz2)} = <b>${UL.fmt(v.d2, 4)}</b>` },
-      { t: 'Backward: gradients of the output weights', show: ['h0', 'h1', 'o', 'C', 'dC', 'd2', 'gW2'], back: true, txt: (v) => `∂z/∂w = the activation the weight multiplies, so<br>∂C/∂w₁ = ${f3(v.a1[0])} × ${UL.fmt(v.d2, 4)} = <b>${UL.fmt(v.gW2[0], 4)}</b><br>∂C/∂w₂ = ${f3(v.a1[1])} × ${UL.fmt(v.d2, 4)} = <b>${UL.fmt(v.gW2[1], 4)}</b><br>∂C/∂b = δ = <b>${UL.fmt(v.gb2, 4)}</b>` },
-      { t: 'Backward: pass the blame to the hidden neurons', show: ['h0', 'h1', 'o', 'C', 'dC', 'd2', 'gW2', 'd1'], back: true, txt: (v) => `Each hidden neuron gets δ × its weight to the output, times its own sigmoid slope:<br>δ₁ = ${UL.fmt(v.d2, 4)} × 0.5 × ${f3(v.a1[0] * (1 - v.a1[0]))} = <b>${UL.fmt(v.d1[0], 4)}</b><br>δ₂ = ${UL.fmt(v.d2, 4)} × (−0.8) × ${f3(v.a1[1] * (1 - v.a1[1]))} = <b>${UL.fmt(v.d1[1], 4)}</b>` },
-      { t: 'Backward: gradients of the first-layer weights', show: ['h0', 'h1', 'o', 'C', 'dC', 'd2', 'gW2', 'd1', 'gW1'], back: true, txt: (v) => `∂C/∂w = input × δ:<br>neuron 1: (${UL.fmt(v.gW1[0][0], 4)}, ${UL.fmt(v.gW1[0][1], 4)})<br>neuron 2: (${UL.fmt(v.gW1[1][0], 4)}, ${UL.fmt(v.gW1[1][1], 4)})` },
-      { t: 'Update: one gradient descent step (η = 1)', show: ['upd'], txt: (v) => `Every weight: w ← w − η · ∂C/∂w.<br>Output weights: 0.5 → <b>${f3(0.5 - eta * v.gW2[0])}</b>, −0.8 → <b>${f3(-0.8 - eta * v.gW2[1])}</b>.<br>Run the forward pass again: the cost falls from ${f3(base.C)} to <b>${f3(after().C)}</b>.` },
+    init();
+    const A = new UL.NetAnim('bp-svg', [{ n: 2, label: 'inputs', names: ['x₁', 'x₂'], gap: 150 }, { n: 2, label: 'hidden', gap: 150 }, { n: 1, label: 'output', names: ['want y = 1'] }], { w: 560, h: 320, r: 24, left: 80, right: 130, labelAt: ['stagger', 0.45] });
+    const wl = (l, W) => A.edgeLabels(l, (i, j) => { const w = l === 0 ? W[0][j][i] : W[1][i]; return { text: 'w=' + UL.fmt(w, 2), color: w >= 0 ? '#1b8c5c' : '#d64045' }; });
+    const gl = (l) => A.edgeLabels(l, (i, j) => { const g = l === 0 ? V.gW1[j][i] : V.gW2[i]; return { text: '∂C/∂w=' + UL.fmt(g, 3), color: '#eb6834' }; });
+    const base = () => { A.setWeights([W1, [W2]], { max: 1.2 }); A.setLayer(0, x, { texts: ['1.0', '0.5'] }); A.setLayer(1, [null, null]); A.setLayer(2, [null]); A.clearRings(); [0, 1].forEach((j) => A.sub(1, j, 'b=' + UL.fmt(b1[j], 2))); A.sub(2, 0, 'b=' + UL.fmt(b2, 2)); wl(0, [W1]); wl(1, [W1, W2]); };
+    const steps = [
+      { title: 'Forward: hidden neuron 1', text: () => `z = ${UL.fmt(W1[0][0], 2)}·1.0 + ${UL.fmt(W1[0][1], 2)}·0.5 ${sg(b1[0])} = <b>${f3(V.z1[0])}</b><br>a = σ(z) = <b>${f3(V.a1[0])}</b>`,
+        run: async () => { await A.pulse(0, 'fwd', { only: (i, j) => j === 0, size: (i) => Math.abs(W1[0][i] * x[i]) + 0.2 }); await A.fillLayer(1, [V.a1[0], 0]); }, show: () => { A.setNode(1, 0, V.a1[0], { text: f3(V.a1[0]) }); } },
+      { title: 'Forward: hidden neuron 2', text: () => `z = ${UL.fmt(W1[1][0], 2)}·1.0 + ${UL.fmt(W1[1][1], 2)}·0.5 ${sg(b1[1])} = <b>${f3(V.z1[1])}</b><br>a = σ(z) = <b>${f3(V.a1[1])}</b>`,
+        run: async () => { await A.pulse(0, 'fwd', { only: (i, j) => j === 1, size: (i) => Math.abs(W1[1][i] * x[i]) + 0.2 }); await A.fillLayer(1, V.a1); }, show: () => { A.setNode(1, 1, V.a1[1], { text: f3(V.a1[1]) }); } },
+      { title: 'Forward: the output', text: () => `z = ${UL.fmt(W2[0], 2)}·${f3(V.a1[0])} + ${UL.fmt(W2[1], 2)}·${f3(V.a1[1])} ${sg(b2)} = <b>${f3(V.z2)}</b><br>a = σ(z) = <b>${f3(V.a2)}</b>`,
+        run: async () => { await A.pulse(1, 'fwd', { size: (i) => Math.abs(W2[i] * V.a1[i]) + 0.2 }); await A.fillLayer(2, [V.a2]); }, show: () => { A.setNode(2, 0, V.a2, { text: f3(V.a2) }); } },
+      { title: 'The cost', text: () => `C = (a − y)² = (${f3(V.a2)} − 1)² = <b>${f3(V.C)}</b>. The output is too low: we want it to be 1.`,
+        run: async () => { await A.flash(2, 0, '#d64045', 700); }, show: () => { A.ring(2, 0, '#d64045'); A.sub(2, 0, 'C = ' + f3(V.C), '#d64045'); } },
+      { title: 'Backward: ∂C/∂a at the output', text: () => `∂C/∂a = 2(a − y) = <b>${f3(V.dCda2)}</b>. Negative: raising the output lowers the cost. This is where the backward pass starts.`,
+        run: async () => { await A.flash(2, 0, '#eb6834', 600); }, show: () => { A.sub(2, 0, '∂C/∂a = ' + f3(V.dCda2), '#eb6834'); } },
+      { title: 'Backward: through the sigmoid', text: () => `∂a/∂z = a(1 − a) = ${f3(V.da2dz2)}<br>δ = ∂C/∂z = ${f3(V.dCda2)} × ${f3(V.da2dz2)} = <b>${f4(V.d2)}</b>: the blame on the output neuron’s sum.`,
+        run: async () => { await A.clock.wait(400); }, show: () => { A.sub(2, 0, 'δ = ' + f4(V.d2), '#eb6834'); } },
+      { title: 'Backward: slopes of the output weights', text: () => `∂z/∂w is the activation the weight multiplies, so<br>∂C/∂w₁ = ${f3(V.a1[0])} × ${f4(V.d2)} = <b>${f4(V.gW2[0])}</b><br>∂C/∂w₂ = ${f3(V.a1[1])} × ${f4(V.d2)} = <b>${f4(V.gW2[1])}</b>`,
+        run: async () => { await A.pulse(1, 'back', { size: (i) => Math.min(1, Math.abs(V.gW2[i]) * 12) + 0.25 }); }, show: () => { gl(1); } },
+      { title: 'Backward: pass the blame to the hidden neurons', text: () => `Each hidden neuron gets δ × its weight to the output, times its own sigmoid slope:<br>δ₁ = ${f4(V.d2)} × ${UL.fmt(W2[0], 2)} × ${f3(V.a1[0] * (1 - V.a1[0]))} = <b>${f4(V.d1[0])}</b><br>δ₂ = ${f4(V.d2)} × ${UL.fmt(W2[1], 2)} × ${f3(V.a1[1] * (1 - V.a1[1]))} = <b>${f4(V.d1[1])}</b>`,
+        run: async () => { await Promise.all([0, 1].map((j) => A.flash(1, j, '#eb6834', 600))); }, show: () => { [0, 1].forEach((j) => A.sub(1, j, 'δ = ' + UL.fmt(V.d1[j], 4), '#eb6834')); } },
+      { title: 'Backward: slopes of the first-layer weights', text: () => `∂C/∂w = input × δ:<br>neuron 1: (${f4(V.gW1[0][0])}, ${f4(V.gW1[0][1])})<br>neuron 2: (${f4(V.gW1[1][0])}, ${f4(V.gW1[1][1])})<br>Now every weight has its slope.`,
+        run: async () => { await A.pulse(0, 'back', { size: (i, j) => Math.min(1, Math.abs(V.gW1[j][i]) * 25) + 0.25 }); }, show: () => { gl(0); } },
+      { title: 'Update: one gradient descent step (η = 1)', text: () => `Every weight: w ← w − η · ∂C/∂w. Negative slopes make a weight bigger, positive slopes smaller.<br>Run the forward pass again: the cost falls from ${f3(V.C)} to <b>${f3(V.Cn)}</b>.`,
+        run: async () => { A.clearEdgeLabels(); await A.morphWeights([V.nW1, [V.nW2]], { ms: 1100 }); }, show: () => { A.setWeights([V.nW1, [V.nW2]], { max: 1.2 }); wl(0, [V.nW1]); wl(1, [V.nW1, V.nW2]); [0, 1].forEach((j) => A.sub(1, j, 'b=' + UL.fmt(V.nb1[j], 2))); A.sub(2, 0, 'cost next time: ' + f3(V.Cn), '#1b8c5c'); } },
     ];
-    function after() { const s = [W1.map((r) => r.slice()), b1.slice(), W2.slice(), b2]; W1 = W1.map((r, j) => r.map((w, i) => w - eta * base.gW1[j][i])); b1 = b1.map((b, j) => b - eta * base.gb1[j]); W2 = W2.map((w, j) => w - eta * base.gW2[j]); b2 = b2 - eta * base.gb2; const v = compute(); [W1, b1, W2, b2] = s; return v; }
-    function draw() {
-      const S2 = STEPS[k], sh = new Set(S2.show), upd = sh.has('upd'), v = upd ? after() : base;
-      const show = (key) => upd || sh.has(key), FW = '#2a78d6', BW = '#eb6834';
-      const ww = upd ? [W1.map((r, j) => r.map((w, i) => w - eta * base.gW1[j][i])), W2.map((w, j) => w - eta * base.gW2[j])] : [W1, W2];
-      let s = '';
-      const edge = (x1, y1, x2, y2, w, g, gshow, on) => { const mx = x1 + (x2 - x1) * 0.62, my = y1 + (y2 - y1) * 0.62; s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${on ? '#111' : '#c9c9c4'}" stroke-width="${1 + Math.min(4, Math.abs(w) * 3)}" stroke-opacity=".55"/>`; s += `<text x="${mx}" y="${my - 6}" text-anchor="middle" style="font:11px var(--mono);fill:${w >= 0 ? '#1b8c5c' : '#d64045'}">w=${f2(w)}</text>`; if (gshow) s += `<text x="${mx}" y="${my + 12}" text-anchor="middle" style="font:500 10.5px var(--mono);fill:${BW}">∂C/∂w=${UL.fmt(g, 3)}</text>`; };
-      for (let j = 0; j < 2; j++) for (let i = 0; i < 2; i++) edge(NX[0] + 22, NY[0][i], NX[1] - 22, NY[1][j], ww[0][j][i], base.gW1[j][i], sh.has('gW1'), show('h' + j));
-      for (let j = 0; j < 2; j++) edge(NX[1] + 22, NY[1][j], NX[2] - 22, NY[2][0], ww[1][j], base.gW2[j], sh.has('gW2'), show('o'));
-      const node = (x0, y0, label, val, on, sub, back) => { s += `<circle cx="${x0}" cy="${y0}" r="22" fill="${on ? '#e8f0fb' : '#fff'}" stroke="${on ? FW : '#111'}" stroke-width="1.5"/><text x="${x0}" y="${y0 + 4}" text-anchor="middle" style="font:500 12px var(--mono);fill:#111">${val}</text><text x="${x0}" y="${y0 - 30}" text-anchor="middle" style="font:11px var(--font);fill:#6b6b68">${label}</text>`; if (sub) s += `<text x="${x0}" y="${y0 + 38}" text-anchor="middle" style="font:10.5px var(--mono);fill:#6b6b68">${sub}</text>`; if (back) s += `<text x="${x0}" y="${y0 + 52}" text-anchor="middle" style="font:500 10.5px var(--mono);fill:${BW}">${back}</text>`; };
-      node(NX[0], NY[0][0], 'x₁', '1.0', false); node(NX[0], NY[0][1], 'x₂', '0.5', false);
-      for (let j = 0; j < 2; j++) node(NX[1], NY[1][j], 'hidden ' + (j + 1), show('h' + j) ? f3(v.a1[j]) : '?', show('h' + j), 'b=' + f2(upd ? b1[j] - eta * base.gb1[j] : b1[j]), sh.has('d1') ? 'δ=' + UL.fmt(base.d1[j], 3) : '');
-      node(NX[2], NY[2][0], 'output', show('o') ? f3(v.a2) : '?', show('o'), 'b=' + f2(upd ? b2 - eta * base.gb2 : b2), sh.has('d2') ? 'δ=' + UL.fmt(base.d2, 3) : '');
-      s += `<rect x="570" y="140" width="96" height="60" rx="8" fill="${show('C') ? '#fff4d6' : '#fff'}" stroke="#111"/><text x="618" y="163" text-anchor="middle" style="font:11px var(--font);fill:#6b6b68">cost (y = 1)</text><text x="618" y="185" text-anchor="middle" style="font:500 13px var(--mono);fill:#111">${show('C') ? f3(v.C) : '?'}</text>`;
-      s += `<line x1="512" y1="170" x2="570" y2="170" stroke="#111"/>`;
-      if (sh.has('dC')) s += `<text x="618" y="222" text-anchor="middle" style="font:500 10.5px var(--mono);fill:${BW}">∂C/∂a=${f3(base.dCda2)}</text>`;
-      el.innerHTML = `<svg class="netsvg" viewBox="0 0 680 320">${s}</svg>`;
-      calc.innerHTML = `<div><b>${S2.t}</b></div><div style="line-height:1.9">${S2.txt(base)}</div>`;
-      st.innerHTML = `step <b>${k}</b> of ${STEPS.length - 1} · ${S2.back ? '<span style="color:#eb6834">backward</span>' : k === 0 ? '' : upd ? 'update' : '<span style="color:#2a78d6">forward</span>'}`;
-    }
-    $('#bp-next').addEventListener('click', () => { if (k < STEPS.length - 1) k++; else { // apply the update and start a new round
-      W1 = W1.map((r, j) => r.map((w, i) => w - eta * base.gW1[j][i])); b1 = b1.map((b, j) => b - eta * base.gb1[j]); W2 = W2.map((w, j) => w - eta * base.gW2[j]); b2 -= eta * base.gb2; base = compute(); k = 1; } draw(); });
-    $('#bp-back').addEventListener('click', () => { if (k > 0) k--; draw(); });
-    $('#bp-reset').addEventListener('click', () => { init(); base = compute(); k = 0; draw(); });
-    draw();
+    const commit = () => { costs.push(V.C); W1 = V.nW1; b1 = V.nb1; W2 = V.nW2; b2 = V.nb2; round++; V = compute(); };
+    const P = new UL.Player({ controls: 'bp-ctl', narration: 'bp-narr', progress: 'bp-bar', clock: A.clock, steps, base, loop: true, onLoop: commit, onReset: init, pause: 1000,
+      intro: `A network with 2 inputs, 2 hidden neurons and 1 output, all sigmoid. Inputs x = (1.0, 0.5); we want the output to be <b>1</b>. Press <b>▶ Play</b>.` });
+    const ctl = UL.$('#bp-ctl'); ctl.insertAdjacentHTML('beforeend', '<span class="status" id="bp-status"></span>');
+    const st = () => { UL.$('#bp-status').innerHTML = `round <b>${round}</b> · cost now <b>${f3(V.C)}</b>`; };
+    const orig = P.narrate.bind(P); P.narrate = () => { orig(); st(); }; st();
   })();
 
   /* ------------------------------------------------------------ 07 training numbers */

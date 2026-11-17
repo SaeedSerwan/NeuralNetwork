@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Neural Network Lab · Data imbalance, vanishing and exploding gradients</title>
+  <meta name="description" content="Why 98% accuracy can mean nothing, how class weights and SMOTE help, and why gradients vanish or explode in deep networks, all interactive.">
+  <meta name="author" content="Eng. Saeed Serwan Abdulsattar">
+  <meta property="og:title" content="Neural Network Lab · Data imbalance, vanishing and exploding gradients">
+  <meta property="og:description" content="Why 98% accuracy can mean nothing, how class weights and SMOTE help, and why gradients vanish or explode in deep networks, all interactive.">
+  <meta property="og:image" content="assets/img/favicon-512.png">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="icon" type="image/svg+xml" href="assets/img/utb-logo.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32.png">
+  <link rel="apple-touch-icon" href="assets/img/favicon-180.png">
+  <link rel="stylesheet" href="assets/vendor/katex/katex.min.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <a class="brand" href="index.html">
+    <img class="brand-logo" src="assets/img/utb-logo.svg" alt="University of Technology Bahrain logo" onerror="this.remove()">
+    <span class="brand-title">Neural Network Lab</span>
+  </a>
+  <nav class="page-tabs" aria-label="Lessons">
+    <a href="index.html">Overview</a>
+    <a href="shapes.html">Shapes in 5 minutes</a>
+    <a href="neuron.html">Neurons & layers</a>
+    <a href="learning.html">How it learns</a>
+    <a href="digits.html">The digit network</a>
+    <a href="playground.html">Playground</a>
+    <a href="types.html">Types of networks</a>
+    <a href="problems.html" class="active" aria-current="page">Training problems</a>
+    <a href="code-network.html">A network in Python</a>
+    <a href="code-training.html">Training in Python</a>
+    <a href="code-problems.html">Filters & problems in Python</a>
+  </nav>
+  <nav class="top-links">
+    <a href="https://github.com/SaeedSerwan/NeuralNetwork" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>GitHub</a>
+  </nav>
+</header>
+
+<div class="layout">
+  <aside class="toc" aria-label="Contents">
+    <p class="toc-title">Training problems</p>
+    <ol>
+      <li><a href="#imbalance">Data imbalance: when 98% accuracy means nothing</a></li>
+      <li><a href="#smote">Fixing imbalance: resample, reweight, measure</a></li>
+      <li><a href="#vanish">Vanishing gradients</a></li>
+      <li><a href="#explode">Exploding gradients</a></li>
+      <li><a href="#ex4">Exercise 4: diagnose the training problem</a></li>
+      <li><a href="#summary">Summary of the lecture</a></li>
+      <li><a href="#check">Check yourself</a></li>
+    </ol>
+  </aside>
+
+  <main>
+    <section class="hero">
+      <p class="eyebrow">CSIT843A · Lecture 6 · Part 4</p>
+      <h1>When training <em>goes wrong.</em></h1>
+      <p class="lead">
+        Three classic problems: a model that is 98% accurate and useless, a deep network whose first layers never learn,
+        and a loss that suddenly becomes NaN. For each one: the symptom, the cause and the fix, and an experiment you can run.
+      </p>
+      <div class="learn-grid">
+        <div><span class="num">01</span>Explain why accuracy hides a rare class</div>
+        <div><span class="num">02</span>Use recall, precision and the threshold</div>
+        <div><span class="num">03</span>Fix imbalance with class weights, SMOTE or undersampling</div>
+        <div><span class="num">04</span>Measure vanishing gradients layer by layer</div>
+        <div><span class="num">05</span>Explain exploding gradients and clipping</div>
+      </div>
+    </section>
+
+    <section id="imbalance" class="chapter">
+      <h2><span class="chap">01</span>Data imbalance: when 98% accuracy means nothing</h2>
+      <p>MNIST is balanced: about 10% of each digit. Fraud data is not. Below are 10,000 simulated card payments, 2% of them fraud; 3,000 are held out for testing. A model that simply says “legitimate” every time is 98% accurate and catches no fraud at all. Train a logistic regression (one sigmoid neuron) on the data as it is: the cost function is dominated by the 98%, so the model learns that “legitimate” is almost always right.</p>
+      <div class="lab">
+        <div class="lab-head"><p class="lab-title">Catch the fraud</p><p class="lab-hint">Pick a strategy, then move the threshold. Red crosses: fraud. Grey dots: a sample of the legitimate payments.</p></div>
+        <div class="controls">
+          <div class="seg" id="im-s"><button data-v="always">always “legitimate”</button><button data-v="plain" class="on">as it is</button><button data-v="weights">+ class weights</button><button data-v="smote">+ SMOTE</button><button data-v="under">+ undersampling 4 : 1</button></div>
+          <label class="ctl">threshold <input type="range" id="im-t" min="0.02" max="0.98" step="0.01" value="0.5"><output></output></label>
+        </div>
+        <div class="lab-body"><div class="lab-grid"><div class="plot" id="im-plot"></div><div><table class="confm" id="im-conf"></table><div class="stats" id="im-stats" style="margin-top:1rem"></div></div></div></div>
+        <div class="lab-foot" id="im-foot"></div>
+      </div>
+      <div class="table-wrap"><table class="clean mono" id="im-table"></table></div>
+      <div class="formula">\[ \text{recall} = \frac{TP}{TP + FN} \qquad \text{precision} = \frac{TP}{TP + FP} \]</div>
+      <p class="takeaway"><b>Key idea:</b> judge a model on a rare class by recall and precision, not accuracy. Rebalancing finds more fraud but raises false alarms: where to stand is a business decision.</p>
+    </section>
+
+    <section id="smote" class="chapter">
+      <h2><span class="chap">02</span>Fixing imbalance: resample, reweight, measure</h2>
+      <p><strong>SMOTE</strong> (Chawla et al., 2002) creates synthetic minority examples: pick a fraud, pick one of its nearest fraud neighbours, and place a new point somewhere on the line between them.</p>
+      <div class="lab">
+        <div class="lab-head"><p class="lab-title">SMOTE, one point at a time</p><p class="lab-hint">Each click adds synthetic frauds between real ones (k = 3 nearest neighbours).</p></div>
+        <div class="controls"><button class="btn" id="sm-add">Add 5 synthetic frauds</button><button class="btn ghost small" id="sm-reset">Reset</button><span class="status" id="sm-status"></span></div>
+        <div class="lab-body"><div class="plot" id="sm-plot" style="max-width:640px"></div></div>
+      </div>
+      <div class="cards">
+        <div class="card"><span class="n">reweight</span><h4>Class weights</h4><p>A missed fraud costs more in the cost function, e.g. 49 times as much as a false alarm, so the model can no longer ignore it.</p></div>
+        <div class="card"><span class="n">resample</span><h4>SMOTE or undersampling</h4><p>Add synthetic frauds, or throw away part of the legitimate payments. Resample the <b>training set only</b>, never the test set.</p></div>
+        <div class="card"><span class="n">measure</span><h4>Recall, precision, F1</h4><p>And tune the threshold: lowering it catches more fraud and raises more false alarms.</p></div>
+      </div>
+    </section>
+
+    <section id="vanish" class="chapter">
+      <h2><span class="chap">03</span>Vanishing gradients</h2>
+      <p>Backpropagation multiplies the gradient by one weight and one activation slope per layer on its way back. The slope of the sigmoid is never more than 0.25. Multiply ten numbers smaller than 0.25 and almost nothing is left: the first layers receive a gradient close to zero and hardly change.</p>
+      <div class="formula">\[ g_1 = g_L \cdot \prod_{l=2}^{L} w_l\,\sigma'(z_l) \]</div>
+      <div class="lab">
+        <div class="lab-head"><p class="lab-title">Gradient size in every layer</p><p class="lab-hint">A real network of 32 neurons per layer, 64 random inputs. Bars use a log scale: each grid line is 10 times smaller.</p></div>
+        <div class="controls">
+          <label class="ctl">layers <input type="range" id="vg-depth" min="2" max="30" step="1" value="10"><output></output></label>
+          <div class="seg" id="vg-act"><button data-v="sigmoid" class="on">sigmoid</button><button data-v="tanh">tanh</button><button data-v="relu">ReLU</button></div>
+          <label class="ctl">initialisation <select id="vg-init"><option value="small">small random (×0.1)</option><option value="xavier" selected>Xavier</option><option value="he">He</option><option value="big">large (×3)</option></select></label>
+          <label class="check"><input type="checkbox" id="vg-res"> residual connections</label>
+        </div>
+        <div class="lab-body"><div class="lab-grid"><div class="plot" id="vg-plot"></div><div class="calc" id="vg-calc"></div></div></div>
+      </div>
+      <div class="table-wrap"><table class="clean">
+        <thead><tr><th>Fix</th><th>Why it helps</th></tr></thead>
+        <tbody>
+          <tr><td><strong>ReLU</strong></td><td>slope 1 for positive inputs, so the factors do not shrink</td></tr>
+          <tr><td><strong>He / Xavier initialisation</strong></td><td>keeps signals the same size from layer to layer</td></tr>
+          <tr><td><strong>Batch normalisation</strong></td><td>re-centres each layer</td></tr>
+          <tr><td><strong>Residual connections</strong></td><td>shortcuts let the gradient skip layers</td></tr>
+          <tr><td><strong>LSTM / GRU gates</strong></td><td>memory without repeated shrinking</td></tr>
+        </tbody>
+      </table></div>
+      <p class="takeaway"><b>Symptom:</b> the loss stops falling and the first layers hardly change.</p>
+    </section>
+
+    <section id="explode" class="chapter">
+      <h2><span class="chap">04</span>Exploding gradients</h2>
+      <p>The same multiplication can go the other way. If the repeated factor is a little larger than 1, the product grows without limit: 1.1 multiplied 100 times is about 14,000. This happens in very deep networks and in RNNs on long sequences, where the same weights are multiplied once per time step (backpropagation through time).</p>
+      <div class="lab">
+        <div class="lab-head"><p class="lab-title">A product of repeated factors</p><p class="lab-hint">Log scale. The dashed line is 1.</p></div>
+        <div class="controls"><label class="ctl">factor per step <input type="range" id="ex-f" min="0.7" max="1.3" step="0.01" value="1.1"><output></output></label></div>
+        <div class="lab-body"><div class="lab-grid"><div class="plot" id="ex-plot"></div><div class="calc" id="ex-calc"></div></div></div>
+      </div>
+      <p><strong>Symptom:</strong> the loss jumps or becomes NaN. <strong>Fix:</strong> <strong>gradient clipping</strong>, the standard fix for RNNs: if the gradient is too long, shrink it to a maximum length before stepping. Also a smaller learning rate, good initialisation, LSTM / GRU.</p>
+      <div class="formula">\[ \text{if } \lVert g \rVert > c:\quad g \leftarrow c\,\frac{g}{\lVert g \rVert} \]</div>
+      <div class="lab">
+        <div class="lab-head"><p class="lab-title">A cliff in the cost landscape</p><p class="lab-hint">RNN cost surfaces have steep walls. Run it, then tick clipping and run again.</p></div>
+        <div class="controls"><button class="btn" id="cl-run">Run</button><label class="check"><input type="checkbox" id="cl-on"> clip the gradient at c = 1</label><span class="status" id="cl-status"></span></div>
+        <div class="lab-body"><div class="lab-grid"><div class="plot" id="cl-plot"></div><div class="plot" id="cl-loss"></div></div></div>
+      </div>
+      <div class="callout"><span class="label">Question</span><p>The loss falls for 300 steps, then becomes NaN. Which problem? First fix? <button class="btn ghost small" onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden">Show</button><span hidden> An <b>exploding gradient</b>. First fix: gradient clipping (and/or a smaller learning rate).</span></p></div>
+    </section>
+
+    <section id="ex4" class="chapter">
+      <h2><span class="chap">05</span>Exercise 4: diagnose the training problem</h2>
+      <p>For each case: name the problem, explain the cause, give two fixes. Five minutes, in pairs. Symptom → cause → fix: say all three.</p>
+      <ol class="ex-list" id="ex4-list"></ol>
+    </section>
+
+    <section id="summary" class="chapter">
+      <h2><span class="chap">06</span>Summary of the lecture</h2>
+      <div class="table-wrap"><table class="clean">
+        <thead><tr><th></th><th>Key idea</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Neuron, layer</strong></td><td>a = σ(Wa + b): weighted sum + bias, then squish; 784 → 16 → 16 → 10 has 13,002 parameters</td></tr>
+          <tr><td><strong>Cost function</strong></td><td>13,002 weights in, one number out: how bad the network is on the training data</td></tr>
+          <tr><td><strong>Gradient descent</strong></td><td>step against the gradient: w ← w − η · gradient; backpropagation computes the gradient</td></tr>
+          <tr><td><strong>Limits</strong></td><td>local minima; confident on nonsense; always test on unseen data</td></tr>
+          <tr><td><strong>Types</strong></td><td>table → MLP, image → CNN, sequence → RNN / LSTM / transformer, create → GAN</td></tr>
+          <tr><td><strong>Imbalance</strong></td><td>accuracy hides the rare class: use recall, class weights, SMOTE</td></tr>
+          <tr><td><strong>Gradients</strong></td><td>vanishing: ReLU, good initialisation, LSTM. Exploding: clipping, smaller η</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Sources and further reading</h3>
+      <ul class="refs">
+        <li>MIT 6.S191 Introduction to Deep Learning (Amini &amp; Amini, 2025), <a href="https://introtodeeplearning.com" target="_blank" rel="noopener">introtodeeplearning.com</a></li>
+        <li>Zhang, Lipton, Li &amp; Smola, <em>Dive into Deep Learning</em>, <a href="https://d2l.ai" target="_blank" rel="noopener">d2l.ai</a></li>
+        <li>M. Nielsen, <em>Neural Networks and Deep Learning</em>, <a href="http://neuralnetworksanddeeplearning.com" target="_blank" rel="noopener">neuralnetworksanddeeplearning.com</a></li>
+        <li>IBM Think: “What is deep learning?”, “What is a neural network?”</li>
+        <li>C. Olah, “Understanding LSTM Networks” (2015); Dumoulin &amp; Visin, “A guide to convolution arithmetic”; Wang et al., CNN Explainer</li>
+        <li>Goodfellow et al. (2014), Generative Adversarial Nets; Chawla et al. (2002), SMOTE; Google ML Crash Course, imbalanced data</li>
+        <li>Smilkov &amp; Carter, TensorFlow Playground, the inspiration for this site’s <a href="playground.html">playground</a></li>
+      </ul>
+    </section>
+
+    <section id="check" class="chapter">
+      <h2><span class="chap">07</span>Check yourself</h2>
+      <div class="quiz" id="qz"></div>
+      <p class="quiz-score" id="qz-score"></p>
+      <a class="next-card" href="code-network.html">
+        <span class="next-eyebrow">Practice</span>
+        <span class="next-title">Build it in Python →</span>
+        <span class="next-text">Three runnable notebooks: a network in NumPy, training it with backpropagation, and filters and training problems.</span>
+      </a>
+    </section>
+  </main>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <img class="footer-logo" src="assets/img/utb-logo.svg" alt="" onerror="this.remove()">
+    <div>
+      <p><strong>Neural Network Lab</strong>: an open, interactive companion to <em>CSIT843A Lecture 6: Deep Learning and Types of Neural Networks</em>.</p>
+      <p>Created by <strong>Eng. Saeed Serwan Abdulsattar</strong>, College of Computer Studies, University of Technology Bahrain.</p>
+      <p><a href="https://github.com/SaeedSerwan/NeuralNetwork" target="_blank" rel="noopener">Source on GitHub</a> · MIT License</p>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/vendor/katex/katex.min.js"></script>
+<script src="assets/vendor/katex/auto-render.min.js"></script>
+<script src="assets/js/lib.js"></script>
+<script src="assets/js/tips.js"></script>
+<script src="assets/js/problems.js"></script>
+</body>
+</html>

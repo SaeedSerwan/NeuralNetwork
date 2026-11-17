@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Neural Network Lab · CNN, RNN, GAN and friends</title>
+  <meta name="description" content="Multilayer perceptrons, convolutional networks, recurrent networks, GANs and transformers: what each is for, with interactive filters, memory and a forger and a detective.">
+  <meta name="author" content="Eng. Saeed Serwan Abdulsattar">
+  <meta property="og:title" content="Neural Network Lab · CNN, RNN, GAN and friends">
+  <meta property="og:description" content="Multilayer perceptrons, convolutional networks, recurrent networks, GANs and transformers: what each is for, with interactive filters, memory and a forger and a detective.">
+  <meta property="og:image" content="assets/img/favicon-512.png">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="icon" type="image/svg+xml" href="assets/img/utb-logo.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32.png">
+  <link rel="apple-touch-icon" href="assets/img/favicon-180.png">
+  <link rel="stylesheet" href="assets/vendor/katex/katex.min.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <a class="brand" href="index.html">
+    <img class="brand-logo" src="assets/img/utb-logo.svg" alt="University of Technology Bahrain logo" onerror="this.remove()">
+    <span class="brand-title">Neural Network Lab</span>
+  </a>
+  <nav class="page-tabs" aria-label="Lessons">
+    <a href="index.html">Overview</a>
+    <a href="shapes.html">Shapes in 5 minutes</a>
+    <a href="neuron.html">Neurons & layers</a>
+    <a href="learning.html">How it learns</a>
+    <a href="digits.html">The digit network</a>
+    <a href="playground.html">Playground</a>
+    <a href="types.html" class="active" aria-current="page">Types of networks</a>
+    <a href="problems.html">Training problems</a>
+    <a href="code-network.html">A network in Python</a>
+    <a href="code-training.html">Training in Python</a>
+    <a href="code-problems.html">Filters & problems in Python</a>
+  </nav>
+  <nav class="top-links">
+    <a href="https://github.com/SaeedSerwan/NeuralNetwork" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>GitHub</a>
+  </nav>
+</header>
+
+<div class="layout">
+  <aside class="toc" aria-label="Contents">
+    <p class="toc-title">Types of networks</p>
+    <ol>
+      <li><a href="#recipe">The family</a></li>
+      <li><a href="#cnn">CNN: small filters that slide over the image</a></li>
+      <li><a href="#rnn">RNN: a network with memory</a></li>
+      <li><a href="#gan">GAN: a forger and a detective</a></li>
+      <li><a href="#attention">Transformers: attention</a></li>
+      <li><a href="#compare">Comparing them</a></li>
+      <li><a href="#ex3">Exercise 3: name that network</a></li>
+      <li><a href="#check">Check yourself</a></li>
+    </ol>
+  </aside>
+
+  <main>
+    <section class="hero">
+      <p class="eyebrow">CSIT843A · Lecture 6 · Part 3</p>
+      <h1>One recipe, <em>different wiring.</em></h1>
+      <p class="lead">
+        Every network in this part uses the same neurons and the same gradient descent you met in Parts 1 and 2. What changes is how the neurons are connected,
+        to fit the shape of the data: a table, an image, a sequence, or something new to create.
+      </p>
+      <div class="learn-grid">
+        <div><span class="num">01</span>Match a network to the shape of its data</div>
+        <div><span class="num">02</span>Slide a filter over an image and read the feature map</div>
+        <div><span class="num">03</span>Watch an RNN’s memory fade, and an LSTM keep it</div>
+        <div><span class="num">04</span>Play a forger against a detective (GAN)</div>
+        <div><span class="num">05</span>See what attention looks at</div>
+      </div>
+    </section>
+
+    <section id="recipe" class="chapter">
+      <h2><span class="chap">01</span>The family</h2>
+      <div class="table-wrap"><table class="clean">
+        <thead><tr><th>Network</th><th>Main idea</th><th>Typical data</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Multilayer perceptron</strong> (MLP)</td><td>dense layers, as in our digit network</td><td>tables, small images</td></tr>
+          <tr><td><strong>Convolutional</strong> (CNN)</td><td>small filters slide over the input</td><td>images, video</td></tr>
+          <tr><td><strong>Recurrent</strong> (RNN, LSTM)</td><td>a hidden state carries memory from step to step</td><td>text, speech, time series</td></tr>
+          <tr><td><strong>Transformer</strong></td><td>attention: every element looks at every other</td><td>long text (ChatGPT, Claude), images</td></tr>
+          <tr><td><strong>Generative adversarial</strong> (GAN)</td><td>a generator and a discriminator compete</td><td>realistic new images</td></tr>
+          <tr><td><strong>Autoencoder, diffusion</strong></td><td>compress and rebuild; remove noise step by step</td><td>anomalies, text-to-image</td></tr>
+        </tbody>
+      </table></div>
+      <p class="takeaway"><b>Key idea:</b> same neurons, same gradient descent. Only the wiring changes, to fit the data.</p>
+    </section>
+
+    <section id="cnn" class="chapter">
+      <h2><span class="chap">02</span>CNN: small filters that slide over the image</h2>
+      <p>Our dense network flattens the image into a list of 784 numbers and forgets which pixels are neighbours. Shuffle the pixels in the same fixed way for every image and it would learn just as well, although no person could read the result.</p>
+      <div class="lab">
+        <div class="lab-head"><p class="lab-title">What a dense network “sees”</p><p class="lab-hint">Both pictures contain exactly the same 784 numbers.</p></div>
+        <div class="controls"><div class="thumbs" id="sh-thumbs"></div></div>
+        <div class="lab-body"><div class="lab-grid even"><div><div class="plot" id="sh-a" style="max-width:200px"></div><p class="plot-cap" style="text-align:left"><b>The digit</b></p></div><div><div class="plot" id="sh-b" style="max-width:200px"></div><p class="plot-cap" style="text-align:left"><b>Same pixels, shuffled</b>: a dense network finds both equally easy</p></div></div></div>
+      </div>
+      <p>A <strong>CNN</strong> keeps the picture as a grid. It looks at small patches with a <strong>filter</strong>, for example 3 × 3 weights, and uses the same 9 weights at every position:</p>
+      <div class="formula">\[ y_{i,j} = \sum_{u}\sum_{v} k_{u,v}\, x_{i+u,\,j+v} \]</div>
+      <div class="lab">
+        <div class="lab-head"><p class="lab-title">Slide a filter over a digit</p><p class="lab-hint">Press Play, or hover the feature map to see the 9 products at one position. Edit the filter weights too.</p></div>
+        <div class="controls">
+          <div class="seg" id="cv-k"><button data-v="vert" class="on">vertical edge</button><button data-v="horz">horizontal edge</button><button data-v="diag">diagonal</button><button data-v="blur">blur</button><button data-v="sharp">sharpen</button></div>
+          <div class="kgrid" id="cv-grid"></div>
+          <button class="btn" id="cv-play">Play</button>
+          <label class="check"><input type="checkbox" id="cv-relu" checked> ReLU after</label>
+        </div>
+        <div class="controls"><div class="thumbs" id="cv-thumbs"></div></div>
+        <div class="lab-body">
+          <div class="lab-grid three">
+            <div><div class="plot" id="cv-in"></div><p class="plot-cap"><b>Input</b> 28 × 28</p></div>
+            <div><div class="plot" id="cv-out"></div><p class="plot-cap"><b>Feature map</b> 26 × 26: green +, red −</p></div>
+            <div class="calc" id="cv-calc" style="grid-template-columns:1fr"></div>
+          </div>
+        </div>
+        <div class="lab-foot">A dense layer from 784 pixels to 16 neurons needs 12,544 weights. One 3 × 3 filter needs 9, and it finds its pattern anywhere in the picture.</div>
+      </div>
+      <p>A real CNN learns dozens of filters per layer instead of us choosing them, shrinks the maps with <strong>pooling</strong>, and stacks layers: edges → parts → objects. Here the “hope” of Part 1 really happens. On the same 28 × 28 digits a small CNN (LeNet) reaches about 99%, against our 95%.</p>
+      <div class="lab">
+        <div class="lab-head"><p class="lab-title">One layer of a CNN: four filters, ReLU, 2 × 2 max-pooling</p><p class="lab-hint">Pick a digit; each row is one filter.</p></div>
+        <div class="controls"><div class="thumbs" id="pl-thumbs"></div></div>
+        <div class="lab-body"><div id="pl-rows" style="display:grid;gap:.6rem"></div></div>
+      </div>
+    </section>
+
+    <section id="rnn" class="chapter">
+      <h2><span class="chap">03</span>RNN: a network with memory</h2>
+      <p>Text, speech and sensor readings come one element at a time, in any length. An <strong>RNN</strong> reads one word (or value) at a time and updates a <strong>hidden state</strong> h, its memory, using the same weights at every step:</p>
+      <div class="formula">\[ h_t = \tanh\big(W_h\, h_{t-1} + W_x\, x_t + b\big) \]</div>
+      <div class="lab">
+        <div class="lab-head"><p class="lab-title">Reading a sentence, one word at a time</p><p class="lab-hint">Each column of the heat map is the 8-number memory after one word.</p></div>
+        <div class="controls"><button class="btn" id="rn-next">Read next word</button><button class="btn ghost small" id="rn-all">Read all</button><button class="btn ghost small" id="rn-reset">Reset</button><div class="seg" id="rn-type"><button data-v="rnn" class="on">simple RNN</button><button data-v="lstm">LSTM</button></div></div>
+        <div class="lab-body">
+          <div class="tokens" id="rn-tokens"></div>
+          <div class="lab-grid even" style="margin-top:1rem">
+            <div><div class="plot" id="rn-heat"></div><p class="plot-cap"><b>Hidden state h</b> after each word (8 numbers, −1 … 1)</p></div>
+            <div><div class="plot" id="rn-mem"></div><p class="plot-cap"><b>How much of the first word is still in the memory</b></p></div>
+          </div>
+        </div>
+        <div class="lab-foot" id="rn-foot"></div>
+      </div>
+      <p>“This morning I took my cat for a ___” → <em>walk</em>. To predict the last word the network must still remember “cat” and “took … for a”. In a simple RNN the memory of early words fades step by step: the same <strong>vanishing gradient</strong> problem as in <a href="problems.html#vanish">Part 4</a>. An <strong>LSTM</strong> adds gates that decide what to keep and what to forget, so useful information can travel much further. For long text, <strong>transformers</strong> replaced RNNs.</p>
+    </section>
+
+    <section id="gan" class="chapter">
+      <h2><span class="chap">04</span>GAN: a forger and a detective</h2>
+      <p>A <strong>GAN</strong> has two networks. The <strong>generator</strong> turns random noise into a fake; the <strong>discriminator</strong> looks at real and fake examples and says “real or fake?” (a digit reader with one output). Each trains against the other: the detective gets better at spotting fakes, so the forger must get better at making them.</p>
+      <div class="formula">\[ \min_G \max_D \; \mathbb{E}\big[\log D(x)\big] + \mathbb{E}\big[\log\big(1 - D(G(z))\big)\big] \]</div>
+      <div class="lab">
+        <div class="lab-head"><p class="lab-title">A GAN on one number</p><p class="lab-hint">Grey: real data. Blue: the generator’s fakes. Orange curve: the discriminator’s D(x), its belief that x is real.</p></div>
+        <div class="controls">
+          <button class="btn" id="gn-play">Play</button><button class="btn ghost small" id="gn-step">One round</button><button class="btn ghost small" id="gn-reset">Reset</button>
+          <div class="seg" id="gn-data"><button data-v="one" class="on">one bump</button><button data-v="two">two bumps</button></div>
+          <span class="status" id="gn-status"></span>
+        </div>
+        <div class="lab-body"><div class="lab-grid"><div class="plot" id="gn-plot"></div><div class="calc" id="gn-calc"></div></div></div>
+        <div class="lab-foot">With <b>two bumps</b>, our tiny generator can only make one bump, so it ends up copying just one of them or sitting in between, and the detective keeps catching it. This is a toy version of <b>mode collapse</b>, one reason GAN training is called unstable.</div>
+      </div>
+      <p>Real GANs use deep networks for both players and produce faces, digits or artwork that never existed. Uses: synthetic training data, image editing, super-resolution. Risk: <strong>deepfakes</strong>. Cousins: <strong>autoencoders</strong> (compress and rebuild; badly rebuilt inputs are anomalies) and <strong>diffusion models</strong> (learn to remove noise step by step; behind most text-to-image systems).</p>
+    </section>
+
+    <section id="attention" class="chapter">
+      <h2><span class="chap">05</span>Transformers: attention</h2>
+      <p>A <strong>transformer</strong> does not read one word at a time. Every word looks at every other word directly and decides how much each one matters to it: <strong>attention</strong>. Nothing has to survive a long chain of steps, so long texts are no problem. This is the architecture behind ChatGPT and Claude.</p>
+      <div class="lab">
+        <div class="lab-head"><p class="lab-title">What does “it” refer to?</p><p class="lab-hint">Hover a word to see where it looks. (Illustrative weights, chosen by hand.)</p></div>
+        <div class="controls"><div class="seg" id="at-s"><button data-v="0" class="on">…because it was too tired</button><button data-v="1">…because it was too wide</button></div></div>
+        <div class="lab-body"><div class="tokens" id="at-tokens" style="font-size:1.05rem;gap:.45rem"></div><p class="plot-cap" id="at-cap" style="text-align:left;margin-top:1rem"></p></div>
+      </div>
+    </section>
+
+    <section id="compare" class="chapter">
+      <h2><span class="chap">06</span>Comparing them</h2>
+      <div class="table-wrap"><table class="clean">
+        <thead><tr><th></th><th>MLP</th><th>CNN</th><th>RNN / LSTM</th><th>GAN</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Input</strong></td><td>a fixed list of numbers</td><td>a grid (image)</td><td>a sequence</td><td>random noise</td></tr>
+          <tr><td><strong>Key idea</strong></td><td>every neuron sees everything</td><td>shared local filters</td><td>memory between steps</td><td>two networks compete</td></tr>
+          <tr><td><strong>Output</strong></td><td>a class or a value</td><td>a class, box or mask</td><td>next word, a label, a forecast</td><td>new data</td></tr>
+          <tr><td><strong>Weak point</strong></td><td>too many weights for big images</td><td>needs many images</td><td>slow, forgets far back</td><td>unstable training</td></tr>
+          <tr><td><strong>Example</strong></td><td>loan approval from a form</td><td>face unlock</td><td>speech to text</td><td>synthetic faces</td></tr>
+        </tbody>
+      </table></div>
+      <p class="takeaway"><b>Key idea:</b> choose by the shape of the data: table → MLP, image → CNN, sequence → RNN / transformer, create → GAN.</p>
+    </section>
+
+    <section id="ex3" class="chapter">
+      <h2><span class="chap">07</span>Exercise 3: name that network</h2>
+      <p>Choose from MLP · CNN · RNN / LSTM · GAN · transformer, then check.</p>
+      <div class="select-q" id="ex3-q"></div>
+      <p style="margin-top:1rem"><button class="btn" id="ex3-check">Check my answers</button> <span class="status" id="ex3-score"></span></p>
+    </section>
+
+    <section id="check" class="chapter">
+      <h2><span class="chap">08</span>Check yourself</h2>
+      <div class="quiz" id="qz"></div>
+      <p class="quiz-score" id="qz-score"></p>
+      <a class="next-card" href="problems.html">
+        <span class="next-eyebrow">Next · Part 4</span>
+        <span class="next-title">Training problems →</span>
+        <span class="next-text">Data imbalance, vanishing and exploding gradients: why training goes wrong and how to fix it.</span>
+      </a>
+    </section>
+  </main>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <img class="footer-logo" src="assets/img/utb-logo.svg" alt="" onerror="this.remove()">
+    <div>
+      <p><strong>Neural Network Lab</strong>: an open, interactive companion to <em>CSIT843A Lecture 6: Deep Learning and Types of Neural Networks</em>.</p>
+      <p>Created by <strong>Eng. Saeed Serwan Abdulsattar</strong>, College of Computer Studies, University of Technology Bahrain.</p>
+      <p><a href="https://github.com/SaeedSerwan/NeuralNetwork" target="_blank" rel="noopener">Source on GitHub</a> · MIT License</p>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/vendor/katex/katex.min.js"></script>
+<script src="assets/vendor/katex/auto-render.min.js"></script>
+<script src="assets/js/lib.js"></script>
+<script src="assets/js/tips.js"></script>
+<script src="assets/js/data/samples.js"></script>
+<script src="assets/js/types.js"></script>
+</body>
+</html>

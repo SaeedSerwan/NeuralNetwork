@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Neural Network Lab · How neural networks learn</title>
+  <meta name="description" content="An interactive, minimal lab for learning how neural networks and deep learning work: neurons, layers, cost functions, gradient descent, backpropagation, CNN, RNN, GAN and training problems.">
+  <meta name="author" content="Eng. Saeed Serwan Abdulsattar">
+  <meta property="og:title" content="Neural Network Lab · How neural networks learn">
+  <meta property="og:description" content="An interactive, minimal lab for learning how neural networks and deep learning work: neurons, layers, cost functions, gradient descent, backpropagation, CNN, RNN, GAN and training problems.">
+  <meta property="og:image" content="assets/img/favicon-512.png">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="icon" type="image/svg+xml" href="assets/img/utb-logo.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32.png">
+  <link rel="apple-touch-icon" href="assets/img/favicon-180.png">
+  <link rel="stylesheet" href="assets/vendor/katex/katex.min.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <a class="brand" href="index.html">
+    <img class="brand-logo" src="assets/img/utb-logo.svg" alt="University of Technology Bahrain logo" onerror="this.remove()">
+    <span class="brand-title">Neural Network Lab</span>
+  </a>
+  <nav class="page-tabs" aria-label="Lessons">
+    <a href="index.html" class="active" aria-current="page">Overview</a>
+    <a href="shapes.html">Shapes in 5 minutes</a>
+    <a href="neuron.html">Neurons & layers</a>
+    <a href="learning.html">How it learns</a>
+    <a href="digits.html">The digit network</a>
+    <a href="playground.html">Playground</a>
+    <a href="types.html">Types of networks</a>
+    <a href="problems.html">Training problems</a>
+    <a href="code-network.html">A network in Python</a>
+    <a href="code-training.html">Training in Python</a>
+    <a href="code-problems.html">Filters & problems in Python</a>
+  </nav>
+  <nav class="top-links">
+    <a href="https://github.com/SaeedSerwan/NeuralNetwork" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>GitHub</a>
+  </nav>
+</header>
+
+<div class="layout">
+  <aside class="toc" aria-label="Contents">
+    <p class="toc-title">Overview</p>
+    <ol>
+      <li><a href="#threes">Your brain reads these without effort</a></li>
+      <li><a href="#nature">Engineers copy clever designs from nature</a></li>
+      <li><a href="#loop">The whole idea first: how a network learns</a></li>
+      <li><a href="#map">The lessons</a></li>
+      <li><a href="#check">Check yourself</a></li>
+    </ol>
+  </aside>
+
+  <main>
+    <section class="hero">
+      <p class="eyebrow">CSIT843A · Lecture 6 · Deep learning and types of neural networks</p>
+      <h1>How a network <em>learns to see.</em></h1>
+      <p class="lead">
+        An interactive companion to the lecture. Build a neuron, count the knobs of a real network, roll a ball down a cost landscape,
+        draw a digit for a network to read, train it yourself, and see why training sometimes fails. Hover any <span class="kw-demo">underlined term</span> or formula for an explanation.
+      </p>
+      <div class="learn-grid">
+        <div><span class="num">01</span>Explain what a neuron, a weight, a bias and a layer are</div>
+        <div><span class="num">02</span>Compute a cost and a gradient descent step</div>
+        <div><span class="num">03</span>Describe backpropagation in words</div>
+        <div><span class="num">04</span>Choose MLP, CNN, RNN, GAN or transformer for a problem</div>
+        <div><span class="num">05</span>Diagnose data imbalance and vanishing or exploding gradients</div>
+      </div>
+    </section>
+
+    <section id="threes" class="chapter">
+      <h2><span class="chap">01</span>Your brain reads these without effort</h2>
+      <p>Here are 40 handwritten 3s from the MNIST test set. Every one is a 3, yet no two have the same pixels. Now write the program: the input is a 28 × 28 grid of pixel values, the output is one digit from 0 to 9. Which if-statements would you write?</p>
+      <div class="lab">
+        <div class="lab-head"><p class="lab-title">40 different 3s</p><p class="lab-hint">Hover one to see it large, with the pixel values a program would get.</p></div>
+        <div class="lab-body"><div class="lab-grid"><div class="plot" id="th-grid"></div><div><div class="plot" id="th-big" style="max-width:240px"></div><p class="plot-cap" id="th-cap" style="text-align:left"></p></div></div></div>
+      </div>
+      <div class="table-wrap"><table class="clean">
+        <thead><tr><th>Task</th><th>Exact rules?</th><th>Approach</th></tr></thead>
+        <tbody>
+          <tr><td>Add 10% VAT to a bill</td><td>yes</td><td>ordinary code</td></tr>
+          <tr><td>Read a handwritten digit</td><td>no</td><td>a neural network that learns from examples</td></tr>
+        </tbody>
+      </table></div>
+      <p class="takeaway"><b>Key idea:</b> hard to write by hand, easy to learn from 60,000 examples.</p>
+    </section>
+
+    <section id="nature" class="chapter">
+      <h2><span class="chap">02</span>Engineers copy clever designs from nature</h2>
+      <div class="table-wrap"><table class="clean">
+        <thead><tr><th>In nature</th><th>What was copied</th><th>Invention</th></tr></thead>
+        <tbody>
+          <tr><td>birds (eagle wings)</td><td>curved wing shape, upturned wing tips</td><td>aeroplane wings and winglets</td></tr>
+          <tr><td>kingfisher beak</td><td>a pointed shape that enters water without a splash</td><td>nose of Japan’s bullet train</td></tr>
+          <tr><td>burr seeds</td><td>tiny hooks that catch on loops</td><td>Velcro</td></tr>
+          <tr><td>bats</td><td>send a sound, listen to the echo</td><td>sonar</td></tr>
+          <tr><td><strong>the human brain</strong></td><td>many simple cells, connected, that learn</td><td><strong>neural networks</strong></td></tr>
+        </tbody>
+      </table></div>
+      <p>To build a smart machine, copy the brain. A real neuron collects signals from other neurons through connections (synapses) of different strengths, adds them up, and fires only above a threshold. The artificial neuron copies exactly these four ideas.</p>
+      <div class="neuron-map" id="nm">
+        <div class="h">Real neuron</div><div class="h">Artificial neuron</div>
+        <div data-p="0">strength of each connection (<strong>synapse</strong>)</div><div data-p="0">a <strong>weight</strong> for each input</div>
+        <div data-p="1">adds up the incoming signals</div><div data-p="1"><strong>weighted sum</strong> + <strong>bias</strong></div>
+        <div data-p="2">fires only above a threshold</div><div data-p="2"><strong>activation function</strong> σ</div>
+        <div data-p="3">learns by changing connection strengths</div><div data-p="3">learns by changing the weights</div>
+      </div>
+    </section>
+
+    <section id="loop" class="chapter">
+      <h2><span class="chap">03</span>The whole idea first: how a network learns</h2>
+      <p>Before any detail, the big picture. A network learns like a child learning to read: guess, get corrected, adjust. At the start all weights are random, so the guesses are wrong. Each round makes the weights a little better. Every page of this site is one piece of this loop.</p>
+      <div class="loopsteps" id="lp-steps">
+        <div><span class="n">step 1</span><b>Guess</b>run the input through the network (forward pass)</div>
+        <div><span class="n">step 2</span><b>Measure</b>compare with the right answer: the cost</div>
+        <div><span class="n">step 3</span><b>Find the direction</b>which way should each weight move? (the gradient)</div>
+        <div><span class="n">step 4</span><b>Nudge</b>move every weight a little that way (gradient descent)</div>
+      </div>
+      <div class="lab">
+        <div class="lab-head"><p class="lab-title">The loop with one single weight</p><p class="lab-hint">The model is y = w · x. It must learn w from five examples.</p></div>
+        <div class="controls"><button class="btn" id="lp-next">Next step</button><button class="btn ghost" id="lp-run">Run 20 rounds</button><button class="btn ghost small" id="lp-reset">Start again</button><span class="status" id="lp-status"></span></div>
+        <div class="lab-body"><div class="lab-grid"><div class="plot" id="lp-plot"></div><div class="calc" id="lp-calc" style="grid-template-columns:1fr"></div></div></div>
+      </div>
+      <p>Our digit network does exactly this, with 13,002 weights instead of one. Part 1 is what is inside the network (step 1); Part 2 is how the loop works (steps 2–4).</p>
+    </section>
+
+    <section id="map" class="chapter">
+      <h2><span class="chap">04</span>The lessons</h2>
+      <p>Session 1: Parts 1–2. Session 2: Parts 3–4. The <a href="shapes.html">shapes lesson</a> is a five-minute warm-up that tells the whole story once, quickly.</p>
+      <div class="cards">
+        <a class="card" href="shapes.html"><span class="n">warm-up · 5 minutes</span><h4>Circle, square or triangle?</h4><p>The whole story in one example: inputs, weights, bias, activation, forward and back propagation.</p></a>
+        <a class="card" href="neuron.html"><span class="n">part 1</span><h4>Neurons & layers</h4><p>What does a neuron hold, and what does a layer compute? Count the 13,002 knobs.</p></a>
+        <a class="card" href="learning.html"><span class="n">part 2</span><h4>How it learns</h4><p>Cost function, gradient descent and backpropagation, number by number.</p></a>
+        <a class="card" href="digits.html"><span class="n">parts 1–2 live</span><h4>The digit network</h4><p>Draw a digit, look inside, and train the network in your browser.</p></a>
+        <a class="card" href="playground.html"><span class="n">explore</span><h4>Playground</h4><p>Build a small network and watch its decision boundary bend.</p></a>
+        <a class="card" href="types.html"><span class="n">part 3</span><h4>Types of networks</h4><p>MLP, CNN, RNN, GAN and transformers: what each is for.</p></a>
+        <a class="card" href="problems.html"><span class="n">part 4</span><h4>Training problems</h4><p>Data imbalance, vanishing and exploding gradients.</p></a>
+        <a class="card" href="code-network.html"><span class="n">practice</span><h4>Python notebooks</h4><p>Build, train and diagnose networks in NumPy, line by line, runnable in Colab.</p></a>
+      </div>
+    </section>
+
+    <section id="check" class="chapter">
+      <h2><span class="chap">05</span>Check yourself</h2>
+      <div class="quiz" id="qz"></div>
+      <p class="quiz-score" id="qz-score"></p>
+      <a class="next-card" href="shapes.html">
+        <span class="next-eyebrow">Start here</span>
+        <span class="next-title">Circle, square or triangle? →</span>
+        <span class="next-text">A five-minute tour of how a neural network works, then Part 1.</span>
+      </a>
+    </section>
+  </main>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <img class="footer-logo" src="assets/img/utb-logo.svg" alt="" onerror="this.remove()">
+    <div>
+      <p><strong>Neural Network Lab</strong>: an open, interactive companion to <em>CSIT843A Lecture 6: Deep Learning and Types of Neural Networks</em>.</p>
+      <p>Created by <strong>Eng. Saeed Serwan Abdulsattar</strong>, College of Computer Studies, University of Technology Bahrain.</p>
+      <p><a href="https://github.com/SaeedSerwan/NeuralNetwork" target="_blank" rel="noopener">Source on GitHub</a> · MIT License</p>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/vendor/katex/katex.min.js"></script>
+<script src="assets/vendor/katex/auto-render.min.js"></script>
+<script src="assets/js/lib.js"></script>
+<script src="assets/js/tips.js"></script>
+<script src="assets/js/data/samples.js"></script>
+<script src="assets/js/overview.js"></script>
+</body>
+</html>

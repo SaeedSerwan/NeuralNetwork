@@ -1,0 +1,75 @@
+    <section class="hero">
+      <p class="eyebrow">CSIT843A · Lecture 6 · Warm-up · 5 minutes</p>
+      <h1>Circle, square or triangle? <em>A neural network in five minutes.</em></h1>
+      <p class="lead">
+        The whole story of a neural network in one small example. A network looks at a 28 × 28 drawing and says whether it is a circle, a square or a triangle.
+        Draw one yourself, then walk through what happens inside: inputs, channels and weights, bias, activation, forward propagation, the error, and backpropagation.
+      </p>
+      <div class="learn-grid">
+        <div><span class="num">01</span>Name the three kinds of layers</div>
+        <div><span class="num">02</span>Say what weights, bias and activation do</div>
+        <div><span class="num">03</span>Describe forward propagation</div>
+        <div><span class="num">04</span>Describe how the error flows back (backpropagation)</div>
+        <div><span class="num">05</span>Give examples of where networks are used</div>
+      </div>
+    </section>
+
+    <section id="try" class="chapter">
+      <h2><span class="chap">01</span>Draw a shape</h2>
+      <p>This small network was trained a moment ago, in your browser, on 3,000 computer-drawn shapes. Draw a circle, a square or a triangle with the mouse or a finger.</p>
+      <div class="lab">
+        <div class="lab-head"><p class="lab-title">What is it?</p><p class="lab-hint">Draw large, in one or a few strokes.</p></div>
+        <div class="controls"><button class="btn ghost small" id="sh-clear">Clear</button><button class="btn ghost small" data-ex="0">example circle</button><button class="btn ghost small" data-ex="1">example square</button><button class="btn ghost small" data-ex="2">example triangle</button><span class="status" id="sh-status"></span></div>
+        <div class="lab-body"><div class="lab-grid" style="grid-template-columns:minmax(0,240px) minmax(0,1fr)">
+          <div class="pad-wrap"><div id="sh-pad" style="width:100%"></div><div class="plot" id="sh-small" style="max-width:84px"></div><p class="plot-cap" style="text-align:left">28 × 28 = 784 pixels</p></div>
+          <div><p class="kicker">Output layer: one neuron per shape</p><div class="outbars" id="sh-out"></div><div class="calc" id="sh-ans" style="margin-top:1rem"></div></div>
+        </div></div>
+      </div>
+    </section>
+
+    <section id="inside" class="chapter">
+      <h2><span class="chap">02</span>What happens inside, step by step</h2>
+      <p>Press <b>Next</b> to follow your drawing through the network. The numbers are the real ones for the shape currently on the pad. At steps 8 and 9, tell the network a different “real answer” to watch it correct a mistake.</p>
+      <div class="lab">
+        <div class="lab-head"><p class="lab-title">From pixels to an answer, and back</p><p class="lab-hint">784 inputs → 16 hidden neurons → 3 outputs. Only some neurons are drawn.</p></div>
+        <div class="controls"><button class="btn" id="st-next">Next</button><button class="btn ghost small" id="st-back">Back</button><span class="ctl">the real answer is</span><div class="seg" id="st-truth"><button data-v="auto" class="on">as drawn</button><button data-v="0">○</button><button data-v="1">□</button><button data-v="2">△</button></div><span class="status" id="st-status"></span></div>
+        <div class="lab-body"><div class="lab-grid"><div id="st-svg"></div><div class="calc" id="st-calc" style="grid-template-columns:1fr"></div></div></div>
+      </div>
+    </section>
+
+    <section id="train" class="chapter">
+      <h2><span class="chap">03</span>Training: guess, compare, correct</h2>
+      <p>A network does not start out knowing shapes. Its weights begin random, so its first answers are guesses. For each training example the network predicts, the prediction is compared with the real answer, the <strong>error</strong> is sent back through the network (<strong>backpropagation</strong>), and every weight is adjusted a little. After enough examples, it predicts correctly most of the time.</p>
+      <div class="lab">
+        <div class="lab-head"><p class="lab-title">Train a fresh network</p><p class="lab-hint">Each press shows the network 100 more shapes. Watch the accuracy and one example’s prediction.</p></div>
+        <div class="controls"><button class="btn" id="tn-go">Train on 100 shapes</button><button class="btn ghost small" id="tn-auto">Train until good</button><button class="btn ghost small" id="tn-reset">Random weights again</button><span class="status" id="tn-status"></span></div>
+        <div class="lab-body"><div class="lab-grid even">
+          <div><div class="plot" id="tn-chart"></div><p class="plot-cap"><b>Accuracy</b> on 300 shapes it never trains on</p></div>
+          <div><div style="display:flex;gap:1rem;align-items:center"><div class="plot" id="tn-img" style="width:84px;flex:none"></div><div style="flex:1"><div class="outbars" id="tn-out"></div></div></div><div class="calc" id="tn-calc" style="margin-top:.8rem"></div></div>
+        </div></div>
+      </div>
+    </section>
+
+    <section id="uses" class="chapter">
+      <h2><span class="chap">04</span>Where neural networks are used</h2>
+      <div class="cards">
+        <div class="card"><span class="n">images</span><h4>Face recognition</h4><p>Phones unlock and photos are tagged by recognising faces. Usually a <a href="types.html#cnn">CNN</a>.</p></div>
+        <div class="card"><span class="n">sequences</span><h4>Forecasting</h4><p>Rainfall, electricity demand, stock prices: predicting the next values from past ones.</p></div>
+        <div class="card"><span class="n">generation</span><h4>Music and art</h4><p>Networks learn patterns in music or images and compose new pieces.</p></div>
+        <div class="card"><span class="n">language</span><h4>Chatbots and translation</h4><p>Transformers read and write text: ChatGPT, Claude, machine translation.</p></div>
+        <div class="card"><span class="n">medicine</span><h4>Medical images</h4><p>Finding tumours in scans or eye diseases in retina photos.</p></div>
+        <div class="card"><span class="n">security</span><h4>Fraud detection</h4><p>Flagging unusual card payments: see <a href="problems.html#imbalance">data imbalance</a>.</p></div>
+      </div>
+    </section>
+
+    <section id="check" class="chapter">
+      <h2><span class="chap">05</span>Quiz</h2>
+      <div class="quiz" id="qz"></div>
+      <p class="quiz-score" id="qz-score"></p>
+      <p class="prose" style="color:var(--muted);font-size:.9rem">This lesson follows the structure of Simplilearn’s video <a href="https://www.youtube.com/watch?v=bfmFfD2RIcg" target="_blank" rel="noopener">“Neural Network In 5 Minutes”</a>; the network, drawings and numbers here are our own.</p>
+      <a class="next-card" href="neuron.html">
+        <span class="next-eyebrow">Next · Part 1</span>
+        <span class="next-title">Neurons & layers in detail →</span>
+        <span class="next-text">Now slow down: what exactly does one neuron compute, and how many knobs does a real network have?</span>
+      </a>
+    </section>

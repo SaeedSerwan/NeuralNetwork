@@ -529,3 +529,53 @@ ol.road a:hover b { text-decoration: underline; }
 .codepanel .cp-row { display: flex; gap: .7rem; white-space: pre; }
 .codepanel .cp-note { margin: 0 0 .1rem 1.9rem; white-space: pre; }
 .codepanel .cp-note:empty { display: none; }
+
+/* ---------------------------------------------------- the network in 3D */
+.v3 { display: grid; grid-template-columns: 250px minmax(0, 1fr) 330px; grid-template-rows: minmax(480px, calc(100vh - 250px)) auto; background: #0e1016; color: #d9dee7; font-size: .86rem; }
+.v3 button { font: 500 .8rem var(--font); color: #e8ecf2; background: #1d222c; border: 1px solid #2f3644; border-radius: 6px; padding: .35rem .7rem; cursor: pointer; }
+.v3 button:hover { background: #272d39; }
+.v3 button.on { background: #ffd166; color: #111; border-color: #ffd166; }
+.v3 button.ghost { background: transparent; }
+.v3-left, .v3-right { padding: 1rem; overflow-y: auto; border-right: 1px solid #1f2430; }
+.v3-right { border-right: 0; border-left: 1px solid #1f2430; }
+.v3-title { font: 500 .7rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: #8b93a3; margin: 0 0 .6rem; }
+.v3-padbox canvas.drawpad { max-width: 218px; border: 1px solid #2f3644; }
+.v3-btns { display: flex; gap: .4rem; margin: .5rem 0 .9rem; }
+.v3-down { display: flex; gap: .7rem; align-items: center; color: #8b93a3; font-size: .78rem; }
+.v3-down .plot { width: 70px; flex: none; }
+.v3-guess { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; margin: 1rem 0; }
+.v3-guess > div { background: #161a22; border: 1px solid #262c38; border-radius: 8px; padding: .5rem .7rem; }
+.v3-guess span { display: block; font: .68rem var(--mono); color: #8b93a3; text-transform: uppercase; letter-spacing: .08em; }
+.v3-guess b { font: 600 2.2rem/1.1 var(--mono); color: #ffd166; }
+.v3-guess > div:last-child b { color: #9aa3b5; font-size: 1.6rem; }
+.v3-guess em { display: block; font: normal .75rem var(--mono); color: #8b93a3; }
+.v3-small { font: .72rem/1.5 var(--mono); color: #6b7383; }
+.v3-stage { position: relative; min-height: 0; }
+.v3-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: grab; touch-action: none; }
+.v3-stage canvas:active { cursor: grabbing; }
+.v3-help { position: absolute; left: 50%; bottom: .5rem; transform: translateX(-50%); margin: 0; font: .72rem var(--mono); color: #5d6575; pointer-events: none; }
+.v3-tip { position: absolute; pointer-events: none; background: rgba(20,24,32,.95); border: 1px solid #343c4b; border-radius: 6px; padding: .4rem .6rem; font: .76rem/1.45 var(--mono); color: #e8ecf2; }
+.v3-tip span { color: #6b7383; }
+#v3-ins h4 { margin: 0 0 .5rem; font-size: 1rem; color: #fff; }
+#v3-ins h5 { margin: .9rem 0 .3rem; font: 500 .7rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: #ffd166; }
+#v3-ins p { margin: .2rem 0; line-height: 1.55; color: #c3c9d4; }
+#v3-ins b { color: #fff; }
+.v3-hint { color: #8b93a3 !important; }
+.v3-rows { display: grid; gap: 2px; }
+.v3-row { position: relative; display: grid; grid-template-columns: 1fr auto 4.2rem; gap: .5rem; font: .74rem var(--mono); padding: .2rem .35rem; border-radius: 4px; overflow: hidden; }
+.v3-row i { position: absolute; left: 0; bottom: 0; height: 2px; }
+.v3-row .pos { color: #3ccf9b; text-align: right; } .v3-row .neg { color: #f05a5a; text-align: right; }
+.v3-more { font: .72rem var(--mono); color: #6b7383 !important; }
+.v3-out { font: 600 2rem var(--mono); color: #ffd166; }
+.v3-bottom { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: .6rem 1.4rem; align-items: center; padding: .8rem 1rem 1rem; border-top: 1px solid #1f2430; }
+.v3-group { display: flex; gap: .4rem; align-items: center; flex-wrap: wrap; color: #8b93a3; }
+.v3-group label { display: inline-flex; gap: .3rem; align-items: center; cursor: pointer; }
+.v3-labels { display: flex; gap: 2px; }
+.v3-labels button { padding: .3rem .5rem; font-family: var(--mono); }
+.v3-acc { width: 200px; }
+#v3-train-st { font: .74rem var(--mono); }
+#v3-train-st b { color: #ffd166; }
+.v3-nar { flex-basis: 100%; margin: .2rem 0 0; color: #c3c9d4; line-height: 1.6; font-size: .9rem; max-width: 1100px; }
+.v3-nar b { color: #fff; }
+body.dark3d .site-footer { margin-top: 0; }
+@media (max-width: 1000px) { .v3 { grid-template-columns: 1fr; grid-template-rows: auto 70vh auto auto; } .v3-right { border-left: 0; } }

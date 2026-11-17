@@ -6,6 +6,7 @@
 
   /* ------------------------------------------------------------ 40 threes */
   (function () {
+    if (!document.getElementById('th-grid')) return;
     const P = new UL.Plot('#th-grid', { w: 480, h: 300, pad: { l: 0, r: 0, t: 0, b: 0 } }), B = UL.pixPlot('#th-big', 280), cap = $('#th-cap'), cell = 60;
     let hi = 0;
     function draw() {
@@ -21,13 +22,14 @@
   })();
 
   /* ------------------------------------------------------------ real vs artificial neuron */
-  $$('#nm [data-p]').forEach((d) => {
+  UL.$$('#nm [data-p]').forEach((d) => {
     d.addEventListener('mouseenter', () => $$('#nm [data-p]').forEach((x) => x.classList.toggle('on', x.dataset.p === d.dataset.p)));
     d.addEventListener('mouseleave', () => $$('#nm [data-p]').forEach((x) => x.classList.remove('on')));
   });
 
   /* ------------------------------------------------------------ watch a network learn (full training cycle, animated) */
   (function () {
+    if (!document.getElementById('wl-net')) return;
     const sig = UL.sigmoid, f2 = (v) => UL.fmt(v, 2), f3 = (v) => UL.fmt(v, 3);
     const DATA = [[[0.9, 0.8], 1, 'dark, motion'], [[0.9, 0.1], 0, 'dark, no motion'], [[0.1, 0.8], 0, 'daylight, motion'], [[0.1, 0.1], 0, 'daylight, still']];
     const eta = 3;
@@ -75,17 +77,34 @@
       { title: 'Nudge every weight', text: () => `Gradient descent: w ← w − η · ∂C/∂w with η = ${eta}. Watch the lines: positive slopes shrink their weight, negative slopes grow it. Run this example again and the cost would be <b>${f3(R.Cafter)}</b> instead of ${f3(R.C)}. Then the next example comes in.`,
         run: async () => { phase(3); A.clearEdgeLabels(); await A.morphWeights([R.nW1, R.nW2], { ms: 900 }); }, show: () => { phase(3); A.setWeights([R.nW1, R.nW2], { max: 3 }); A.edgeLabels(0, (i, j) => ({ text: f2(R.nW1[j][i]), color: R.nW1[j][i] >= 0 ? '#1b8c5c' : '#d64045' })); A.edgeLabels(1, (i) => ({ text: f2(R.nW2[0][i]), color: R.nW2[0][i] >= 0 ? '#1b8c5c' : '#d64045' })); } },
     ];
+    const code = new UL.CodePanel('wl-code', [
+      'x, y = X[i], Y[i]                    # one example: x (2,), target y',
+      'a1 = sigmoid(W1 @ x + b1)            # (3,2) @ (2,) → (3,)',
+      'a2 = sigmoid(W2 @ a1 + b2)           # (1,3) @ (3,) → (1,)',
+      'C = ((a2 - y) ** 2).sum()            # how wrong?',
+      'd2 = 2 * (a2 - y) * a2 * (1 - a2)    # (1,)  backward pass',
+      'gW2 = np.outer(d2, a1)               # (1,3)',
+      'd1 = (W2.T @ d2) * a1 * (1 - a1)     # (3,)',
+      'gW1 = np.outer(d1, x)                # (3,2)',
+      'W1 -= eta * gW1; W2 -= eta * gW2     # nudge (biases too)',
+    ], { title: 'One training round in Python (NumPy)' });
+    const v3 = (a) => '[' + a.map((v) => UL.fmt(v, 2)).join(' ') + ']';
+    const LN = [0, 1, 2, 3, [4, 5], [6, 7], 8];
+    steps.forEach((s2, k) => { s2.line = LN[k]; });
+    steps[0].notes = () => ({ 0: `x = [${R.x.join(' ')}], y = ${R.y}` });
+    steps[1].notes = () => ({ 1: v3(R.a1) });
+    steps[2].notes = () => ({ 2: `[${f2(R.a2)}]` });
+    steps[3].notes = () => ({ 3: f3(R.C) });
+    steps[4].notes = () => ({ 4: `[${UL.fmt(R.d2, 3)}]`, 5: v3(R.gW2.map((g) => g)) });
+    steps[5].notes = () => ({ 6: v3(R.d1), 7: '3×2 slopes' });
+    steps[6].notes = () => ({ 8: `cost on this example: ${f3(R.C)} → ${f3(R.Cafter)}` });
     const commit = () => { W1 = R.nW1; b1 = R.nb1; W2 = R.nW2; b2 = R.nb2; if (ex === 3) { hist.push(avgCost()); round++; } ex = (ex + 1) % 4; R = compute(); };
     init();
-    const P = new UL.Player({ controls: 'wl-ctl', narration: 'wl-narr', progress: 'wl-bar', clock: A.clock, steps, base, loop: true, onLoop: commit, onReset: init, pause: 900,
+    const P = new UL.Player({ code, controls: 'wl-ctl', narration: 'wl-narr', progress: 'wl-bar', clock: A.clock, steps, base, loop: true, onLoop: commit, onReset: init, pause: 900,
       intro: 'Press <b>▶ Play</b> to watch one full round of learning, or <b>Next step</b> to go at your own pace. The weights start random.' });
     UL.$('#wl-ff').addEventListener('click', () => { P.pause(); if (P.k === steps.length - 1) commit(); for (let k = 0; k < 1200; k++) commit(); P.goto(-1); });
   })();
 
-  UL.quiz('qz', [
-    { q: 'Why do we not write if-statements to read handwritten digits?', o: ['Computers cannot compare numbers', 'Nobody can write exact rules that cover every way of writing a 3; learning from examples works better', 'It would be too fast', 'Digits are not numbers'], a: 1, why: 'No two 3s have the same pixels. The rules are too many and too fuzzy to write by hand.' },
-    { q: 'In an artificial neuron, what plays the role of the synapse strength?', o: ['The bias', 'The weight', 'The activation function', 'The layer'], a: 1, why: 'Each connection has a weight, like the strength of a synapse; learning changes the weights.' },
-    { q: 'Put the learning loop in order.', o: ['Nudge, guess, measure, direction', 'Guess, measure the cost, find the gradient, nudge the weights', 'Measure, nudge, guess, direction', 'Guess, nudge, measure, direction'], a: 1, why: 'Forward pass → cost → gradient (backpropagation) → gradient descent step. Repeat.' },
-  ]);
+  
   UL.start();
 })();

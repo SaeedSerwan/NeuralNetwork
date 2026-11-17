@@ -114,7 +114,7 @@
     { title: 'Backpropagation', text: () => `The error is sent <b>backwards</b> through the network (orange). Each weight learns how much it contributed to the error and gets a small correction in the direction that lowers it. Watch the lines change: after one correction the error falls from ${R.err.toFixed(3)} to <b>${R.err2.toFixed(3)}</b>.`,
       run: async () => { A.clearRings(); await A.pulse(1, 'back', { size: (i, j) => Math.min(1, Math.abs(R.g1[j][i]) * 20) + 0.2 }); await A.pulse(0, 'back', { size: (i, j) => Math.min(1, Math.abs(R.g0[j][i]) * 200) + 0.2 }); await A.morphWeights([R.W0n, R.W1n], { ms: 900 }); },
       show: () => { A.clearRings(); A.setWeights([R.W0n, R.W1n], { max: A.wmax }); } },
-    { title: 'Repeat', text: () => 'Forward propagation, compare, backpropagation: repeated for thousands of examples, many times over. The weights slowly settle on values that recognise shapes. That is <b>training</b>. Try it below, then see every part in depth in Parts 1 and 2.' },
+    { title: 'Repeat', text: () => 'Forward propagation, compare, backpropagation: repeated for thousands of examples, many times over. The weights slowly settle on values that recognise shapes. That is <b>training</b>. It is exactly the loop you watched in chapter 6. Try it once more below.' },
   ];
   function refresh() { R = computeR(); if (player) player.goto(player.k); }
   function stepDraw() { if (!ready) return; refresh(); }

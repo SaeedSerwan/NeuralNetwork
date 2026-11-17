@@ -224,7 +224,7 @@ def md_inline(text):
 NEXT = {
     "network": ("code-training.html", "Next notebook", "Training in Python →", "Write backpropagation by hand and train the network to about 95% accuracy."),
     "training": ("code-problems.html", "Next notebook", "Filters & problems in Python →", "Convolution by hand, the fraud experiment, vanishing and exploding gradients."),
-    "problems": ("index.html", "Back to the start", "← Overview", "Revisit the interactive lessons: neurons, learning, the digit network, the playground, types and problems."),
+    "problems": ("index.html", "Back to the start", "← Chapter 1", "Revisit the lecture from the beginning: ten chapters, one idea at a time."),
 }
 
 

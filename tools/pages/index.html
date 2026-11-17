@@ -1,19 +1,18 @@
     <section class="hero">
-      <p class="eyebrow">CSIT843A · Lecture 6 · Deep learning and types of neural networks</p>
-      <h1>How a network <em>learns to see.</em></h1>
-      <p class="lead">
-        An interactive companion to the lecture. Build a neuron, count the knobs of a real network, roll a ball down a cost landscape,
-        draw a digit for a network to read, train it yourself, and see why training sometimes fails. Hover any <span class="kw-demo">underlined term</span> or formula for an explanation.
-      </p>
+      <p class="eyebrow">CSIT843A · Lecture 6 · Chapter 1 of 10</p>
+      <h1>Why neural networks? <em>Learning instead of rules.</em></h1>
+      <p class="lead">Some problems are easy for people and nearly impossible to program by hand. This lecture shows how a neural network solves them by learning from examples, built up one idea at a time over ten short chapters. Hover any <span class="kw-demo">underlined term</span> or formula for an explanation.</p>
+      <div class="recap">
+        <div><span class="k">So far</span><p>Earlier lectures: models such as linear regression that learn a few numbers from data.</p></div>
+        <div><span class="k">In this chapter</span><p>Why some tasks need learning, where the idea of a neural network comes from, and the four-step loop that every later chapter fills in.</p></div>
+      </div>
       <div class="learn-grid">
-        <div><span class="num">01</span>Explain what a neuron, a weight, a bias and a layer are</div>
-        <div><span class="num">02</span>Compute a cost and a gradient descent step</div>
-        <div><span class="num">03</span>Describe backpropagation in words</div>
-        <div><span class="num">04</span>Choose MLP, CNN, RNN, GAN or transformer for a problem</div>
-        <div><span class="num">05</span>Diagnose data imbalance and vanishing or exploding gradients</div>
+        <div><span class="num">01</span>Explain why reading handwriting cannot be done with if-statements</div>
+        <div><span class="num">02</span>Name the parts of a real neuron that artificial neurons copy</div>
+        <div><span class="num">03</span>State the four steps of the learning loop</div>
+        <div><span class="num">04</span>See the plan of the whole lecture</div>
       </div>
     </section>
-
     <section id="threes" class="chapter">
       <h2><span class="chap">01</span>Your brain reads these without effort</h2>
       <p>Here are 40 handwritten 3s from the MNIST test set. Every one is a 3, yet no two have the same pixels. Now write the program: the input is a 28 × 28 grid of pixel values, the output is one digit from 0 to 9. Which if-statements would you write?</p>
@@ -30,7 +29,6 @@
       </table></div>
       <p class="takeaway"><b>Key idea:</b> hard to write by hand, easy to learn from 60,000 examples.</p>
     </section>
-
     <section id="nature" class="chapter">
       <h2><span class="chap">02</span>Engineers copy clever designs from nature</h2>
       <div class="table-wrap"><table class="clean">
@@ -52,7 +50,6 @@
         <div data-p="3">learns by changing connection strengths</div><div data-p="3">learns by changing the weights</div>
       </div>
     </section>
-
     <section id="loop" class="chapter">
       <h2><span class="chap">03</span>The whole idea first: how a network learns</h2>
       <p>Before any detail, the big picture. A network learns like a child learning to read: guess, get corrected, adjust. At the start all weights are random, so the guesses are wrong. Each round makes the weights a little better. Every page of this site is one piece of this loop.</p>
@@ -62,41 +59,27 @@
         <div><span class="n">step 3</span><b>Find the direction</b>which way should each weight move? (the gradient)</div>
         <div><span class="n">step 4</span><b>Nudge</b>move every weight a little that way (gradient descent)</div>
       </div>
-      <div class="lab">
-        <div class="lab-head"><p class="lab-title">Watch a network learn: should the street light turn on?</p><p class="lab-hint">Two sensors, three hidden neurons, one output. The light should turn on only when it is <b>dark</b> and there is <b>motion</b>.</p></div>
-        <div class="controls" id="wl-ctl"><button class="btn ghost small" id="wl-ff">Fast-forward 300 rounds</button><span class="status" id="wl-status"></span></div>
-        <div class="stepbar" id="wl-bar"></div>
-        <div class="lab-body"><div class="lab-grid" style="grid-template-columns:minmax(0,1.45fr) minmax(0,1fr)">
-          <div><div id="wl-net"></div><div class="narr" id="wl-narr"></div></div>
-          <div><p class="kicker">The four training examples</p><table class="clean mono" id="wl-table"></table><div class="plot" id="wl-loss" style="margin-top:1rem"></div><p class="plot-cap"><b>Average cost</b> over the four examples, per round</p></div>
-        </div></div>
-        <div class="lab-foot"><b>Watch for:</b> blue dots carry numbers forward; orange dots carry the error back; then every line gets a little thicker or thinner. Green lines are positive weights, red negative. After a few hundred rounds the table on the right is right for all four cases.</div>
-      </div>
-      <p>Our digit network does exactly this, with 13,002 weights instead of 13. Part 1 is what is inside the network (step 1); Part 2 is how the loop works (steps 2–4).</p>
+      <p>Keep this loop in mind: every chapter is one piece of it. Chapters 2 and 3 open up step 1 (what is inside the network). Chapters 4 and 5 explain steps 2–4. In chapter 6 you will watch the whole loop run.</p>
     </section>
-
-    <section id="map" class="chapter">
-      <h2><span class="chap">04</span>The lessons</h2>
-      <p>Session 1: Parts 1–2. Session 2: Parts 3–4. The <a href="shapes.html">shapes lesson</a> is a five-minute warm-up that tells the whole story once, quickly.</p>
-      <div class="cards">
-        <a class="card" href="shapes.html"><span class="n">warm-up · 5 minutes</span><h4>Circle, square or triangle?</h4><p>The whole story in one example: inputs, weights, bias, activation, forward and back propagation.</p></a>
-        <a class="card" href="neuron.html"><span class="n">part 1</span><h4>Neurons & layers</h4><p>What does a neuron hold, and what does a layer compute? Count the 13,002 knobs.</p></a>
-        <a class="card" href="learning.html"><span class="n">part 2</span><h4>How it learns</h4><p>Cost function, gradient descent and backpropagation, number by number.</p></a>
-        <a class="card" href="digits.html"><span class="n">parts 1–2 live</span><h4>The digit network</h4><p>Draw a digit, look inside, and train the network in your browser.</p></a>
-        <a class="card" href="playground.html"><span class="n">explore</span><h4>Playground</h4><p>Build a small network and watch its decision boundary bend.</p></a>
-        <a class="card" href="types.html"><span class="n">part 3</span><h4>Types of networks</h4><p>MLP, CNN, RNN, GAN and transformers: what each is for.</p></a>
-        <a class="card" href="problems.html"><span class="n">part 4</span><h4>Training problems</h4><p>Data imbalance, vanishing and exploding gradients.</p></a>
-        <a class="card" href="code-network.html"><span class="n">practice</span><h4>Python notebooks</h4><p>Build, train and diagnose networks in NumPy, line by line, runnable in Colab.</p></a>
-      </div>
+    <section id="roadmap" class="chapter">
+      <h2><span class="chap">00</span>The road ahead</h2>
+      <p>The lecture builds one idea at a time. Each chapter uses only what came before it.</p>
+      <ol class="road">
+        <li><a href="index.html"><b>Why neural networks?</b></a><span>Some tasks have no rules we can write. Copy the brain instead.</span></li>
+        <li><a href="neuron.html"><b>One neuron</b></a><span>Inputs × weights, add a bias, squish. The smallest piece.</span></li>
+        <li><a href="network.html"><b>From neurons to a network</b></a><span>Many neurons in layers: the 784 → 16 → 16 → 10 digit reader and its 13,002 knobs.</span></li>
+        <li><a href="learning.html"><b>Measuring mistakes, rolling downhill</b></a><span>The cost says how wrong; gradient descent says which way to turn each knob.</span></li>
+        <li><a href="backprop.html"><b>Backpropagation</b></a><span>How the network finds the slope of every knob: blame flows backwards.</span></li>
+        <li><a href="training.html"><b>Training: the whole loop</b></a><span>Put chapters 2–5 together and watch networks learn, then test them.</span></li>
+        <li><a href="shapes.html"><b>Recap in five minutes</b></a><span>The whole story once more, on circles, squares and triangles.</span></li>
+        <li><a href="playground.html"><b>Playground</b></a><span>Experiment: layers, activations, learning rates, overfitting.</span></li>
+        <li><a href="types.html"><b>Types of networks</b></a><span>Same neurons, different wiring: CNN, RNN, GAN, transformers.</span></li>
+        <li><a href="problems.html"><b>Training problems</b></a><span>When training fails: imbalance, vanishing and exploding gradients.</span></li>
+      </ol>
+      <p>Then practise in Python with three <a href="code-network.html">notebooks</a>.</p>
     </section>
-
     <section id="check" class="chapter">
-      <h2><span class="chap">05</span>Check yourself</h2>
+      <h2><span class="chap">00</span>Check yourself</h2>
       <div class="quiz" id="qz"></div>
       <p class="quiz-score" id="qz-score"></p>
-      <a class="next-card" href="shapes.html">
-        <span class="next-eyebrow">Start here</span>
-        <span class="next-title">Circle, square or triangle? →</span>
-        <span class="next-text">A five-minute tour of how a neural network works, then Part 1.</span>
-      </a>
     </section>

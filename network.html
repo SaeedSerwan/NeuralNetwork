@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Neural Network Lab · From neurons to a network</title>
+  <meta name="description" content="Lecture 6, chapter 3: layers, the 784-16-16-10 digit network, counting parameters, a = σ(Wa + b) and a live forward pass.">
+  <meta name="author" content="Eng. Saeed Serwan Abdulsattar">
+  <meta property="og:title" content="Neural Network Lab · From neurons to a network">
+  <meta property="og:description" content="Lecture 6, chapter 3: layers, the 784-16-16-10 digit network, counting parameters, a = σ(Wa + b) and a live forward pass.">
+  <meta property="og:image" content="assets/img/favicon-512.png">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="icon" type="image/svg+xml" href="assets/img/utb-logo.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32.png">
+  <link rel="apple-touch-icon" href="assets/img/favicon-180.png">
+  <link rel="stylesheet" href="assets/vendor/katex/katex.min.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="network">
+
+<header class="site-header">
+  <a class="brand" href="index.html">
+    <img class="brand-logo" src="assets/img/utb-logo.svg" alt="University of Technology Bahrain logo" onerror="this.remove()">
+    <span class="brand-title">Neural Network Lab</span>
+  </a>
+  <nav class="page-tabs" aria-label="Chapters">
+    <a href="index.html">1 Why</a>
+    <a href="neuron.html">2 Neuron</a>
+    <a href="network.html" class="active" aria-current="page">3 Network</a>
+    <a href="learning.html">4 Cost</a>
+    <a href="backprop.html">5 Backprop</a>
+    <a href="training.html">6 Training</a>
+    <a href="shapes.html">7 Recap</a>
+    <a href="playground.html">8 Playground</a>
+    <a href="types.html">9 Types</a>
+    <a href="problems.html">10 Problems</a>
+    <a href="code-network.html">Notebooks</a>
+  </nav>
+  <nav class="top-links">
+    <a href="https://github.com/SaeedSerwan/NeuralNetwork" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>GitHub</a>
+  </nav>
+</header>
+
+<div class="layout">
+  <aside class="toc" aria-label="Contents">
+    <p class="toc-title">Lecture 6 · chapters</p>
+    <ol class="chaplist">
+      <li><a href="index.html">Why neural networks?</a></li>
+      <li><a href="neuron.html">One neuron</a></li>
+      <li class="cur"><a href="network.html">From neurons to a network</a>
+        <ol>
+        <li><a href="#network">The network: 784 → 16 → 16 → 10</a></li>
+        <li><a href="#hope">Why layers? The hope</a></li>
+        <li><a href="#count">Count the knobs</a></li>
+        <li><a href="#matrix">The compact way: one layer = one matrix multiply</a></li>
+        <li><a href="#sizes">Follow the sizes: the forward pass in code</a></li>
+        <li><a href="#nonlinear">Sigmoid or ReLU, and why not nothing?</a></li>
+        <li><a href="#draw">The forward pass, live: draw a digit</a></li>
+        <li><a href="#ex1b">Exercise: layers by hand</a></li>
+        <li><a href="#check">Check yourself</a></li>
+        </ol>
+      </li>
+      <li><a href="learning.html">Measuring mistakes, rolling downhill</a></li>
+      <li><a href="backprop.html">Backpropagation</a></li>
+      <li><a href="training.html">Training: the whole loop</a></li>
+      <li><a href="shapes.html">Recap in five minutes</a></li>
+      <li><a href="playground.html">Playground</a></li>
+      <li><a href="types.html">Types of networks</a></li>
+      <li><a href="problems.html">Training problems</a></li>
+    </ol>
+  </aside>
+
+  <main>
+    <section class="hero">
+      <p class="eyebrow">CSIT843A · Lecture 6 · Chapter 3 of 10</p>
+      <h1>From neurons <em>to a network.</em></h1>
+      <p class="lead">One neuron answers one small question. Put neurons side by side and you get a layer; stack layers and you get a network that can read handwritten digits. This chapter builds that network and counts every knob in it.</p>
+      <div class="recap">
+        <div><span class="k">So far</span><p>One neuron: inputs × weights, plus a bias, squished by σ (chapter 2).</p></div>
+        <div><span class="k">In this chapter</span><p>Neurons arranged in layers, why layers might help, how many weights and biases that needs, a whole layer written as one matrix multiplication, why the squish matters, and a live forward pass.</p></div>
+      </div>
+      <div class="learn-grid">
+        <div><span class="num">01</span>Describe the input, hidden and output layers</div>
+        <div><span class="num">02</span>Count the parameters of a network</div>
+        <div><span class="num">03</span>Write a layer as a = σ(Wa + b)</div>
+        <div><span class="num">04</span>Explain why activation functions are needed</div>
+        <div><span class="num">05</span>Follow a forward pass from pixels to answer</div>
+      </div>
+    </section>
+    <section id="network" class="chapter">
+      <h2><span class="chap">01</span>The network: 784 → 16 → 16 → 10</h2>
+      <p class="bridge">In chapter 2 one neuron took a few inputs and produced one number. A single neuron can only answer one simple question. To read a digit we need many neurons, working in layers.</p>
+      <p>Our network has four <strong>layers</strong>. The 784 pixel neurons come first. The last layer has 10 neurons, one per digit: the brightest one is the answer. In between are two <strong>hidden layers</strong> of 16 neurons each. Sixteen is an arbitrary choice; you will try other sizes in the <a href="playground.html">playground</a>. The activations of one layer decide the activations of the next.</p>
+      <div class="lab">
+        <div class="lab-head"><p class="lab-title">Hover a layer or a neuron</p><p class="lab-hint">Only 22 of the 784 input neurons are drawn.</p></div>
+        <div class="lab-body"><div class="lab-grid"><div id="net-svg"></div><div class="calc" id="net-info" style="grid-template-columns:1fr"></div></div></div>
+      </div>
+      <p>At the end of this chapter you will draw a digit and watch this network read it, with every activation lighting up.</p>
+    </section>
+    <section id="hope" class="chapter">
+      <h2><span class="chap">02</span>Why layers? The hope</h2>
+      <p>Why put layers in the middle at all? The hope is that each layer builds slightly bigger pieces out of the layer below. A 9 is a loop up top and a line on the right; an 8 is two loops. So maybe one neuron in the last hidden layer lights up for “loop up top”, another for “line on the right”. And a loop is built from small edges, so maybe the layer before finds edges.</p>
+      <div class="lab">
+        <div class="lab-head"><p class="lab-title">Edges → parts → digits</p><p class="lab-hint">Hover a digit to see the parts it needs, or a part to see its edges.</p></div>
+        <div class="lab-body"><div id="hope-svg"></div></div>
+        <div class="lab-foot">The same idea works for speech: sounds → syllables → words → sentences. Whether the network really learns tidy pieces like these is a different question: you will check what it actually learned in <a href="training.html#learned">chapter 6</a>.</div>
+      </div>
+    </section>
+    <section id="count" class="chapter">
+      <h2><span class="chap">03</span>Count the knobs</h2>
+      <p>Every weight and every bias is a knob you can turn. A layer of 16 neurons that reads 784 inputs needs 784 × 16 weights and 16 biases. <strong>Learning</strong> means turning all of these knobs until the network reads digits correctly. Imagine setting 13,002 of them by hand: that is why we let the computer do it.</p>
+      <div class="lab">
+        <div class="lab-head"><p class="lab-title">Parameter counter</p><p class="lab-hint">Type layer sizes separated by commas, or use a preset.</p></div>
+        <div class="controls">
+          <input class="txt" id="ct-in" value="784, 16, 16, 10" aria-label="Layer sizes">
+          <div class="btn-row"><button class="btn ghost small" data-p="784, 16, 16, 10">784-16-16-10</button><button class="btn ghost small" data-p="784, 32, 10">784-32-10</button><button class="btn ghost small" data-p="784, 128, 64, 10">784-128-64-10</button><button class="btn ghost small" data-p="4, 3, 1">4-3-1</button></div>
+        </div>
+        <div class="lab-body"><div class="table-wrap" style="margin:0"><table class="clean mono" id="ct-table"></table></div></div>
+        <div class="lab-foot" id="ct-foot"></div>
+      </div>
+    </section>
+    <section id="matrix" class="chapter">
+      <h2><span class="chap">04</span>The compact way: one layer = one matrix multiply</h2>
+      <p>Writing 784 products for each of 16 neurons is long. Put the activations of a layer in a column \(a^{(0)}\), and the weights in a <strong>matrix</strong> W whose row k holds the weights of neuron k. Then one multiplication computes every weighted sum at once:</p>
+      <div class="formula">\[ a^{(1)} = \sigma\big(W a^{(0)} + b\big) \]</div>
+      <div class="lab">
+        <div class="lab-head"><p class="lab-title">A small layer: 4 inputs, 3 neurons</p><p class="lab-hint">Hover a neuron on the right to see the row and the column it uses.</p></div>
+        <div class="controls"><button class="btn ghost small" id="mx-new">New random numbers</button></div>
+        <div class="lab-body"><div class="mateq" id="mx"></div><div class="calc" id="mx-calc" style="margin-top:1rem"></div></div>
+        <div class="lab-foot">Libraries such as PyTorch and NumPy are built for exactly this operation, and GPUs compute it extremely fast. That is a big reason why deep learning became practical.</div>
+      </div>
+    </section>
+    <section id="sizes" class="chapter">
+      <h2><span class="chap">05</span>Follow the sizes: the forward pass in code</h2>
+      <p class="bridge">The matrix form above is exactly how the network is written in code. Real code also pushes many pictures through at once, a batch of B images, so every array gets an extra dimension of size B.</p>
+      <p>Each layer is one line of NumPy: multiply the activations by the transposed weight matrix, add the bias, squish. Watch how the shape of the data changes from layer to layer: 784 numbers per picture shrink to 16, then 16, then 10 scores. The middle dimension of a multiplication must match, and it disappears.</p>
+      <div class="lab">
+        <div class="lab-head"><p class="lab-title">Array shapes through the network</p><p class="lab-hint">Change the layer sizes or the batch size, then press ▶ Play. Blocks are drawn to a log scale so that 784 and 10 both fit.</p></div>
+        <div class="controls"><label class="ctl">layers <input class="txt" id="sz-in" value="784, 16, 16, 10" style="width:150px" aria-label="Layer sizes"></label><span class="ctl">batch B</span><div class="seg" id="sz-b"><button data-v="1">1</button><button data-v="32" class="on">32</button><button data-v="256">256</button></div></div>
+        <div class="controls" id="sz-ctl"></div>
+        <div class="stepbar" id="sz-bar"></div>
+        <div class="lab-body">
+          <div id="sz-strip"></div>
+          <div class="lab-grid" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);margin-top:.6rem"><div id="sz-mm"></div><div><div class="narr" id="sz-narr" style="margin-top:0"></div></div></div>
+          <div id="sz-code"></div>
+        </div>
+        <div class="lab-foot"><b>Watch for:</b> in <code>A @ W.T</code> the inner sizes must be equal (784 and 784); the result keeps the outer sizes (B and 16). The bias has one number per neuron and is added to every row of the batch (“broadcasting”).</div>
+      </div>
+    </section>
+    <section id="nonlinear" class="chapter">
+      <h2><span class="chap">06</span>Sigmoid or ReLU, and why not nothing?</h2>
+      <p>The sigmoid was the early choice, inspired by real neurons being on or off; it is still good at the output when we want a probability. Inside modern networks the default is <strong>ReLU</strong>, \(\mathrm{ReLU}(z) = \max(0, z)\), because deep networks train much more easily with it. But why use any activation at all?</p>
+      <div class="lab">
+        <div class="lab-head"><p class="lab-title">A 1 → 8 → 8 → 1 network tries to fit a curve</p><p class="lab-hint">Pick a target and an activation, then train. Without an activation the network can only draw a straight line.</p></div>
+        <div class="controls">
+          <div class="seg" id="nl-t"><button data-v="sin" class="on">wave</button><button data-v="abs">V shape</button><button data-v="step">step</button></div>
+          <div class="seg" id="nl-a"><button data-v="linear" class="on">none</button><button data-v="relu">ReLU</button><button data-v="sigmoid">sigmoid</button><button data-v="tanh">tanh</button></div>
+          <button class="btn" id="nl-go">Train</button><button class="btn ghost small" id="nl-reset">Reset</button>
+          <span class="status" id="nl-status"></span>
+        </div>
+        <div class="lab-body"><div class="plot" id="nl-plot"></div></div>
+      </div>
+      <p class="takeaway"><b>Key idea:</b> without an activation function, stacked layers collapse into one linear model: straight lines on straight lines are still straight.</p>
+    </section>
+    <section id="draw" class="chapter">
+      <h2><span class="chap">07</span>The forward pass, live: draw a digit</h2>
+      <p class="bridge">Now put the whole network to work. Below is the 784 → 16 → 16 → 10 network with weights that have already been learned (how they were found is the subject of chapters 4–6). For now, just follow the forward pass.</p>
+      <p>Draw in the black box. Your drawing is cropped, scaled to 20 × 20 pixels and centred in a 28 × 28 frame, just like the MNIST digits the network learned from. When you lift the pen, watch the 784 numbers flow through the network from left to right: each layer is \(a^{(1)} = \sigma\big(W a^{(0)} + b\big)\). Darker circles are more active neurons; coloured lines show the strongest contributions (green pushes up, red pushes down).</p>
+      <div class="lab">
+        <div class="lab-head"><p class="lab-title">The forward pass, live</p><p class="lab-hint">Hover a hidden neuron to see what it looks for.</p></div>
+        <div class="controls">
+          <button class="btn ghost small" id="dr-clear">Clear</button>
+          <button class="btn ghost small" id="dr-rand">A random test digit</button>
+        </div>
+        <div class="lab-body">
+          <div class="lab-grid" style="grid-template-columns:minmax(0,220px) minmax(0,1fr) minmax(0,190px)">
+            <div class="pad-wrap"><div id="dr-pad" style="width:100%"></div><div class="plot" id="dr-small" style="max-width:112px"></div><p class="plot-cap" style="text-align:left">What the network sees (28 × 28)</p></div>
+            <div><div class="plot" id="dr-net"></div></div>
+            <div><p class="kicker">Output layer</p><div class="outbars" id="dr-out"></div><div class="calc" id="dr-ans" style="margin-top:.8rem"></div></div>
+          </div>
+        </div>
+        <div class="lab-foot" id="dr-foot">Hover a neuron of hidden layer 1 to see its 784 weights as a picture.</div>
+      </div>
+    </section>
+    <section id="ex1b" class="chapter">
+      <h2><span class="chap">08</span>Exercise: layers by hand</h2>
+      <p>Five minutes, in pairs.</p>
+      <ol class="ex-list" id="ex1b-list"></ol>
+    </section>
+    <section id="check" class="chapter">
+      <h2><span class="chap">09</span>Check yourself</h2>
+      <div class="quiz" id="qz"></div>
+      <p class="quiz-score" id="qz-score"></p>
+    </section>
+    <nav class="chapnav">
+      <a class="prev" href="neuron.html"><span class="next-eyebrow">← Chapter 2</span><span class="next-title">One neuron</span></a>
+      <a class="next-card" href="learning.html"><span class="next-eyebrow">Next · Chapter 4</span><span class="next-title">Measuring mistakes, rolling downhill →</span><span class="next-text">The network has 13,002 knobs. How wrong is it, and which way should each knob turn?</span></a>
+    </nav>
+  </main>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <img class="footer-logo" src="assets/img/utb-logo.svg" alt="" onerror="this.remove()">
+    <div>
+      <p><strong>Neural Network Lab</strong>: an open, interactive companion to <em>CSIT843A Lecture 6: Deep Learning and Types of Neural Networks</em>.</p>
+      <p>Created by <strong>Eng. Saeed Serwan Abdulsattar</strong>, College of Computer Studies, University of Technology Bahrain.</p>
+      <p><a href="https://github.com/SaeedSerwan/NeuralNetwork" target="_blank" rel="noopener">Source on GitHub</a> · MIT License</p>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/vendor/katex/katex.min.js"></script>
+<script src="assets/vendor/katex/auto-render.min.js"></script>
+<script src="assets/js/lib.js"></script>
+<script src="assets/js/anim.js"></script>
+<script src="assets/js/tips.js"></script>
+<script src="assets/js/data/samples.js"></script>
+<script src="assets/js/data/net.js"></script>
+<script src="assets/js/digits.js"></script>
+<script src="assets/js/neuron.js"></script>
+<script src="assets/js/quizzes.js"></script>
+</body>
+</html>

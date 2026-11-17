@@ -271,9 +271,8 @@
     if (!('IntersectionObserver' in window)) { fn(true); return; }
     new IntersectionObserver((es) => es.forEach((e) => fn(e.isIntersecting)), { threshold: 0.05 }).observe(el);
   };
-  UL.start = function () {
-    UL.tocSpy();
-    UL.math();
+  UL.start = function () { // safe to call from several scripts on one page
+    clearTimeout(UL._st); UL._st = setTimeout(() => { if (UL._started) return; UL._started = true; UL.tocSpy(); UL.math(); }, 0);
   };
   UL.fmt = (v, d = 2) => (Math.abs(v) < 0.5 * 10 ** -d ? '0' : v.toFixed(d)).replace('-', '−');
 

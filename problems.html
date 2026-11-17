@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Neural Network Lab · Data imbalance, vanishing and exploding gradients</title>
-  <meta name="description" content="Why 98% accuracy can mean nothing, how class weights and SMOTE help, and why gradients vanish or explode in deep networks, all interactive.">
+  <title>Neural Network Lab · Training problems: imbalance, vanishing and exploding gradients</title>
+  <meta name="description" content="Lecture 6, chapter 10: data imbalance, vanishing and exploding gradients, and a summary of the lecture.">
   <meta name="author" content="Eng. Saeed Serwan Abdulsattar">
-  <meta property="og:title" content="Neural Network Lab · Data imbalance, vanishing and exploding gradients">
-  <meta property="og:description" content="Why 98% accuracy can mean nothing, how class weights and SMOTE help, and why gradients vanish or explode in deep networks, all interactive.">
+  <meta property="og:title" content="Neural Network Lab · Training problems: imbalance, vanishing and exploding gradients">
+  <meta property="og:description" content="Lecture 6, chapter 10: data imbalance, vanishing and exploding gradients, and a summary of the lecture.">
   <meta property="og:image" content="assets/img/favicon-512.png">
   <meta name="theme-color" content="#ffffff">
   <link rel="icon" type="image/svg+xml" href="assets/img/utb-logo.svg">
@@ -16,25 +16,25 @@
   <link rel="stylesheet" href="assets/vendor/katex/katex.min.css">
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body>
+<body data-page="problems">
 
 <header class="site-header">
   <a class="brand" href="index.html">
     <img class="brand-logo" src="assets/img/utb-logo.svg" alt="University of Technology Bahrain logo" onerror="this.remove()">
     <span class="brand-title">Neural Network Lab</span>
   </a>
-  <nav class="page-tabs" aria-label="Lessons">
-    <a href="index.html">Overview</a>
-    <a href="shapes.html">Shapes in 5 minutes</a>
-    <a href="neuron.html">Neurons & layers</a>
-    <a href="learning.html">How it learns</a>
-    <a href="digits.html">The digit network</a>
-    <a href="playground.html">Playground</a>
-    <a href="types.html">Types of networks</a>
-    <a href="problems.html" class="active" aria-current="page">Training problems</a>
-    <a href="code-network.html">A network in Python</a>
-    <a href="code-training.html">Training in Python</a>
-    <a href="code-problems.html">Filters & problems in Python</a>
+  <nav class="page-tabs" aria-label="Chapters">
+    <a href="index.html">1 Why</a>
+    <a href="neuron.html">2 Neuron</a>
+    <a href="network.html">3 Network</a>
+    <a href="learning.html">4 Cost</a>
+    <a href="backprop.html">5 Backprop</a>
+    <a href="training.html">6 Training</a>
+    <a href="shapes.html">7 Recap</a>
+    <a href="playground.html">8 Playground</a>
+    <a href="types.html">9 Types</a>
+    <a href="problems.html" class="active" aria-current="page">10 Problems</a>
+    <a href="code-network.html">Notebooks</a>
   </nav>
   <nav class="top-links">
     <a href="https://github.com/SaeedSerwan/NeuralNetwork" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>GitHub</a>
@@ -43,26 +43,40 @@
 
 <div class="layout">
   <aside class="toc" aria-label="Contents">
-    <p class="toc-title">Training problems</p>
-    <ol>
-      <li><a href="#imbalance">Data imbalance: when 98% accuracy means nothing</a></li>
-      <li><a href="#smote">Fixing imbalance: resample, reweight, measure</a></li>
-      <li><a href="#vanish">Vanishing gradients</a></li>
-      <li><a href="#explode">Exploding gradients</a></li>
-      <li><a href="#ex4">Exercise 4: diagnose the training problem</a></li>
-      <li><a href="#summary">Summary of the lecture</a></li>
-      <li><a href="#check">Check yourself</a></li>
+    <p class="toc-title">Lecture 6 · chapters</p>
+    <ol class="chaplist">
+      <li><a href="index.html">Why neural networks?</a></li>
+      <li><a href="neuron.html">One neuron</a></li>
+      <li><a href="network.html">From neurons to a network</a></li>
+      <li><a href="learning.html">Measuring mistakes, rolling downhill</a></li>
+      <li><a href="backprop.html">Backpropagation</a></li>
+      <li><a href="training.html">Training: the whole loop</a></li>
+      <li><a href="shapes.html">Recap in five minutes</a></li>
+      <li><a href="playground.html">Playground</a></li>
+      <li><a href="types.html">Types of networks</a></li>
+      <li class="cur"><a href="problems.html">Training problems</a>
+        <ol>
+        <li><a href="#imbalance">Data imbalance: when 98% accuracy means nothing</a></li>
+        <li><a href="#smote">Fixing imbalance: resample, reweight, measure</a></li>
+        <li><a href="#vanish">Vanishing gradients</a></li>
+        <li><a href="#explode">Exploding gradients</a></li>
+        <li><a href="#ex4">Exercise 4: diagnose the training problem</a></li>
+        <li><a href="#summary">Summary of the lecture</a></li>
+        <li><a href="#check">Check yourself</a></li>
+        </ol>
+      </li>
     </ol>
   </aside>
 
   <main>
     <section class="hero">
-      <p class="eyebrow">CSIT843A · Lecture 6 · Part 4</p>
+      <p class="eyebrow">CSIT843A · Lecture 6 · Chapter 10 of 10</p>
       <h1>When training <em>goes wrong.</em></h1>
-      <p class="lead">
-        Three classic problems: a model that is 98% accurate and useless, a deep network whose first layers never learn,
-        and a loss that suddenly becomes NaN. For each one: the symptom, the cause and the fix, and an experiment you can run.
-      </p>
+      <p class="lead">Three classic problems: a model that is 98% accurate and useless, a deep network whose first layers never learn, and a loss that suddenly becomes NaN. For each one: the symptom, the cause and the fix, and an experiment you can run.</p>
+      <div class="recap">
+        <div><span class="k">So far</span><p>The whole training loop (chapters 2–6) and the types of networks (chapter 9).</p></div>
+        <div><span class="k">In this chapter</span><p>Data imbalance and how to fix it; why gradients vanish or explode in deep networks and RNNs; a summary of the lecture.</p></div>
+      </div>
       <div class="learn-grid">
         <div><span class="num">01</span>Explain why accuracy hides a rare class</div>
         <div><span class="num">02</span>Use recall, precision and the threshold</div>
@@ -71,9 +85,9 @@
         <div><span class="num">05</span>Explain exploding gradients and clipping</div>
       </div>
     </section>
-
     <section id="imbalance" class="chapter">
       <h2><span class="chap">01</span>Data imbalance: when 98% accuracy means nothing</h2>
+      <p class="bridge">Training does not always work. The three problems in this chapter each break one piece from earlier: imbalance breaks the cost (chapter 4), vanishing and exploding gradients break backpropagation (chapter 5).</p>
       <p>MNIST is balanced: about 10% of each digit. Fraud data is not. Below are 10,000 simulated card payments, 2% of them fraud; 3,000 are held out for testing. A model that simply says “legitimate” every time is 98% accurate and catches no fraud at all. Train a logistic regression (one sigmoid neuron) on the data as it is: the cost function is dominated by the 98%, so the model learns that “legitimate” is almost always right.</p>
       <div class="lab">
         <div class="lab-head"><p class="lab-title">Catch the fraud</p><p class="lab-hint">Pick a strategy, then move the threshold. Red crosses: fraud. Grey dots: a sample of the legitimate payments.</p></div>
@@ -88,7 +102,6 @@
       <div class="formula">\[ \text{recall} = \frac{TP}{TP + FN} \qquad \text{precision} = \frac{TP}{TP + FP} \]</div>
       <p class="takeaway"><b>Key idea:</b> judge a model on a rare class by recall and precision, not accuracy. Rebalancing finds more fraud but raises false alarms: where to stand is a business decision.</p>
     </section>
-
     <section id="smote" class="chapter">
       <h2><span class="chap">02</span>Fixing imbalance: resample, reweight, measure</h2>
       <p><strong>SMOTE</strong> (Chawla et al., 2002) creates synthetic minority examples: pick a fraud, pick one of its nearest fraud neighbours, and place a new point somewhere on the line between them.</p>
@@ -103,7 +116,6 @@
         <div class="card"><span class="n">measure</span><h4>Recall, precision, F1</h4><p>And tune the threshold: lowering it catches more fraud and raises more false alarms.</p></div>
       </div>
     </section>
-
     <section id="vanish" class="chapter">
       <h2><span class="chap">03</span>Vanishing gradients</h2>
       <p>Backpropagation multiplies the gradient by one weight and one activation slope per layer on its way back. The slope of the sigmoid is never more than 0.25. Multiply ten numbers smaller than 0.25 and almost nothing is left: the first layers receive a gradient close to zero and hardly change.</p>
@@ -130,7 +142,6 @@
       </table></div>
       <p class="takeaway"><b>Symptom:</b> the loss stops falling and the first layers hardly change.</p>
     </section>
-
     <section id="explode" class="chapter">
       <h2><span class="chap">04</span>Exploding gradients</h2>
       <p>The same multiplication can go the other way. If the repeated factor is a little larger than 1, the product grows without limit: 1.1 multiplied 100 times is about 14,000. This happens in very deep networks and in RNNs on long sequences, where the same weights are multiplied once per time step (backpropagation through time).</p>
@@ -148,13 +159,11 @@
       </div>
       <div class="callout"><span class="label">Question</span><p>The loss falls for 300 steps, then becomes NaN. Which problem? First fix? <button class="btn ghost small" onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden">Show</button><span hidden> An <b>exploding gradient</b>. First fix: gradient clipping (and/or a smaller learning rate).</span></p></div>
     </section>
-
     <section id="ex4" class="chapter">
       <h2><span class="chap">05</span>Exercise 4: diagnose the training problem</h2>
       <p>For each case: name the problem, explain the cause, give two fixes. Five minutes, in pairs. Symptom → cause → fix: say all three.</p>
       <ol class="ex-list" id="ex4-list"></ol>
     </section>
-
     <section id="summary" class="chapter">
       <h2><span class="chap">06</span>Summary of the lecture</h2>
       <div class="table-wrap"><table class="clean">
@@ -183,17 +192,15 @@
         <li>NeuroVision, <a href="https://leonardocofone.github.io/NeuroVision" target="_blank" rel="noopener">leonardocofone.github.io/NeuroVision</a>: the idea of a concrete “dark and motion” scenario stepped through one training cycle</li>
       </ul>
     </section>
-
     <section id="check" class="chapter">
       <h2><span class="chap">07</span>Check yourself</h2>
       <div class="quiz" id="qz"></div>
       <p class="quiz-score" id="qz-score"></p>
-      <a class="next-card" href="code-network.html">
-        <span class="next-eyebrow">Practice</span>
-        <span class="next-title">Build it in Python →</span>
-        <span class="next-text">Three runnable notebooks: a network in NumPy, training it with backpropagation, and filters and training problems.</span>
-      </a>
     </section>
+    <nav class="chapnav">
+      <a class="prev" href="types.html"><span class="next-eyebrow">← Chapter 9</span><span class="next-title">Types of networks</span></a>
+      <a class="next-card" href="code-network.html"><span class="next-eyebrow">Practice</span><span class="next-title">Build it in Python →</span><span class="next-text">Three runnable notebooks: a network in NumPy, training it with backpropagation, and filters and training problems.</span></a>
+    </nav>
   </main>
 </div>
 
@@ -214,5 +221,6 @@
 <script src="assets/js/anim.js"></script>
 <script src="assets/js/tips.js"></script>
 <script src="assets/js/problems.js"></script>
+<script src="assets/js/quizzes.js"></script>
 </body>
 </html>

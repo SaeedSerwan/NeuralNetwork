@@ -1,0 +1,122 @@
+    <section class="hero">
+      <p class="eyebrow">CSIT843A · Lecture 6 · Chapter 6 of 10</p>
+      <h1>Training: <em>the whole loop.</em></h1>
+      <p class="lead">Every piece is now in place. In this chapter the loop of chapter 1 runs for real: first on a tiny network you can watch neuron by neuron, then on the digit network, which you train yourself in the browser and then test, inspect and try to fool.</p>
+      <div class="recap">
+        <div><span class="k">So far</span><p>Forward pass (chapters 2–3), cost and gradient descent (chapter 4), backpropagation (chapter 5).</p></div>
+        <div><span class="k">In this chapter</span><p>All four steps running together, round after round; training on mini-batches and epochs; what the trained network actually learned, where it fails, and why it is confident about nonsense.</p></div>
+      </div>
+      <div class="learn-grid">
+        <div><span class="num">01</span>Describe one full training round</div>
+        <div><span class="num">02</span>Explain mini-batches and epochs</div>
+        <div><span class="num">03</span>Train a network and read its cost and accuracy</div>
+        <div><span class="num">04</span>Interpret learned weights and mistakes</div>
+        <div><span class="num">05</span>Explain why networks fail outside their training data</div>
+      </div>
+    </section>
+    <section id="watch" class="chapter">
+      <h2><span class="chap">00</span>Watch a network learn</h2>
+      <p class="bridge">Chapters 2–5 gave us every piece: neurons and layers compute a guess (forward pass), the cost measures it, backpropagation finds every slope, gradient descent nudges every weight. Now run the four steps of the loop from chapter 1 again and again on a small network.</p>
+      <div class="loopsteps" id="lp-steps">
+        <div><span class="n">step 1</span><b>Guess</b>forward pass (chapters 2–3)</div>
+        <div><span class="n">step 2</span><b>Measure</b>the cost (chapter 4)</div>
+        <div><span class="n">step 3</span><b>Find the direction</b>backpropagation (chapter 5)</div>
+        <div><span class="n">step 4</span><b>Nudge</b>gradient descent (chapter 4)</div>
+      </div>
+      <div class="lab">
+        <div class="lab-head"><p class="lab-title">Watch a network learn: should the street light turn on?</p><p class="lab-hint">Two sensors, three hidden neurons, one output. The light should turn on only when it is <b>dark</b> and there is <b>motion</b>.</p></div>
+        <div class="controls" id="wl-ctl"><button class="btn ghost small" id="wl-ff">Fast-forward 300 rounds</button><span class="status" id="wl-status"></span></div>
+        <div class="stepbar" id="wl-bar"></div>
+        <div class="lab-body"><div class="lab-grid" style="grid-template-columns:minmax(0,1.45fr) minmax(0,1fr)">
+          <div><div id="wl-net"></div><div class="narr" id="wl-narr"></div><div id="wl-code"></div></div>
+          <div><p class="kicker">The four training examples</p><table class="clean mono" id="wl-table"></table><div class="plot" id="wl-loss" style="margin-top:1rem"></div><p class="plot-cap"><b>Average cost</b> over the four examples, per round</p></div>
+        </div></div>
+        <div class="lab-foot"><b>Watch for:</b> blue dots carry numbers forward; orange dots carry the error back; then every line gets a little thicker or thinner. Green lines are positive weights, red negative. After a few hundred rounds the table on the right is right for all four cases.</div>
+      </div>
+    </section>
+    <section id="training" class="chapter">
+      <h2><span class="chap">00</span>Scaling up: the digit network</h2>
+      <p>The digit network learns in exactly the same way, just with 13,002 knobs and 60,000 examples. Take a <strong>mini-batch</strong> of 32 digits, run the forward pass, compute the cost, backpropagate, take one step. Repeat for all 60,000 digits: one <strong>epoch</strong>. We trained for 30 epochs, about a minute on a laptop.</p>
+      <div class="stats" id="lr-stats"></div>
+      <p>Why about 10% before training? Random weights pick one of 10 digits more or less at random, so they are right about 1 time in 10.</p>
+    </section>
+    <section id="train" class="chapter">
+      <h2><span class="chap">03</span>Train it yourself</h2>
+      <p>Start from random weights and run the loop from the top of this chapter: take a <strong>mini-batch</strong>, forward pass, cost, backpropagation, one gradient descent step. The browser trains on 5,000 digits and tests on 1,000 others that it never trains on.</p>
+      <div class="lab">
+        <div class="lab-head"><p class="lab-title">Training from scratch</p><p class="lab-hint">Try η = 0.1 and η = 20 as well as the default 3.</p></div>
+        <div class="controls">
+          <button class="btn" id="tr-go">Train</button><button class="btn ghost small" id="tr-reset">New random weights</button>
+          <label class="ctl">learning rate η <input type="range" id="tr-eta" min="0.1" max="20" step="0.1" value="3"><output></output></label>
+          <div class="seg" id="tr-batch"><button data-v="1">batch 1</button><button data-v="32" class="on">32</button><button data-v="256">256</button></div>
+          <label class="ctl">hidden neurons <select id="tr-hid"><option>4</option><option>8</option><option selected>16</option><option>32</option></select></label>
+          <span class="status" id="tr-status"></span>
+        </div>
+        <div class="lab-body">
+          <div class="lab-grid even">
+            <div><div class="plot" id="tr-cost"></div><p class="plot-cap"><b>Cost</b> on the 1,000 test digits</p></div>
+            <div><div class="plot" id="tr-acc"></div><p class="plot-cap"><b>Accuracy</b> on the 1,000 test digits</p></div>
+          </div>
+          <div class="stats" id="tr-stats" style="margin-top:1rem"></div>
+          <p class="kicker" style="margin-top:1rem">First-layer weights, changing as it learns</p>
+          <div class="wgrid" id="tr-w"></div>
+        </div>
+        <div class="lab-foot">When it reaches 85–90%, switch the drawing pad below to <b>The network you trained</b> and test it on your handwriting.</div>
+      </div>
+    </section>
+    <section id="draw" class="chapter">
+      <h2><span class="chap">00</span>Test it on your own handwriting</h2>
+      <p class="bridge">Switch between the pre-trained network and the one you just trained, and draw.</p>
+      <p>Draw in the black box. Your drawing is cropped, scaled to 20 × 20 pixels and centred in a 28 × 28 frame, just like the MNIST digits the network learned from. When you lift the pen, watch the 784 numbers flow through the network from left to right: each layer is \(a^{(1)} = \sigma\big(W a^{(0)} + b\big)\). Darker circles are more active neurons; coloured lines show the strongest contributions (green pushes up, red pushes down).</p>
+      <div class="lab">
+        <div class="lab-head"><p class="lab-title">The forward pass, live</p><p class="lab-hint">Hover a hidden neuron to see what it looks for.</p></div>
+        <div class="controls">
+          <button class="btn ghost small" id="dr-clear">Clear</button>
+          <button class="btn ghost small" id="dr-rand">A random test digit</button>
+          <div class="seg" id="dr-model"><button data-v="pre" class="on">Pre-trained network</button><button data-v="mine">The network you trained</button></div>
+        </div>
+        <div class="lab-body">
+          <div class="lab-grid" style="grid-template-columns:minmax(0,220px) minmax(0,1fr) minmax(0,190px)">
+            <div class="pad-wrap"><div id="dr-pad" style="width:100%"></div><div class="plot" id="dr-small" style="max-width:112px"></div><p class="plot-cap" style="text-align:left">What the network sees (28 × 28)</p></div>
+            <div><div class="plot" id="dr-net"></div></div>
+            <div><p class="kicker">Output layer</p><div class="outbars" id="dr-out"></div><div class="calc" id="dr-ans" style="margin-top:.8rem"></div></div>
+          </div>
+        </div>
+        <div class="lab-foot" id="dr-foot">Hover a neuron of hidden layer 1 to see its 784 weights as a picture.</div>
+      </div>
+    </section>
+    <section id="learned" class="chapter">
+      <h2><span class="chap">02</span>What did our network actually learn?</h2>
+      <p>Remember the hope from chapter 3: edges in the first hidden layer, loops and lines in the second. Each picture below shows the 784 weights of one first-layer neuron, arranged as a 28 × 28 image (green +, red −). A neuron fires when a digit’s bright pixels fall on its green areas and avoid its red ones.</p>
+      <div class="lab">
+        <div class="lab-head"><p class="lab-title">The 16 neurons of hidden layer 1</p><p class="lab-hint">Hover one to see how strongly it fires for your current drawing.</p></div>
+        <div class="controls"><div class="seg" id="lw-model"><button data-v="pre" class="on">Pre-trained</button><button data-v="mine">Yours</button></div></div>
+        <div class="lab-body"><div class="wgrid" id="lw-grid"></div></div>
+        <div class="lab-foot">A few neurons look for strokes in one area; most look like noise. The network found a solution that works (about 95% correct), not the tidy one we imagined. Real edge detectors appear when the wiring helps: see <a href="types.html#cnn">CNNs</a>.</div>
+      </div>
+    </section>
+    <section id="mistakes" class="chapter">
+      <h2><span class="chap">04</span>Its mistakes</h2>
+      <p>About 1 in 20 test digits is read wrongly. Some mistakes are understandable; some digits even a person would hesitate over. The confusion matrix counts, for every true digit (rows), what the network answered (columns).</p>
+      <div class="lab">
+        <div class="lab-head"><p class="lab-title">Wrong answers on the test set</p><p class="lab-hint">Each picture: the network’s answer, then the true label. Click one to load it into the pad.</p></div>
+        <div class="controls"><div class="seg" id="mi-model"><button data-v="pre" class="on">Pre-trained</button><button data-v="mine">Yours</button></div><span class="status" id="mi-status"></span></div>
+        <div class="lab-body"><div class="lab-grid" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)"><div id="mi-grid" class="thumbs" style="gap:8px"></div><div class="table-wrap" style="margin:0"><table class="confm" id="mi-conf"></table></div></div></div>
+      </div>
+    </section>
+    <section id="ood" class="chapter">
+      <h2><span class="chap">05</span>It does not know what it does not know</h2>
+      <p>The network was only ever shown digits. It has no way to say “this is not a digit”: whatever you give it, ten numbers come out and one of them is the largest. Feed it random noise, or draw a letter or a smiley in the drawing pad above.</p>
+      <div class="lab">
+        <div class="lab-head"><p class="lab-title">Nonsense in, an answer out</p><p class="lab-hint">Each click makes a new picture.</p></div>
+        <div class="controls"><button class="btn ghost small" data-o="noise">Random noise</button><button class="btn ghost small" data-o="blank">Almost empty</button><button class="btn ghost small" data-o="bars">Stripes</button><button class="btn ghost small" data-o="block">A white block</button><button class="btn ghost small" data-o="inv">An inverted digit</button></div>
+        <div class="lab-body"><div class="lab-grid"><div class="plot" id="od-img" style="max-width:224px"></div><div><div class="outbars" id="od-out"></div><div class="calc" id="od-ans" style="margin-top:.8rem"></div></div></div></div>
+      </div>
+      <p>Worse, networks can even memorise completely random labels: high accuracy on the training data while learning nothing that generalises. Discussion: where would this be dangerous? (A medical scan from a new machine, a self-driving car in snow, a face it has never seen.)</p>
+      <p class="takeaway"><b>Key idea:</b> always test on new data, and be careful outside the training data.</p>
+    </section>
+    <section id="check" class="chapter">
+      <h2><span class="chap">00</span>Check yourself</h2>
+      <div class="quiz" id="qz"></div>
+      <p class="quiz-score" id="qz-score"></p>
+    </section>

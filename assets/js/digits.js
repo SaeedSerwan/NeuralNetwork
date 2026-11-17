@@ -54,7 +54,7 @@
   pad.cv.addEventListener('mouseup', wave); pad.cv.addEventListener('touchend', wave);
   const setAndWave = (p) => { pad.setPixels(p); wave(); };
   $('#dr-clear').addEventListener('click', () => pad.clear());
-  UL.seg('dr-model', (v) => { drawModel = v; if (v === 'mine' && !mineTrained) foot.innerHTML = '<b>Your network has not been trained yet</b>: its weights are random. Train it in § 03 first.'; renderNet(); });
+  if (document.getElementById('dr-model')) UL.seg('dr-model', (v) => { drawModel = v; if (v === 'mine' && !mineTrained) foot.innerHTML = '<b>Your network has not been trained yet</b>: its weights are random. Train it above first.'; renderNet(); });
   NP.cv.addEventListener('mousemove', (e) => {
     const [X, Y] = NP.pointer(e), net = model(drawModel); let hit = null;
     [1, 2].forEach((l) => { if (Math.abs(X - LX[l]) < 14) NP._Y[l - 1].forEach((y, j) => { if (Math.abs(Y - y) < 11) hit = [l, j]; }); });
@@ -71,6 +71,8 @@
   });
   NP.cv.addEventListener('mouseleave', () => { hoverN = null; renderNet(); });
 
+  const FULL = !!document.getElementById('tr-cost');
+  if (FULL) {
   /* ------------------------------------------------------------ 02 learned weights */
   function weightGrid(el, net, o = {}) {
     el = typeof el === 'string' ? document.getElementById(el) : el; const H = net.sizes[1];
@@ -154,8 +156,6 @@
     $$('[data-o]').forEach((b) => b.addEventListener('click', () => run(b.dataset.o))); run('noise');
   })();
 
-  /* ------------------------------------------------------------ start */
-  pad.setPixels(UL.samples().get(UL.samples().ofDigit(5, 1)));
   status.textContent = 'loading 6,000 digits…';
   UL.digits().then((d) => {
     D = d; status.textContent = 'ready: press Train'; resetMine(); mistakes();
@@ -163,12 +163,13 @@
   }).catch(() => { status.textContent = 'Could not load the digit data.'; });
   drawLearned();
 
-  UL.quiz('qz', [
-    { q: 'You draw a 7 and output neuron 7 has activation 0.93 while all others are below 0.1. What is the network’s answer?', o: ['0.93', '7', 'It depends on the cost', 'Nothing yet: it needs training'], a: 1, why: 'The answer is the index of the brightest output neuron.' },
-    { q: 'The first-layer weight pictures mostly look like noise. What does that tell you?', o: ['The network is broken', 'The network found a working solution that is not the tidy edges-and-loops one we hoped for', 'The learning rate was 0', 'The pictures are drawn wrongly'], a: 1, why: 'About 95% correct with messy features: it optimises the cost, not our idea of neatness.' },
-    { q: 'With η = 20 the test cost jumps around and accuracy stays poor. Why?', o: ['Too few hidden neurons', 'The steps are too large and overshoot', 'The data is imbalanced', 'The batch is too small'], a: 1, why: 'A learning rate that is too large overshoots the valley, as with the ball in Part 2.' },
-    { q: 'Why does the network still name a digit for random noise or a white block?', o: ['Noise looks like a 0', 'It was only ever trained on digits and has no way to say “not a digit”', 'The bias of neuron 0 is large', 'It is a bug'], a: 1, why: 'Ten outputs always come out; one is always the largest. Outside its training data its confidence means nothing.' },
-    { q: 'Why do we measure accuracy on 1,000 test digits that are never used for training?', o: ['They are easier', 'To see how well the network handles new data, not how well it remembers', 'To make training faster', 'Because MNIST says so'], a: 1, why: 'A network can do well on its training data simply by memorising it.' },
-  ]);
+  }
+
+  /* ------------------------------------------------------------ start */
+  pad.setPixels(UL.samples().get(UL.samples().ofDigit(5, 1)));
+  if (!FULL) { // chapter 3: only the forward pass, with the shipped sample digits
+    const S = UL.samples();
+    $('#dr-rand').addEventListener('click', () => setAndWave(S.get(Math.floor(Math.random() * S.n))));
+  }
   UL.start();
 })();

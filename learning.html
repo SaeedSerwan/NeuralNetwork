@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Neural Network Lab · Cost functions, gradient descent and backpropagation</title>
-  <meta name="description" content="How a neural network learns: the cost function, gradient descent on a landscape, the learning rate, local minima and backpropagation step by step.">
+  <title>Neural Network Lab · The cost function and gradient descent</title>
+  <meta name="description" content="Lecture 6, chapter 4: the cost function and gradient descent, with the learning rate and local minima.">
   <meta name="author" content="Eng. Saeed Serwan Abdulsattar">
-  <meta property="og:title" content="Neural Network Lab · Cost functions, gradient descent and backpropagation">
-  <meta property="og:description" content="How a neural network learns: the cost function, gradient descent on a landscape, the learning rate, local minima and backpropagation step by step.">
+  <meta property="og:title" content="Neural Network Lab · The cost function and gradient descent">
+  <meta property="og:description" content="Lecture 6, chapter 4: the cost function and gradient descent, with the learning rate and local minima.">
   <meta property="og:image" content="assets/img/favicon-512.png">
   <meta name="theme-color" content="#ffffff">
   <link rel="icon" type="image/svg+xml" href="assets/img/utb-logo.svg">
@@ -16,25 +16,25 @@
   <link rel="stylesheet" href="assets/vendor/katex/katex.min.css">
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body>
+<body data-page="learning">
 
 <header class="site-header">
   <a class="brand" href="index.html">
     <img class="brand-logo" src="assets/img/utb-logo.svg" alt="University of Technology Bahrain logo" onerror="this.remove()">
     <span class="brand-title">Neural Network Lab</span>
   </a>
-  <nav class="page-tabs" aria-label="Lessons">
-    <a href="index.html">Overview</a>
-    <a href="shapes.html">Shapes in 5 minutes</a>
-    <a href="neuron.html">Neurons & layers</a>
-    <a href="learning.html" class="active" aria-current="page">How it learns</a>
-    <a href="digits.html">The digit network</a>
-    <a href="playground.html">Playground</a>
-    <a href="types.html">Types of networks</a>
-    <a href="problems.html">Training problems</a>
-    <a href="code-network.html">A network in Python</a>
-    <a href="code-training.html">Training in Python</a>
-    <a href="code-problems.html">Filters & problems in Python</a>
+  <nav class="page-tabs" aria-label="Chapters">
+    <a href="index.html">1 Why</a>
+    <a href="neuron.html">2 Neuron</a>
+    <a href="network.html">3 Network</a>
+    <a href="learning.html" class="active" aria-current="page">4 Cost</a>
+    <a href="backprop.html">5 Backprop</a>
+    <a href="training.html">6 Training</a>
+    <a href="shapes.html">7 Recap</a>
+    <a href="playground.html">8 Playground</a>
+    <a href="types.html">9 Types</a>
+    <a href="problems.html">10 Problems</a>
+    <a href="code-network.html">Notebooks</a>
   </nav>
   <nav class="top-links">
     <a href="https://github.com/SaeedSerwan/NeuralNetwork" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>GitHub</a>
@@ -43,41 +43,51 @@
 
 <div class="layout">
   <aside class="toc" aria-label="Contents">
-    <p class="toc-title">How it learns</p>
-    <ol>
-      <li><a href="#random">Start random, then measure how bad it is</a></li>
-      <li><a href="#costfn">The cost function: one number for the whole network</a></li>
-      <li><a href="#gd1">Gradient descent: roll downhill</a></li>
-      <li><a href="#gd2">With many weights: follow the negative gradient</a></li>
-      <li><a href="#knobs">What the gradient tells each knob</a></li>
-      <li><a href="#backprop">Backpropagation: computing the gradient</a></li>
-      <li><a href="#training">Training our network</a></li>
-      <li><a href="#ex2">Exercise 2: learning by hand</a></li>
-      <li><a href="#check">Check yourself</a></li>
+    <p class="toc-title">Lecture 6 · chapters</p>
+    <ol class="chaplist">
+      <li><a href="index.html">Why neural networks?</a></li>
+      <li><a href="neuron.html">One neuron</a></li>
+      <li><a href="network.html">From neurons to a network</a></li>
+      <li class="cur"><a href="learning.html">Measuring mistakes, rolling downhill</a>
+        <ol>
+        <li><a href="#random">Start random, then measure how bad it is</a></li>
+        <li><a href="#costfn">The cost function: one number for the whole network</a></li>
+        <li><a href="#gd1">Gradient descent: roll downhill</a></li>
+        <li><a href="#gd2">With many weights: follow the negative gradient</a></li>
+        <li><a href="#knobs">What the gradient tells each knob</a></li>
+        <li><a href="#ex2">Exercise 2: learning by hand</a></li>
+        <li><a href="#check">Check yourself</a></li>
+        </ol>
+      </li>
+      <li><a href="backprop.html">Backpropagation</a></li>
+      <li><a href="training.html">Training: the whole loop</a></li>
+      <li><a href="shapes.html">Recap in five minutes</a></li>
+      <li><a href="playground.html">Playground</a></li>
+      <li><a href="types.html">Types of networks</a></li>
+      <li><a href="problems.html">Training problems</a></li>
     </ol>
   </aside>
 
   <main>
     <section class="hero">
-      <p class="eyebrow">CSIT843A · Lecture 6 · Part 2</p>
-      <h1>How does a network <em>learn?</em></h1>
-      <p class="lead">
-        The network starts with 13,002 random knobs and reads digits no better than a coin with ten sides.
-        Learning is a loop: guess, measure how wrong the guess was, find which way to turn each knob, turn it a little.
-        This page takes the loop apart: the <strong>cost function</strong>, <strong>gradient descent</strong> and <strong>backpropagation</strong>.
-      </p>
+      <p class="eyebrow">CSIT843A · Lecture 6 · Chapter 4 of 10</p>
+      <h1>Measuring mistakes, <em>rolling downhill.</em></h1>
+      <p class="lead">A network with random weights is wrong. To improve it we need two things: one number that says <em>how</em> wrong it is, and a rule that says <em>which way</em> to turn each knob. These are the cost function and gradient descent.</p>
+      <div class="recap">
+        <div><span class="k">So far</span><p>A network is a function with 13,002 knobs (weights and biases). With good knobs it reads digits (chapter 3).</p></div>
+        <div><span class="k">In this chapter</span><p>The cost of one example and of the whole network, then gradient descent: in one dimension, in two, and what the gradient says about each knob.</p></div>
+      </div>
       <div class="learn-grid">
         <div><span class="num">01</span>Compute the cost of one example</div>
-        <div><span class="num">02</span>Explain the cost function of the whole network</div>
-        <div><span class="num">03</span>Take a gradient descent step: w ← w − η · gradient</div>
-        <div><span class="num">04</span>See what too small and too large learning rates do</div>
-        <div><span class="num">05</span>Follow backpropagation number by number</div>
-        <div><span class="num">06</span>Explain local minima and mini-batches</div>
+        <div><span class="num">02</span>Explain the cost as a function of the weights</div>
+        <div><span class="num">03</span>Take a gradient descent step</div>
+        <div><span class="num">04</span>Predict what too small and too large learning rates do</div>
+        <div><span class="num">05</span>Read the sign and size of a gradient</div>
       </div>
     </section>
-
     <section id="random" class="chapter">
       <h2><span class="chap">01</span>Start random, then measure how bad it is</h2>
+      <p class="bridge">In chapter 3 we used a network whose 13,002 weights were already good. But a new network starts with random weights. Before it can improve, we need a way to say how wrong it is.</p>
       <p>At the start, all 13,002 weights and biases are random numbers. Show the network a 3 and the output is garbage. To improve, we first need to say <em>how bad</em> it is. Compare each of the 10 outputs with what we wanted (1 for the correct digit, 0 for the others), square the differences and add them up: the <strong>cost</strong> of this one example.</p>
       <div class="formula">\[ C = \sum_{j=0}^{9} \big(a_j - y_j\big)^2 \]</div>
       <div class="lab">
@@ -85,12 +95,11 @@
         <div class="controls"><div class="thumbs" id="rd-thumbs"></div><button class="btn ghost small" id="rd-new">New random network</button></div>
         <div class="lab-body"><div class="lab-grid even">
           <div><p class="kicker">Random weights</p><div class="outbars" id="rd-a"></div><div class="calc" id="rd-ca" style="margin-top:.8rem"></div></div>
-          <div><p class="kicker">After training (30 passes over 60,000 digits)</p><div class="outbars" id="rd-b"></div><div class="calc" id="rd-cb" style="margin-top:.8rem"></div></div>
+          <div><p class="kicker">The trained network from chapter 3</p><div class="outbars" id="rd-b"></div><div class="calc" id="rd-cb" style="margin-top:.8rem"></div></div>
         </div></div>
       </div>
       <p>Large cost: wrong or unsure. Small cost: confident and right. The squaring makes every term positive and punishes big mistakes much more than small ones.</p>
     </section>
-
     <section id="costfn" class="chapter">
       <h2><span class="chap">02</span>The cost function: one number for the whole network</h2>
       <p>One example is not enough: a network that is perfect on this 3 may be terrible on every 7. So we average the cost over all 60,000 training digits:</p>
@@ -106,7 +115,6 @@
       </table></div>
       <p class="takeaway"><b>Key idea:</b> learning = make this one number as small as possible. Afterwards, test on 10,000 digits the network has never seen.</p>
     </section>
-
     <section id="gd1" class="chapter">
       <h2><span class="chap">03</span>Gradient descent: roll downhill</h2>
       <p>How do you find the lowest point of a function with 13,002 inputs? Start simple: imagine the cost depends on only one weight w. You cannot see the whole curve; you can only feel the slope under your feet. If the slope is negative, step right; if positive, step left. Make the step proportional to the slope: big steps on steep ground, small ones near the bottom.</p>
@@ -122,7 +130,6 @@
         <div class="lab-foot">Drop the ball at w = 3 and at w = −1. Where you start decides which valley you end in. The right valley is a <strong>local minimum</strong>: lower than its surroundings, but not the lowest point.</div>
       </div>
     </section>
-
     <section id="gd2" class="chapter">
       <h2><span class="chap">04</span>With many weights: follow the negative gradient</h2>
       <p>With two weights, the cost is a landscape: contour lines join points of equal cost. The <strong>gradient</strong> is the arrow of slopes, one per weight; it points uphill, the steepest way. Go the opposite way. With 13,002 weights it is the same idea in 13,002 dimensions: nobody can picture it, but the arithmetic is identical.</p>
@@ -140,7 +147,6 @@
       </div>
       <div class="callout"><span class="label">Question</span><p>w = 2, gradient = 4, η = 0.1. New w? <button class="btn ghost small" onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden">Show</button><span hidden> 2 − 0.1 × 4 = <b>1.6</b>: the cost rises when w rises, so w goes down.</span></p></div>
     </section>
-
     <section id="knobs" class="chapter">
       <h2><span class="chap">05</span>What the gradient tells each knob</h2>
       <p>The gradient is not just a direction: it is one number per knob. Its <strong>sign</strong> says whether to nudge that weight up or down; its <strong>size</strong> says how much the cost cares about it right now. Below are real gradient values for 8 of the 256 weights between the two hidden layers of a freshly initialised digit network, averaged over a mini-batch of 32 digits.</p>
@@ -149,38 +155,10 @@
         <div class="controls"><button class="btn ghost small" id="kn-new">New random network</button><button class="btn ghost small" id="kn-batch">New mini-batch</button></div>
         <div class="lab-body"><div class="lab-grid"><div class="plot" id="kn-plot"></div><div class="calc" id="kn-calc"></div></div></div>
       </div>
+      <p class="takeaway"><b>Open question:</b> we used these slopes, but how are 13,002 of them computed for a real network? That is the next chapter: <a href="backprop.html">backpropagation</a>.</p>
     </section>
-
-    <section id="backprop" class="chapter">
-      <h2><span class="chap">06</span>Backpropagation: computing the gradient</h2>
-      <p>How do we get 13,002 slopes? <strong>Backpropagation</strong>. First the <strong>forward pass</strong> computes and stores every activation. Then, starting from the cost, we go <em>backwards</em>: a weight changes the cost only through a chain of effects, so we multiply the local slopes along the chain (the <strong>chain rule</strong>).</p>
-      <div class="formula">\[ \frac{\partial C}{\partial w} = \frac{\partial z}{\partial w}\cdot\frac{\partial a}{\partial z}\cdot\frac{\partial C}{\partial a} \]</div>
-      <p>In words: the output said “8” for a 3? Push the 8 down, push the 3 up, and pass the blame back to the neurons and weights that caused it. Follow it on a network small enough to compute by hand: 2 inputs, 2 hidden neurons, 1 output, all sigmoid, and we want the output to be 1.</p>
-      <div class="lab">
-        <div class="lab-head"><p class="lab-title">Backpropagation, one number at a time</p><p class="lab-hint">Blue dots: the forward pass. Orange dots: the backward pass. Press ▶ Play or go step by step; each round ends with a weight update and starts again.</p></div>
-        <div class="controls" id="bp-ctl"></div>
-        <div class="stepbar" id="bp-bar"></div>
-        <div class="lab-body"><div class="lab-grid" style="grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)"><div id="bp-svg"></div><div class="narr" id="bp-narr" style="margin-top:0"></div></div></div>
-        <div class="lab-foot"><b>Watch for:</b> the orange numbers on the lines are the slopes ∂C/∂w. A negative slope means “increase this weight”; after the update step those lines get thicker (green) or less red. Round after round the cost falls.</div>
-      </div>
-      <p>In PyTorch all of this is one line, <code>loss.backward()</code>. But it is exactly these multiplications, done for 13,002 weights.</p>
-      <p class="takeaway"><b>Key idea:</b> backpropagation computes the gradient; gradient descent uses it. Cost says how bad. Gradient says which way. Learning rate says how far.</p>
-    </section>
-
-    <section id="training" class="chapter">
-      <h2><span class="chap">07</span>Training our network</h2>
-      <p>Put it together. Take a <strong>mini-batch</strong> of 32 digits, run the forward pass, compute the cost, backpropagate, take one step. Repeat for all 60,000 digits: one <strong>epoch</strong>. We trained for 30 epochs, about a minute on a laptop.</p>
-      <div class="stats" id="tr-stats"></div>
-      <p>Why about 10% before training? Random weights pick one of 10 digits more or less at random, so they are right about 1 time in 10.</p>
-      <a class="next-card" href="digits.html#train" style="margin-top:1rem">
-        <span class="next-eyebrow">Try it</span>
-        <span class="next-title">Train the network live in your browser →</span>
-        <span class="next-text">Watch the cost fall and the first-layer weights change, then draw a digit for the network you trained.</span>
-      </a>
-    </section>
-
     <section id="ex2" class="chapter">
-      <h2><span class="chap">08</span>Exercise 2: learning by hand</h2>
+      <h2><span class="chap">06</span>Exercise 2: learning by hand</h2>
       <p>Six minutes, in pairs. Use the calculator to check question 1.</p>
       <div class="lab">
         <div class="lab-head"><p class="lab-title">Cost calculator</p><p class="lab-hint">Type the 10 outputs and pick the correct digit.</p></div>
@@ -189,17 +167,15 @@
       </div>
       <ol class="ex-list" id="ex2-list"></ol>
     </section>
-
     <section id="check" class="chapter">
-      <h2><span class="chap">09</span>Check yourself</h2>
+      <h2><span class="chap">07</span>Check yourself</h2>
       <div class="quiz" id="qz"></div>
       <p class="quiz-score" id="qz-score"></p>
-      <a class="next-card" href="digits.html">
-        <span class="next-eyebrow">Next</span>
-        <span class="next-title">The digit network →</span>
-        <span class="next-text">Draw a digit, watch every neuron light up, and see what the network really learned.</span>
-      </a>
     </section>
+    <nav class="chapnav">
+      <a class="prev" href="network.html"><span class="next-eyebrow">← Chapter 3</span><span class="next-title">From neurons to a network</span></a>
+      <a class="next-card" href="backprop.html"><span class="next-eyebrow">Next · Chapter 5</span><span class="next-title">Backpropagation →</span><span class="next-text">Gradient descent needs the slope of every knob. Where do the slopes come from?</span></a>
+    </nav>
   </main>
 </div>
 
@@ -222,5 +198,6 @@
 <script src="assets/js/data/samples.js"></script>
 <script src="assets/js/data/net.js"></script>
 <script src="assets/js/learning.js"></script>
+<script src="assets/js/quizzes.js"></script>
 </body>
 </html>

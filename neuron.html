@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Neural Network Lab · Neurons, weights, biases and layers</title>
-  <meta name="description" content="What a neuron holds, what a weighted sum and a bias do, sigmoid and ReLU, counting parameters and one layer as a matrix multiply, all interactive.">
+  <title>Neural Network Lab · One neuron: multiply, add, squish</title>
+  <meta name="description" content="Lecture 6, chapter 2: what one artificial neuron computes: weights, bias, sigmoid and ReLU.">
   <meta name="author" content="Eng. Saeed Serwan Abdulsattar">
-  <meta property="og:title" content="Neural Network Lab · Neurons, weights, biases and layers">
-  <meta property="og:description" content="What a neuron holds, what a weighted sum and a bias do, sigmoid and ReLU, counting parameters and one layer as a matrix multiply, all interactive.">
+  <meta property="og:title" content="Neural Network Lab · One neuron: multiply, add, squish">
+  <meta property="og:description" content="Lecture 6, chapter 2: what one artificial neuron computes: weights, bias, sigmoid and ReLU.">
   <meta property="og:image" content="assets/img/favicon-512.png">
   <meta name="theme-color" content="#ffffff">
   <link rel="icon" type="image/svg+xml" href="assets/img/utb-logo.svg">
@@ -16,25 +16,25 @@
   <link rel="stylesheet" href="assets/vendor/katex/katex.min.css">
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body>
+<body data-page="neuron">
 
 <header class="site-header">
   <a class="brand" href="index.html">
     <img class="brand-logo" src="assets/img/utb-logo.svg" alt="University of Technology Bahrain logo" onerror="this.remove()">
     <span class="brand-title">Neural Network Lab</span>
   </a>
-  <nav class="page-tabs" aria-label="Lessons">
-    <a href="index.html">Overview</a>
-    <a href="shapes.html">Shapes in 5 minutes</a>
-    <a href="neuron.html" class="active" aria-current="page">Neurons & layers</a>
-    <a href="learning.html">How it learns</a>
-    <a href="digits.html">The digit network</a>
-    <a href="playground.html">Playground</a>
-    <a href="types.html">Types of networks</a>
-    <a href="problems.html">Training problems</a>
-    <a href="code-network.html">A network in Python</a>
-    <a href="code-training.html">Training in Python</a>
-    <a href="code-problems.html">Filters & problems in Python</a>
+  <nav class="page-tabs" aria-label="Chapters">
+    <a href="index.html">1 Why</a>
+    <a href="neuron.html" class="active" aria-current="page">2 Neuron</a>
+    <a href="network.html">3 Network</a>
+    <a href="learning.html">4 Cost</a>
+    <a href="backprop.html">5 Backprop</a>
+    <a href="training.html">6 Training</a>
+    <a href="shapes.html">7 Recap</a>
+    <a href="playground.html">8 Playground</a>
+    <a href="types.html">9 Types</a>
+    <a href="problems.html">10 Problems</a>
+    <a href="code-network.html">Notebooks</a>
   </nav>
   <nav class="top-links">
     <a href="https://github.com/SaeedSerwan/NeuralNetwork" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>GitHub</a>
@@ -43,43 +43,49 @@
 
 <div class="layout">
   <aside class="toc" aria-label="Contents">
-    <p class="toc-title">Neurons & layers</p>
-    <ol>
-      <li><a href="#pixels">A neuron is a thing that holds a number</a></li>
-      <li><a href="#network">The network: 784 → 16 → 16 → 10</a></li>
-      <li><a href="#hope">Why layers? The hope</a></li>
-      <li><a href="#weighted">One neuron: a weighted sum of the layer before</a></li>
-      <li><a href="#sigmoid">Squish it into 0 … 1: the sigmoid</a></li>
-      <li><a href="#bias">The bias: how high before it lights up?</a></li>
-      <li><a href="#count">Count the knobs</a></li>
-      <li><a href="#matrix">The compact way: one layer = one matrix multiply</a></li>
-      <li><a href="#nonlinear">Sigmoid or ReLU, and why not nothing?</a></li>
-      <li><a href="#ex1">Exercise 1: neurons by hand</a></li>
-      <li><a href="#quiz">Check yourself</a></li>
+    <p class="toc-title">Lecture 6 · chapters</p>
+    <ol class="chaplist">
+      <li><a href="index.html">Why neural networks?</a></li>
+      <li class="cur"><a href="neuron.html">One neuron</a>
+        <ol>
+        <li><a href="#pixels">A neuron is a thing that holds a number</a></li>
+        <li><a href="#weighted">One neuron: a weighted sum of the layer before</a></li>
+        <li><a href="#sigmoid">Squish it into 0 … 1: the sigmoid</a></li>
+        <li><a href="#bias">The bias: how high before it lights up?</a></li>
+        <li><a href="#ex1">Exercise 1: neurons by hand</a></li>
+        <li><a href="#check">Check yourself</a></li>
+        </ol>
+      </li>
+      <li><a href="network.html">From neurons to a network</a></li>
+      <li><a href="learning.html">Measuring mistakes, rolling downhill</a></li>
+      <li><a href="backprop.html">Backpropagation</a></li>
+      <li><a href="training.html">Training: the whole loop</a></li>
+      <li><a href="shapes.html">Recap in five minutes</a></li>
+      <li><a href="playground.html">Playground</a></li>
+      <li><a href="types.html">Types of networks</a></li>
+      <li><a href="problems.html">Training problems</a></li>
     </ol>
   </aside>
 
   <main>
     <section class="hero">
-      <p class="eyebrow">CSIT843A · Lecture 6 · Part 1</p>
-      <h1>What is inside <em>a neural network?</em></h1>
-      <p class="lead">
-        A neural network is not magic. It is a long list of numbers and three operations: multiply, add, squish.
-        On this page you build one neuron, then a layer, then the 784 → 16 → 16 → 10 network that reads handwritten digits,
-        and you count every knob it has.
-      </p>
+      <p class="eyebrow">CSIT843A · Lecture 6 · Chapter 2 of 10</p>
+      <h1>One neuron: <em>multiply, add, squish.</em></h1>
+      <p class="lead">Everything in a neural network is built from one tiny unit. In this chapter you take it apart: what it holds, what it computes, and the three ingredients that decide its answer: weights, a bias and an activation function.</p>
+      <div class="recap">
+        <div><span class="k">So far</span><p>A real neuron collects signals through connections of different strengths and fires above a threshold (chapter 1).</p></div>
+        <div><span class="k">In this chapter</span><p>The artificial version of exactly that: a weighted sum, a bias and a squishing function, first on a four-word spam detector, then on a 784-pixel picture.</p></div>
+      </div>
       <div class="learn-grid">
-        <div><span class="num">01</span>Say what a neuron holds and what the input layer is</div>
-        <div><span class="num">02</span>Compute a weighted sum, add a bias and apply σ</div>
-        <div><span class="num">03</span>Compare sigmoid and ReLU</div>
-        <div><span class="num">04</span>Count the parameters of a network</div>
-        <div><span class="num">05</span>Write one layer as a = σ(Wa + b)</div>
-        <div><span class="num">06</span>Explain why activation functions make depth worth it</div>
+        <div><span class="num">01</span>Say what number a neuron holds</div>
+        <div><span class="num">02</span>Compute a weighted sum of inputs</div>
+        <div><span class="num">03</span>Explain what the bias does</div>
+        <div><span class="num">04</span>Compare sigmoid and ReLU</div>
       </div>
     </section>
-
     <section id="pixels" class="chapter">
       <h2><span class="chap">01</span>A neuron is a thing that holds a number</h2>
+      <p class="bridge">In chapter 1 we decided to copy the brain. Its basic unit is the neuron, so we start with one.</p>
       <p>For now, think of a <strong>neuron</strong> as a box that holds one number between 0 and 1, called its <strong>activation</strong>. A 28 × 28 picture of a digit has 784 pixels, so we use 784 neurons: 0 for a black pixel, 1 for a white one, grey in between. These 784 neurons are the <strong>input layer</strong> of the network.</p>
       <div class="lab">
         <div class="lab-head"><p class="lab-title">The picture is just a list of numbers</p><p class="lab-hint">Draw a digit (or pick one), then move the mouse over the grid to read each neuron.</p></div>
@@ -95,29 +101,8 @@
       </div>
       <p class="takeaway"><b>Key idea:</b> the picture is just a list of 784 numbers. Everything the network does is arithmetic on that list.</p>
     </section>
-
-    <section id="network" class="chapter">
-      <h2><span class="chap">02</span>The network: 784 → 16 → 16 → 10</h2>
-      <p>Our network has four <strong>layers</strong>. The 784 pixel neurons come first. The last layer has 10 neurons, one per digit: the brightest one is the answer. In between are two <strong>hidden layers</strong> of 16 neurons each. Sixteen is an arbitrary choice; you will try other sizes in the <a href="playground.html">playground</a>. The activations of one layer decide the activations of the next.</p>
-      <div class="lab">
-        <div class="lab-head"><p class="lab-title">Hover a layer or a neuron</p><p class="lab-hint">Only 22 of the 784 input neurons are drawn.</p></div>
-        <div class="lab-body"><div class="lab-grid"><div id="net-svg"></div><div class="calc" id="net-info" style="grid-template-columns:1fr"></div></div></div>
-      </div>
-      <p>To see this network read <em>your</em> handwriting, with every activation lighting up, open <a href="digits.html">The digit network</a>.</p>
-    </section>
-
-    <section id="hope" class="chapter">
-      <h2><span class="chap">03</span>Why layers? The hope</h2>
-      <p>Why put layers in the middle at all? The hope is that each layer builds slightly bigger pieces out of the layer below. A 9 is a loop up top and a line on the right; an 8 is two loops. So maybe one neuron in the last hidden layer lights up for “loop up top”, another for “line on the right”. And a loop is built from small edges, so maybe the layer before finds edges.</p>
-      <div class="lab">
-        <div class="lab-head"><p class="lab-title">Edges → parts → digits</p><p class="lab-hint">Hover a digit to see the parts it needs, or a part to see its edges.</p></div>
-        <div class="lab-body"><div id="hope-svg"></div></div>
-        <div class="lab-foot">The same idea works for speech: sounds → syllables → words → sentences. Whether the network really learns tidy pieces like these is a different question: <a href="digits.html#learned">see what it actually learned</a>.</div>
-      </div>
-    </section>
-
     <section id="weighted" class="chapter">
-      <h2><span class="chap">04</span>One neuron: a weighted sum of the layer before</h2>
+      <h2><span class="chap">02</span>One neuron: a weighted sum of the layer before</h2>
       <p>Each connection between two neurons has a <strong>weight</strong>, a number. Positive weights are drawn green, negative ones red. To compute one neuron of the next layer, multiply each pixel by its weight and add all 784 products: a <strong>weighted sum</strong>.</p>
       <div class="formula">\[ a = \sigma\big(w_1 a_1 + w_2 a_2 + \dots + w_n a_n + b\big) \]</div>
       <div class="lab">
@@ -125,7 +110,7 @@
         <div class="controls"><div class="wordchips" id="on-words"></div></div>
         <div class="controls" id="on-ctl"></div>
         <div class="stepbar" id="on-bar"></div>
-        <div class="lab-body"><div class="lab-grid" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)"><div id="on-net"></div><div><div class="narr" id="on-narr" style="margin-top:0"></div><div class="plot" id="on-sig" style="margin-top:.8rem"></div></div></div></div>
+        <div class="lab-body"><div class="lab-grid" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)"><div id="on-net"></div><div><div class="narr" id="on-narr" style="margin-top:0"></div><div class="plot" id="on-sig" style="margin-top:.8rem"></div></div></div><div id="on-code"></div></div>
         <div class="lab-foot"><b>Watch for:</b> words that are absent send nothing (their input is 0, so input × weight = 0). Red weights push the sum down. The bias shifts the sum before the squish.</div>
       </div>
       <p>The same happens with pictures, just with 784 inputs instead of four. The neuron below was set by hand to look for a horizontal stroke: green weights across the middle, red weights above and below. Its sum is large only when the middle is bright and the rows above and below are dark. Try other digits and other weight patterns.</p>
@@ -148,15 +133,14 @@
       </div>
       <p>The same idea in the general form you will meet in books: inputs \(x_i\), weights \(w_i\), a bias \(w_0\) and an activation function \(g\).</p>
       <div class="formula">\[ \hat y = g\Big(w_0 + \sum_{i=1}^{m} x_i w_i\Big) \]</div>
-      <p class="takeaway"><b>Key idea:</b> the weights say <em>which pixel pattern</em> the neuron looks for. Here they were chosen by hand; in Part 2 the network finds them itself.</p>
+      <p class="takeaway"><b>Key idea:</b> the weights say <em>which pixel pattern</em> the neuron looks for. Here they were chosen by hand; in chapters 4–6 the network finds them itself.</p>
     </section>
-
     <section id="sigmoid" class="chapter">
-      <h2><span class="chap">05</span>Squish it into 0 … 1: the sigmoid</h2>
+      <h2><span class="chap">03</span>Squish it into 0 … 1: the sigmoid</h2>
       <p>The weighted sum can be any number, −37 or 512. But an activation should be between 0 and 1. So we pass the sum through a squishing function, the <strong>sigmoid</strong> σ: very negative numbers become close to 0, very positive ones close to 1, and around 0 it rises steadily.</p>
       <div class="formula">\[ \sigma(z) = \frac{1}{1 + e^{-z}} \]</div>
       <div class="lab">
-        <div class="lab-head"><p class="lab-title">Activation functions</p><p class="lab-hint">Move z. The dashed curve is the slope, which matters in Part 2 and Part 4.</p></div>
+        <div class="lab-head"><p class="lab-title">Activation functions</p><p class="lab-hint">Move z. The dashed curve is the slope, which matters in chapters 4, 5 and 10.</p></div>
         <div class="controls">
           <div class="seg" id="sg-f"><button data-v="sigmoid" class="on">sigmoid</button><button data-v="relu">ReLU</button><button data-v="tanh">tanh</button><button data-v="linear">none</button></div>
           <label class="ctl">z <input type="range" id="sg-z" min="-8" max="8" step="0.1" value="1"><output></output></label>
@@ -164,11 +148,10 @@
         </div>
         <div class="lab-body"><div class="lab-grid"><div class="plot" id="sg-plot"></div><div class="calc" id="sg-calc"></div></div></div>
       </div>
-      <p>The slope of the sigmoid is never more than 0.25, at z = 0. Remember this number: in <a href="problems.html#vanish">Part 4</a> it explains why deep sigmoid networks stop learning.</p>
+      <p>The slope of the sigmoid is never more than 0.25, at z = 0. Remember this number: in <a href="problems.html#vanish">chapter 10</a> it explains why deep sigmoid networks stop learning.</p>
     </section>
-
     <section id="bias" class="chapter">
-      <h2><span class="chap">06</span>The bias: how high before it lights up?</h2>
+      <h2><span class="chap">04</span>The bias: how high before it lights up?</h2>
       <p>With the sigmoid alone, a neuron is “half on” as soon as its weighted sum is above 0. Maybe it should only fire when the sum is above 10, so that a few stray bright pixels do not count. Then add a <strong>bias</strong> b = −10 before squishing.</p>
       <div class="lab">
         <div class="lab-head"><p class="lab-title">Shift the threshold</p><p class="lab-hint">The bias moves the curve left or right.</p></div>
@@ -181,54 +164,11 @@
       <div class="cards">
         <div class="card"><span class="n">weights</span><h4>What matters</h4><p>Which pixel pattern this neuron looks for.</p></div>
         <div class="card"><span class="n">bias</span><h4>How much is enough</h4><p>How strong the pattern must be before the neuron becomes active.</p></div>
-        <div class="card"><span class="n">activation function</span><h4>Makes depth worth it</h4><p>The squish between layers; without it many layers are no better than one (§ 09).</p></div>
+        <div class="card"><span class="n">activation function</span><h4>Makes depth worth it</h4><p>The squish between layers; without it many layers are no better than one (chapter 3).</p></div>
       </div>
     </section>
-
-    <section id="count" class="chapter">
-      <h2><span class="chap">07</span>Count the knobs</h2>
-      <p>Every weight and every bias is a knob you can turn. A layer of 16 neurons that reads 784 inputs needs 784 × 16 weights and 16 biases. <strong>Learning</strong> means turning all of these knobs until the network reads digits correctly. Imagine setting 13,002 of them by hand: that is why we let the computer do it.</p>
-      <div class="lab">
-        <div class="lab-head"><p class="lab-title">Parameter counter</p><p class="lab-hint">Type layer sizes separated by commas, or use a preset.</p></div>
-        <div class="controls">
-          <input class="txt" id="ct-in" value="784, 16, 16, 10" aria-label="Layer sizes">
-          <div class="btn-row"><button class="btn ghost small" data-p="784, 16, 16, 10">784-16-16-10</button><button class="btn ghost small" data-p="784, 32, 10">784-32-10</button><button class="btn ghost small" data-p="784, 128, 64, 10">784-128-64-10</button><button class="btn ghost small" data-p="4, 3, 1">4-3-1</button></div>
-        </div>
-        <div class="lab-body"><div class="table-wrap" style="margin:0"><table class="clean mono" id="ct-table"></table></div></div>
-        <div class="lab-foot" id="ct-foot"></div>
-      </div>
-    </section>
-
-    <section id="matrix" class="chapter">
-      <h2><span class="chap">08</span>The compact way: one layer = one matrix multiply</h2>
-      <p>Writing 784 products for each of 16 neurons is long. Put the activations of a layer in a column \(a^{(0)}\), and the weights in a <strong>matrix</strong> W whose row k holds the weights of neuron k. Then one multiplication computes every weighted sum at once:</p>
-      <div class="formula">\[ a^{(1)} = \sigma\big(W a^{(0)} + b\big) \]</div>
-      <div class="lab">
-        <div class="lab-head"><p class="lab-title">A small layer: 4 inputs, 3 neurons</p><p class="lab-hint">Hover a neuron on the right to see the row and the column it uses.</p></div>
-        <div class="controls"><button class="btn ghost small" id="mx-new">New random numbers</button></div>
-        <div class="lab-body"><div class="mateq" id="mx"></div><div class="calc" id="mx-calc" style="margin-top:1rem"></div></div>
-        <div class="lab-foot">Libraries such as PyTorch and NumPy are built for exactly this operation, and GPUs compute it extremely fast. That is a big reason why deep learning became practical.</div>
-      </div>
-    </section>
-
-    <section id="nonlinear" class="chapter">
-      <h2><span class="chap">09</span>Sigmoid or ReLU, and why not nothing?</h2>
-      <p>The sigmoid was the early choice, inspired by real neurons being on or off; it is still good at the output when we want a probability. Inside modern networks the default is <strong>ReLU</strong>, \(\mathrm{ReLU}(z) = \max(0, z)\), because deep networks train much more easily with it. But why use any activation at all?</p>
-      <div class="lab">
-        <div class="lab-head"><p class="lab-title">A 1 → 8 → 8 → 1 network tries to fit a curve</p><p class="lab-hint">Pick a target and an activation, then train. Without an activation the network can only draw a straight line.</p></div>
-        <div class="controls">
-          <div class="seg" id="nl-t"><button data-v="sin" class="on">wave</button><button data-v="abs">V shape</button><button data-v="step">step</button></div>
-          <div class="seg" id="nl-a"><button data-v="linear" class="on">none</button><button data-v="relu">ReLU</button><button data-v="sigmoid">sigmoid</button><button data-v="tanh">tanh</button></div>
-          <button class="btn" id="nl-go">Train</button><button class="btn ghost small" id="nl-reset">Reset</button>
-          <span class="status" id="nl-status"></span>
-        </div>
-        <div class="lab-body"><div class="plot" id="nl-plot"></div></div>
-      </div>
-      <p class="takeaway"><b>Key idea:</b> without an activation function, stacked layers collapse into one linear model: straight lines on straight lines are still straight.</p>
-    </section>
-
     <section id="ex1" class="chapter">
-      <h2><span class="chap">10</span>Exercise 1: neurons by hand</h2>
+      <h2><span class="chap">05</span>Exercise 1: neurons by hand</h2>
       <p>A spam neuron gets the input 1 for each word that is present in an email and 0 if it is absent. Its weights and bias are below. Use σ(−1) = 0.27, σ(0) = 0.50, σ(1) = 0.73, σ(2) = 0.88. Work on paper first (6 minutes, in pairs), then check with the neuron.</p>
       <div class="lab">
         <div class="lab-head"><p class="lab-title">The spam neuron</p><p class="lab-hint">Click words to put them in the email.</p></div>
@@ -237,17 +177,15 @@
       </div>
       <ol class="ex-list" id="ex1-list"></ol>
     </section>
-
-    <section id="quiz" class="chapter">
-      <h2><span class="chap">11</span>Check yourself</h2>
+    <section id="check" class="chapter">
+      <h2><span class="chap">06</span>Check yourself</h2>
       <div class="quiz" id="qz"></div>
       <p class="quiz-score" id="qz-score"></p>
-      <a class="next-card" href="learning.html">
-        <span class="next-eyebrow">Next · Part 2</span>
-        <span class="next-title">How does a network learn? →</span>
-        <span class="next-text">Cost functions, gradient descent and backpropagation: how the 13,002 knobs set themselves.</span>
-      </a>
     </section>
+    <nav class="chapnav">
+      <a class="prev" href="index.html"><span class="next-eyebrow">← Chapter 1</span><span class="next-title">Why neural networks?</span></a>
+      <a class="next-card" href="network.html"><span class="next-eyebrow">Next · Chapter 3</span><span class="next-title">From neurons to a network →</span><span class="next-text">One neuron answers one small question. Put many in layers.</span></a>
+    </nav>
   </main>
 </div>
 
@@ -270,5 +208,6 @@
 <script src="assets/js/data/samples.js"></script>
 <script src="assets/js/data/net.js"></script>
 <script src="assets/js/neuron.js"></script>
+<script src="assets/js/quizzes.js"></script>
 </body>
 </html>

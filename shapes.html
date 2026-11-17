@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Neural Network Lab · Circle, square or triangle? A neural network in 5 minutes</title>
-  <meta name="description" content="A five-minute interactive tour of how a neural network works: a network that tells circles, squares and triangles apart, with inputs, weights, bias, activation, forward propagation and backpropagation.">
+  <title>Neural Network Lab · Recap: a neural network in five minutes</title>
+  <meta name="description" content="Lecture 6, chapter 7: the whole story once more on circles, squares and triangles.">
   <meta name="author" content="Eng. Saeed Serwan Abdulsattar">
-  <meta property="og:title" content="Neural Network Lab · Circle, square or triangle? A neural network in 5 minutes">
-  <meta property="og:description" content="A five-minute interactive tour of how a neural network works: a network that tells circles, squares and triangles apart, with inputs, weights, bias, activation, forward propagation and backpropagation.">
+  <meta property="og:title" content="Neural Network Lab · Recap: a neural network in five minutes">
+  <meta property="og:description" content="Lecture 6, chapter 7: the whole story once more on circles, squares and triangles.">
   <meta property="og:image" content="assets/img/favicon-512.png">
   <meta name="theme-color" content="#ffffff">
   <link rel="icon" type="image/svg+xml" href="assets/img/utb-logo.svg">
@@ -16,25 +16,25 @@
   <link rel="stylesheet" href="assets/vendor/katex/katex.min.css">
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body>
+<body data-page="shapes">
 
 <header class="site-header">
   <a class="brand" href="index.html">
     <img class="brand-logo" src="assets/img/utb-logo.svg" alt="University of Technology Bahrain logo" onerror="this.remove()">
     <span class="brand-title">Neural Network Lab</span>
   </a>
-  <nav class="page-tabs" aria-label="Lessons">
-    <a href="index.html">Overview</a>
-    <a href="shapes.html" class="active" aria-current="page">Shapes in 5 minutes</a>
-    <a href="neuron.html">Neurons & layers</a>
-    <a href="learning.html">How it learns</a>
-    <a href="digits.html">The digit network</a>
-    <a href="playground.html">Playground</a>
-    <a href="types.html">Types of networks</a>
-    <a href="problems.html">Training problems</a>
-    <a href="code-network.html">A network in Python</a>
-    <a href="code-training.html">Training in Python</a>
-    <a href="code-problems.html">Filters & problems in Python</a>
+  <nav class="page-tabs" aria-label="Chapters">
+    <a href="index.html">1 Why</a>
+    <a href="neuron.html">2 Neuron</a>
+    <a href="network.html">3 Network</a>
+    <a href="learning.html">4 Cost</a>
+    <a href="backprop.html">5 Backprop</a>
+    <a href="training.html">6 Training</a>
+    <a href="shapes.html" class="active" aria-current="page">7 Recap</a>
+    <a href="playground.html">8 Playground</a>
+    <a href="types.html">9 Types</a>
+    <a href="problems.html">10 Problems</a>
+    <a href="code-network.html">Notebooks</a>
   </nav>
   <nav class="top-links">
     <a href="https://github.com/SaeedSerwan/NeuralNetwork" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>GitHub</a>
@@ -43,33 +43,46 @@
 
 <div class="layout">
   <aside class="toc" aria-label="Contents">
-    <p class="toc-title">Shapes in 5 minutes</p>
-    <ol>
-      <li><a href="#try">Draw a shape</a></li>
-      <li><a href="#inside">What happens inside, step by step</a></li>
-      <li><a href="#train">Training: guess, compare, correct</a></li>
-      <li><a href="#uses">Where neural networks are used</a></li>
-      <li><a href="#check">Quiz</a></li>
+    <p class="toc-title">Lecture 6 · chapters</p>
+    <ol class="chaplist">
+      <li><a href="index.html">Why neural networks?</a></li>
+      <li><a href="neuron.html">One neuron</a></li>
+      <li><a href="network.html">From neurons to a network</a></li>
+      <li><a href="learning.html">Measuring mistakes, rolling downhill</a></li>
+      <li><a href="backprop.html">Backpropagation</a></li>
+      <li><a href="training.html">Training: the whole loop</a></li>
+      <li class="cur"><a href="shapes.html">Recap in five minutes</a>
+        <ol>
+        <li><a href="#try">Draw a shape</a></li>
+        <li><a href="#inside">What happens inside, step by step</a></li>
+        <li><a href="#train">Training: guess, compare, correct</a></li>
+        <li><a href="#uses">Where neural networks are used</a></li>
+        <li><a href="#check">Quiz</a></li>
+        </ol>
+      </li>
+      <li><a href="playground.html">Playground</a></li>
+      <li><a href="types.html">Types of networks</a></li>
+      <li><a href="problems.html">Training problems</a></li>
     </ol>
   </aside>
 
   <main>
     <section class="hero">
-      <p class="eyebrow">CSIT843A · Lecture 6 · Warm-up · 5 minutes</p>
-      <h1>Circle, square or triangle? <em>A neural network in five minutes.</em></h1>
-      <p class="lead">
-        The whole story of a neural network in one small example. A network looks at a 28 × 28 drawing and says whether it is a circle, a square or a triangle.
-        Draw one yourself, then walk through what happens inside: inputs, channels and weights, bias, activation, forward propagation, the error, and backpropagation.
-      </p>
+      <p class="eyebrow">CSIT843A · Lecture 6 · Chapter 7 of 10</p>
+      <h1>Recap in five minutes: <em>circle, square or triangle?</em></h1>
+      <p class="lead">The whole story of chapters 2–6 told once more, quickly, on a new problem. A small network learns to tell circles, squares and triangles apart. Use it to check that you can name every step.</p>
+      <div class="recap">
+        <div><span class="k">So far</span><p>Neurons, layers, forward pass, cost, gradient descent, backpropagation, training (chapters 2–6).</p></div>
+        <div><span class="k">In this chapter</span><p>The same ideas in the words of a five-minute overview: inputs, channels and weights, bias, activation, forward propagation, error and backpropagation.</p></div>
+      </div>
       <div class="learn-grid">
         <div><span class="num">01</span>Name the three kinds of layers</div>
         <div><span class="num">02</span>Say what weights, bias and activation do</div>
         <div><span class="num">03</span>Describe forward propagation</div>
-        <div><span class="num">04</span>Describe how the error flows back (backpropagation)</div>
+        <div><span class="num">04</span>Describe backpropagation in one sentence</div>
         <div><span class="num">05</span>Give examples of where networks are used</div>
       </div>
     </section>
-
     <section id="try" class="chapter">
       <h2><span class="chap">01</span>Draw a shape</h2>
       <p>This small network was trained a moment ago, in your browser, on 3,000 computer-drawn shapes. Draw a circle, a square or a triangle with the mouse or a finger.</p>
@@ -82,7 +95,6 @@
         </div></div>
       </div>
     </section>
-
     <section id="inside" class="chapter">
       <h2><span class="chap">02</span>What happens inside, step by step</h2>
       <p>Press <b>▶ Play</b> to watch your drawing travel through the network, or <b>Next step</b> to go one step at a time. All numbers are the real ones for the shape on the pad. Draw a different shape and the animation follows it.</p>
@@ -94,7 +106,6 @@
         <div class="lab-foot"><b>Watch for:</b> blue dots = signals moving forward, orange dots = the error moving back. Darker neurons are more active. Green lines are positive weights, red negative.</div>
       </div>
     </section>
-
     <section id="train" class="chapter">
       <h2><span class="chap">03</span>Training: guess, compare, correct</h2>
       <p>A network does not start out knowing shapes. Its weights begin random, so its first answers are guesses. For each training example the network predicts, the prediction is compared with the real answer, the <strong>error</strong> is sent back through the network (<strong>backpropagation</strong>), and every weight is adjusted a little. After enough examples, it predicts correctly most of the time.</p>
@@ -107,7 +118,6 @@
         </div></div>
       </div>
     </section>
-
     <section id="uses" class="chapter">
       <h2><span class="chap">04</span>Where neural networks are used</h2>
       <div class="cards">
@@ -119,18 +129,16 @@
         <div class="card"><span class="n">security</span><h4>Fraud detection</h4><p>Flagging unusual card payments: see <a href="problems.html#imbalance">data imbalance</a>.</p></div>
       </div>
     </section>
-
     <section id="check" class="chapter">
       <h2><span class="chap">05</span>Quiz</h2>
       <div class="quiz" id="qz"></div>
       <p class="quiz-score" id="qz-score"></p>
       <p class="prose" style="color:var(--muted);font-size:.9rem">This lesson follows the structure of Simplilearn’s video <a href="https://www.youtube.com/watch?v=bfmFfD2RIcg" target="_blank" rel="noopener">“Neural Network In 5 Minutes”</a>; the network, drawings and numbers here are our own.</p>
-      <a class="next-card" href="neuron.html">
-        <span class="next-eyebrow">Next · Part 1</span>
-        <span class="next-title">Neurons & layers in detail →</span>
-        <span class="next-text">Now slow down: what exactly does one neuron compute, and how many knobs does a real network have?</span>
-      </a>
     </section>
+    <nav class="chapnav">
+      <a class="prev" href="training.html"><span class="next-eyebrow">← Chapter 6</span><span class="next-title">Training: the whole loop</span></a>
+      <a class="next-card" href="playground.html"><span class="next-eyebrow">Next · Chapter 8</span><span class="next-title">Playground →</span><span class="next-text">Time to experiment with everything you know.</span></a>
+    </nav>
   </main>
 </div>
 
@@ -151,5 +159,6 @@
 <script src="assets/js/anim.js"></script>
 <script src="assets/js/tips.js"></script>
 <script src="assets/js/shapes.js"></script>
+<script src="assets/js/quizzes.js"></script>
 </body>
 </html>

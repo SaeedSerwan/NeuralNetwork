@@ -1,10 +1,11 @@
     <section class="hero">
-      <p class="eyebrow">CSIT843A · Lecture 6 · Playground</p>
-      <h1>Build a network, <em>watch it learn.</em></h1>
-      <p class="lead">
-        Orange and blue dots, and a network that must learn to tell them apart. Choose the data, the inputs, the layers and the activation function, press play,
-        and watch every neuron’s picture of the world change as gradient descent turns the knobs.
-      </p>
+      <p class="eyebrow">CSIT843A · Lecture 6 · Chapter 8 of 10</p>
+      <h1>Playground: <em>experiment with a network.</em></h1>
+      <p class="lead">Orange and blue dots, and a network that must learn to tell them apart. Choose the inputs, the layers and the activation function, press play, and watch every neuron’s picture of the world change as gradient descent turns the knobs.</p>
+      <div class="recap">
+        <div><span class="k">So far</span><p>How a network computes (chapters 2–3) and learns (chapters 4–6).</p></div>
+        <div><span class="k">In this chapter</span><p>Experiments that make the earlier ideas visible: one neuron draws a straight line, hidden layers bend it, the activation is what allows curves, the learning rate can be too large, and big networks can overfit.</p></div>
+      </div>
       <div class="learn-grid">
         <div><span class="num">01</span>See that one neuron draws a straight line</div>
         <div><span class="num">02</span>See hidden layers bend the decision boundary</div>
@@ -13,9 +14,9 @@
         <div><span class="num">05</span>Spot overfitting: training cost vs test cost</div>
       </div>
     </section>
-
     <section id="lab" class="chapter">
       <h2><span class="chap">01</span>The playground</h2>
+      <p class="bridge">You know how a network computes and how it learns. Now experiment: change the data, the layers, the activation and the learning rate, and see what each one does. Each square is a neuron from chapter 2; the lines are its weights; Play runs the training loop from chapter 6.</p>
       <p>Each square in the network is one neuron. Its little picture shows its activation for every point of the plane: blue where it is high, orange where it is low (or negative). The lines are weights: blue positive, orange negative, thicker = larger. The big picture on the right is the output neuron: the network’s <strong>decision boundary</strong>.</p>
       <div class="lab">
         <div class="lab-head"><p class="lab-title">Neural network playground</p><p class="lab-hint">Hover a neuron to see its picture large. Click a dataset to start again.</p></div>
@@ -46,13 +47,11 @@
         </div>
       </div>
     </section>
-
     <section id="challenges" class="chapter">
       <h2><span class="chap">02</span>Challenges</h2>
       <p>Each button sets the playground up. Press <b>Play</b>, watch, then answer the question before reading the explanation.</p>
       <ol class="ex-list" id="pg-ch"></ol>
     </section>
-
     <section id="ideas" class="chapter">
       <h2><span class="chap">03</span>What the playground shows</h2>
       <div class="cards">
@@ -61,9 +60,4 @@
         <div class="card"><span class="n">activation</span><h4>The bend</h4><p>With “none”, any number of layers still draws only a straight line. The activation is what allows curves.</p></div>
         <div class="card"><span class="n">train vs test</span><h4>Overfitting</h4><p>With few training points and a big network, the training cost keeps falling while the test cost rises: it memorises the noise.</p></div>
       </div>
-      <a class="next-card" href="types.html">
-        <span class="next-eyebrow">Next · Part 3</span>
-        <span class="next-title">Types of neural networks →</span>
-        <span class="next-text">Same neurons, same gradient descent, different wiring: CNN, RNN, GAN and transformers.</span>
-      </a>
     </section>

@@ -7,6 +7,7 @@
 
   /* ------------------------------------------------------------ 01 pixels */
   (function () {
+    if (!document.getElementById('px-grid')) return;
     const grid = UL.pixPlot('#px-grid', 336), read = $('#px-read'), strip = $('#px-strip');
     let px = new Float32Array(784);
     function draw(hi = -1) {
@@ -34,6 +35,7 @@
 
   /* ------------------------------------------------------------ 02 network */
   (function () {
+    if (!document.getElementById('net-svg')) return;
     const layers = [{ n: 784, shown: 22, label: 'Input · 784' }, { n: 16, label: 'Hidden · 16' }, { n: 16, label: 'Hidden · 16' }, { n: 10, label: 'Output · 10' }];
     const N = UL.netSVG('net-svg', layers, { w: 620, h: 360, r: 6.5, digits: true });
     const info = $('#net-info');
@@ -58,6 +60,7 @@
 
   /* ------------------------------------------------------------ 03 the hope */
   (function () {
+    if (!document.getElementById('hope-svg')) return;
     // parts drawn on a 100 × 100 box; each part lists its edges (short segments)
     const PARTS = {
       top: { name: 'loop up top', d: 'M50 12 a 22 20 0 1 1 -0.1 0', edges: ['M30 22 l10 -10', 'M60 12 l10 10', 'M72 34 l-10 12', 'M40 48 l-12 -12'] },
@@ -93,6 +96,7 @@
 
   /* ------------------------------------------------------------ 04a one neuron, animated */
   (function () {
+    if (!document.getElementById('on-net')) return;
     const words = [['prize', 2.0], ['money', 1.5], ['dear', -1.0], ['win', 1.0]], b = -1.5, on = new Set(['money', 'prize']);
     const el = $('#on-words');
     el.innerHTML = words.map(([w, v]) => `<label data-w="${w}">${w} <small>w = ${v > 0 ? '+' : '−'}${Math.abs(v).toFixed(1)}</small></label>`).join('') + '<span class="pill">bias b = −1.5</span>';
@@ -122,14 +126,33 @@
         run: async () => { await A.flash(1, 0, a >= 0.5 ? '#d64045' : '#1b8c5c', 700); }, show: () => { A.ring(1, 0, a >= 0.5 ? '#d64045' : '#1b8c5c'); A.nodes[1][0].side.textContent = a >= 0.5 ? '→ spam' : '→ not spam'; } },
     ];
     calc();
-    const P = new UL.Player({ controls: 'on-ctl', narration: 'on-narr', progress: 'on-bar', clock: A.clock, steps, base, pause: 900, intro: 'This email contains “prize” and “money”. Press <b>▶ Play</b> to watch the neuron decide.' });
+    const code = new UL.CodePanel('on-code', [
+      'x = np.array([' + words.map(([w]) => (on.has(w) ? 1 : 0)).join(', ') + '])   # ' + words.map((w) => w[0]).join(', '),
+      'w = np.array([2.0, 1.5, -1.0, 1.0])',
+      'b = -1.5',
+      'products = w * x          # multiply each input by its weight',
+      's = products.sum()        # add them up',
+      'z = s + b                 # add the bias',
+      'a = 1 / (1 + np.exp(-z))  # sigmoid',
+      'spam = a >= 0.5',
+    ], { title: 'The same neuron in Python (NumPy)' });
+    const fx = (v) => (Number.isInteger(v) ? v + '.' : String(+v.toFixed(2)));
+    [[0, 0], [1, 3], [2, 4], [3, 5], [4, 6], [5, 7]].forEach(([k, l]) => { steps[k].line = l; });
+    steps[0].notes = () => ({ 0: `shape (4,): [${x.join(', ')}]` });
+    steps[1].notes = () => ({ 3: `[${terms.map(fx).join(' ')}]` });
+    steps[2].notes = () => ({ 4: fx(sum) });
+    steps[3].notes = () => ({ 5: fx(z) });
+    steps[4].notes = () => ({ 6: a.toFixed(2) });
+    steps[5].notes = () => ({ 7: String(a >= 0.5) });
+    const P = new UL.Player({ code, controls: 'on-ctl', narration: 'on-narr', progress: 'on-bar', clock: A.clock, steps, base, pause: 900, intro: 'This email contains “prize” and “money”. Press <b>▶ Play</b> to watch the neuron decide.' });
     const chips = () => $$('label', el).forEach((l) => l.classList.toggle('on', on.has(l.dataset.w)));
-    $$('label', el).forEach((l) => l.addEventListener('click', () => { const w = l.dataset.w; if (on.has(w)) on.delete(w); else on.add(w); chips(); P.pause(); P.goto(-1); }));
+    $$('label', el).forEach((l) => l.addEventListener('click', () => { const w = l.dataset.w; if (on.has(w)) on.delete(w); else on.add(w); chips(); code.rows[0].querySelector('code').innerHTML = UL.pyHL('x = np.array([' + words.map(([q]) => (on.has(q) ? 1 : 0)).join(', ') + '])   # ' + words.map((q) => q[0]).join(', ')); P.pause(); P.goto(-1); }));
     chips();
   })();
 
   /* ------------------------------------------------------------ 04 weighted sum */
   (function () {
+    if (!document.getElementById('ws-a')) return;
     const net = UL.pretrained();
     const PA = UL.pixPlot('#ws-a', 224), PW = UL.pixPlot('#ws-wt', 224), PP = UL.pixPlot('#ws-p', 224), calc = $('#ws-calc');
     const mk = (fn) => { const w = new Float32Array(784); for (let r = 0; r < 28; r++) for (let c = 0; c < 28; c++) w[r * 28 + c] = fn(r, c); return w; };
@@ -168,6 +191,7 @@
 
   /* ------------------------------------------------------------ 05 activation functions */
   (function () {
+    if (!document.getElementById('sg-plot')) return;
     const P = new UL.Plot('#sg-plot', { w: 560, h: 340, pad: { l: 40, r: 14, t: 14, b: 34 } }), calc = $('#sg-calc');
     let fk = 'sigmoid';
     const z = UL.range('sg-z', () => draw(), (v) => v.toFixed(1)), slope = $('#sg-slope');
@@ -187,6 +211,7 @@
 
   /* ------------------------------------------------------------ 06 bias */
   (function () {
+    if (!document.getElementById('bi-plot')) return;
     const P = new UL.Plot('#bi-plot', { w: 560, h: 320, pad: { l: 40, r: 14, t: 14, b: 34 } }), calc = $('#bi-calc');
     const b = UL.range('bi-b', () => draw(), (v) => v.toFixed(1)), s = UL.range('bi-s', () => draw(), (v) => v.toFixed(1));
     function draw() {
@@ -203,6 +228,7 @@
 
   /* ------------------------------------------------------------ 07 count */
   (function () {
+    if (!document.getElementById('ct-in')) return;
     const inp = $('#ct-in'), tb = $('#ct-table'), foot = $('#ct-foot'), n = (v) => v.toLocaleString('en-US');
     function upd() {
       const sz = inp.value.split(/[ ,→\-]+/).map((x) => parseInt(x, 10)).filter((x) => x > 0);
@@ -217,6 +243,7 @@
 
   /* ------------------------------------------------------------ 08 matrix */
   (function () {
+    if (!document.getElementById('mx')) return;
     const el = $('#mx'), calc = $('#mx-calc'); let r = UL.rng(5), W, a, b;
     const fresh = () => { W = Array.from({ length: 3 }, () => Array.from({ length: 4 }, () => Math.round(r.normal() * 10) / 10)); a = Array.from({ length: 4 }, () => Math.round(r() * 10) / 10); b = Array.from({ length: 3 }, () => Math.round(r.normal() * 5) / 10); };
     function draw(hi = -1) {
@@ -231,8 +258,82 @@
     el.addEventListener('mouseleave', () => draw()); fresh(); draw();
   })();
 
+  /* ------------------------------------------------------------ 08b array sizes through the network, with code */
+  (function () {
+    if (!document.getElementById('sz-mm')) return;
+    const clock = new UL.Clock(), NS = 'http://www.w3.org/2000/svg';
+    let sizes = [784, 16, 16, 10], B = 32, player = null;
+    const sc = (n) => 8 + 17 * Math.log2(Math.max(1, n)); // block length on a log scale
+    const nf = (v) => v.toLocaleString('en-US');
+    const code = new UL.CodePanel('sz-code', [''], { title: 'The forward pass in Python (NumPy)' });
+    const strip = document.getElementById('sz-strip'), mm = document.getElementById('sz-mm');
+    function codeLines() {
+      const L = sizes.length - 1, out = [`X = images[:${B}]`.padEnd(34) + `# (${B}, ${sizes[0]})`];
+      out[0] = `A0 = images[:B]`.padEnd(34) + `# B pictures, ${sizes[0]} pixels each`;
+      for (let l = 1; l <= L; l++) {
+        out.push(`Z${l} = A${l - 1} @ W${l}.T`.padEnd(34) + `# W${l} has shape (${sizes[l]}, ${sizes[l - 1]})`);
+        out.push(`A${l} = sigmoid(Z${l} + b${l})`.padEnd(34) + `# b${l} has shape (${sizes[l]},)`);
+      }
+      out.push(`pred = A${L}.argmax(axis=1)`.padEnd(34) + '# the brightest output per picture');
+      return out;
+    }
+    function drawStrip(cur) { // every activation array side by side, the current one highlighted
+      const L = sizes.length, W = 760, H = 100, bx = (n) => Math.max(10, sc(n) * 0.45), y0 = 4;
+      let x = 10, s = '';
+      sizes.forEach((n, l) => {
+        const w = bx(n), h = Math.max(8, sc(B) * 0.45), on = l === cur;
+        s += `<rect x="${x}" y="${y0 + 45 - h / 2}" width="${w}" height="${h}" rx="3" fill="${on ? '#2a78d6' : '#e8f0fb'}" stroke="#2a78d6"/>`;
+        s += `<text x="${x + w / 2}" y="${y0 + 45 + h / 2 + 16}" text-anchor="middle" style="font:11px var(--mono);fill:${on ? '#111' : '#6b6b68'}">A${l} (${B}, ${n})</text>`;
+        if (l < L - 1) { const x2 = x + w + 112; s += `<line x1="${x + w + 6}" y1="${y0 + 45}" x2="${x2 - 8}" y2="${y0 + 45}" stroke="#a3a3a0" stroke-width="1.5" marker-end="url(#szarrow)"/><text x="${(x + w + x2) / 2}" y="${y0 + 36}" text-anchor="middle" style="font:10.5px var(--mono);fill:${cur === l + 1 ? '#eb6834' : '#6b6b68'}">W${l + 1} (${sizes[l + 1]}, ${n})</text>`; x = x2; }
+      });
+      strip.innerHTML = `<svg class="netsvg" viewBox="0 0 ${Math.max(W, x + 60)} ${H}"><defs><marker id="szarrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#a3a3a0"/></marker></defs>${s}</svg>`;
+    }
+    // the matrix multiplication of one layer: A (B × nIn) @ W.T (nIn × nOut) = Z (B × nOut), + b, σ
+    function drawMM(l, phase, t) {
+      if (l < 1) { mm.innerHTML = ''; return; }
+      const nIn = sizes[l - 1], nOut = sizes[l], h = (n) => sc(n) * 0.85, w = (n) => sc(n) * 0.85;
+      const aW = w(nIn), aH = h(B), wW = w(nOut), wH = h(nIn), zW = w(nOut), zH = h(B), top = 30, gap = 34;
+      const ax = 10, wx = ax + aW + gap, zx = wx + wW + gap, bx = zx + zW + gap, H = top + Math.max(aH, wH) + 50;
+      const rowsDone = phase === 0 ? t : 1, sweep = phase === 0 ? t : -1;
+      let s = '';
+      s += `<rect x="${ax}" y="${top}" width="${aW}" height="${aH}" rx="3" fill="#e8f0fb" stroke="#2a78d6"/>`;
+      s += `<rect x="${wx}" y="${top}" width="${wW}" height="${wH}" rx="3" fill="#eaf5ef" stroke="#1b8c5c"/>`;
+      s += `<rect x="${zx}" y="${top}" width="${zW}" height="${zH}" rx="3" fill="#fff" stroke="#111" stroke-dasharray="3 3"/>`;
+      s += `<rect x="${zx}" y="${top}" width="${zW}" height="${zH * rowsDone}" rx="3" fill="${phase >= 1 ? '#2a78d6' : '#9ec2ee'}" opacity="${phase >= 1 ? 0.25 + 0.65 * (phase === 1 ? t : 1) : 0.9}"/>`;
+      if (sweep >= 0 && sweep < 1) { const ry = top + aH * sweep; s += `<rect x="${ax}" y="${ry}" width="${aW}" height="${Math.max(3, aH / Math.max(4, Math.min(B, 24)))}" fill="#eb6834" opacity=".55"/><rect x="${wx}" y="${top}" width="${Math.max(3, wW / Math.max(4, Math.min(nOut, 24)))}" height="${wH}" fill="#eb6834" opacity=".45" transform="translate(${(wW - Math.max(3, wW / Math.max(4, Math.min(nOut, 24)))) * ((sweep * 7) % 1)},0)"/>`; }
+      if (phase >= 1) { s += `<rect x="${bx}" y="${top}" width="${zW}" height="10" rx="2" fill="#fff4d6" stroke="#c99a2e"/><text x="${bx + zW / 2}" y="${top + 26}" text-anchor="middle" style="font:10.5px var(--mono);fill:#8a6a1d">+ b${l} (${nOut},)</text>`; if (phase === 1) for (let r = 0; r < 4; r++) s += `<rect x="${zx}" y="${top + (zH * r) / 4 + 2}" width="${zW}" height="6" fill="#fff4d6" opacity="${Math.sin(t * Math.PI) * 0.9}"/>`; }
+      const lab = (x, wd, y, t1, t2, col) => `<text x="${x + wd / 2}" y="${y}" text-anchor="middle" style="font:500 11.5px var(--mono);fill:${col}">${t1}</text><text x="${x + wd / 2}" y="${y + 15}" text-anchor="middle" style="font:11px var(--mono);fill:#6b6b68">${t2}</text>`;
+      s += lab(ax, aW, top + aH + 18, `A${l - 1}`, `(${B}, ${nIn})`, '#2a78d6') + lab(wx, wW, top + wH + 18, `W${l}.T`, `(${nIn}, ${nOut})`, '#1b8c5c') + lab(zx, zW, top + zH + 18, phase >= 1 ? `A${l}` : `Z${l}`, `(${B}, ${nOut})`, '#111');
+      s += `<text x="${ax + aW + gap / 2}" y="${top + 18}" text-anchor="middle" style="font:500 16px var(--mono);fill:#3d3d3b">@</text><text x="${wx + wW + gap / 2}" y="${top + 18}" text-anchor="middle" style="font:500 16px var(--mono);fill:#3d3d3b">=</text>`;
+      s += `<text x="${ax}" y="16" style="font:11px var(--mono);fill:#eb6834">inner sizes: ${nIn} and ${nIn} ✓ → result keeps the outer sizes (${B}, ${nOut})</text>`;
+      mm.innerHTML = `<svg class="netsvg" viewBox="0 0 ${Math.max(560, bx + zW + 20)} ${H + 10}">${s}</svg>`;
+    }
+    function build() {
+      clock.cancel(); const L = sizes.length - 1;
+      code.set(codeLines(), 'The forward pass in Python (NumPy)');
+      const steps = [{ title: 'A batch of pictures', line: 0, text: () => `We push <b>B = ${B}</b> pictures through at once. Each picture is a row of ${sizes[0]} numbers, so the input is a table of shape <b>(${B}, ${sizes[0]})</b>: ${nf(B * sizes[0])} numbers.`,
+        notes: () => ({ 0: `shape (${B}, ${sizes[0]})` }), run: async () => { drawStrip(0); drawMM(0); await clock.wait(500); }, show: () => { drawStrip(0); drawMM(0); } }];
+      for (let l = 1; l <= L; l++) {
+        const nIn = sizes[l - 1], nOut = sizes[l];
+        steps.push({ title: `Layer ${l}: multiply by the weights`, line: 2 * l - 1, text: () => `<code>A${l - 1} @ W${l}.T</code>: (${B}, ${nIn}) @ (${nIn}, ${nOut}) → <b>(${B}, ${nOut})</b>. Each of the ${nf(B * nOut)} results is one weighted sum of ${nf(nIn)} products: ${nf(B * nIn * nOut)} multiply-adds in total. The ${nIn} disappears; ${nOut} neurons remain.`,
+          notes: () => ({ [2 * l - 1]: `(${B}, ${nOut})` }), run: async () => { drawStrip(l - 1); await clock.tween(1600, (t, raw) => drawMM(l, 0, raw)); }, show: () => { drawStrip(l); drawMM(l, 0, 1); } });
+        steps.push({ title: `Layer ${l}: add the bias, squish`, line: 2 * l, text: () => `<code>+ b${l}</code> has shape (${nOut},): one bias per neuron, added to every one of the ${B} rows (broadcasting). Then σ is applied to every entry. The shape stays <b>(${B}, ${nOut})</b>. This layer has ${nf(nIn * nOut)} weights + ${nOut} biases = ${nf(nIn * nOut + nOut)} parameters.`,
+          notes: () => ({ [2 * l]: `(${B}, ${nOut})` }), run: async () => { await clock.tween(900, (t, raw) => drawMM(l, 1, raw)); drawStrip(l); }, show: () => { drawStrip(l); drawMM(l, 2, 1); } });
+      }
+      steps.push({ title: 'The answers', line: 2 * L + 1, text: () => `<code>argmax(axis=1)</code> picks the brightest of the ${sizes[L]} outputs in each row: shape <b>(${B},)</b>, one answer per picture. All together: ${nf(sizes.slice(1).reduce((s, n, i) => s + sizes[i] * n + n, 0))} parameters, the same for every batch size.`,
+        notes: () => ({ [2 * L + 1]: `(${B},)` }), run: async () => { drawStrip(L); await clock.wait(400); }, show: () => drawStrip(L) });
+      const ctl = document.getElementById('sz-ctl'); ctl.innerHTML = '';
+      player = new UL.Player({ code, clock, controls: 'sz-ctl', narration: 'sz-narr', progress: 'sz-bar', steps, base: () => { drawStrip(0); drawMM(0); }, pause: 900,
+        intro: 'Press <b>▶ Play</b> to follow a batch of pictures through the network, one line of code at a time.' });
+    }
+    document.getElementById('sz-in').addEventListener('change', (e) => { const v = e.target.value.split(/[ ,]+/).map((x) => parseInt(x, 10)).filter((x) => x > 0); if (v.length >= 2) { sizes = v.slice(0, 6); build(); } });
+    UL.seg('sz-b', (v) => { B = +v; build(); });
+    build();
+  })();
+
   /* ------------------------------------------------------------ 09 non-linearity */
   (function () {
+    if (!document.getElementById('nl-plot')) return;
     const P = new UL.Plot('#nl-plot', { w: 760, h: 300, pad: { l: 36, r: 14, t: 14, b: 30 } }), st = $('#nl-status');
     let tk = 'sin', ak = 'linear', net, it = 0;
     const T = { sin: (x) => Math.sin(2 * x) * 0.8, abs: (x) => Math.abs(x) * 0.6 - 0.6, step: (x) => (x > 0.3 ? 0.7 : -0.7) };
@@ -258,6 +359,7 @@
 
   /* ------------------------------------------------------------ 10 exercise 1 */
   (function () {
+    if (!document.getElementById('sp-words')) return;
     const words = [['prize', 2.0], ['money', 1.5], ['dear', -1.0], ['win', 1.0]], on = new Set(['money', 'dear']), b = -1.5, el = $('#sp-words'), calc = $('#sp-calc');
     el.innerHTML = words.map(([w, v]) => `<label data-w="${w}">${w} <small>${v > 0 ? '+' : '−'}${Math.abs(v).toFixed(1)}</small></label>`).join('') + `<span class="pill">bias b = −1.5</span>`;
     function upd() {
@@ -267,23 +369,9 @@
     }
     $$('label', el).forEach((l) => l.addEventListener('click', () => { const w = l.dataset.w; if (on.has(w)) on.delete(w); else on.add(w); upd(); }));
     upd();
-    UL.exercises('ex1-list', [
-      { q: 'An email contains only “money” and “dear”. Compute the weighted sum and σ. Is it spam if the rule is σ ≥ 0.5?', a: '1.5 − 1.0 − 1.5 = −1.0; σ(−1) = 0.27 &lt; 0.5 → <b>not spam</b>.' },
-      { q: 'Which one word would you add to make it spam? What is the new σ?', a: 'Add “prize”: the sum becomes 1.0 and σ = 0.73 → spam. (Adding “win” gives a sum of 0 and σ = 0.50: exactly on the edge.)' },
-      { q: 'Count the parameters of a 784 → 16 → 16 → 10 network without looking back. And of 784 → 32 → 10?', a: '12,560 + 272 + 170 = <b>13,002</b>. For 784 → 32 → 10: 25,120 + 330 = <b>25,450</b>.' },
-      { q: 'In the edge neuron, a pixel has weight 0. What does that mean?', a: 'That pixel is ignored by this neuron: whatever its brightness, it adds 0 to the sum.' },
-      { q: 'You remove every activation function from a 5-layer network. What kind of model is left?', a: 'A single linear model: straight lines on straight lines are still straight. (Try “none” in § 09.)' },
-    ]);
+    
   })();
 
-  UL.quiz('qz', [
-    { q: 'What does a neuron in the input layer of the digit network hold?', o: ['A weight', 'The brightness of one pixel, between 0 and 1', 'A digit from 0 to 9', 'The cost'], a: 1, why: 'Each of the 784 input neurons simply holds one pixel’s brightness: its activation.' },
-    { q: 'ReLU(−3) = ?', o: ['−3', '0', '3', '0.05'], a: 1, why: 'ReLU keeps positive numbers and turns negative ones into 0.' },
-    { q: 'σ(0) = ?', o: ['0', '0.25', '0.5', '1'], a: 2, why: '1 / (1 + e⁰) = 1 / 2.' },
-    { q: 'A neuron has bias −10. What does that mean?', o: ['It is switched off', 'Its weighted sum must be above about 10 before it becomes active', 'All its weights are −10', 'It fires 10 times'], a: 1, why: 'The bias is added before σ: σ(sum − 10) is above 0.5 only when the sum is above 10.' },
-    { q: 'How many weights connect a layer of 784 neurons to a layer of 16?', o: ['800', '784 + 16', '12,544', '13,002'], a: 2, why: 'Every one of the 16 neurons has one weight per input: 784 × 16 = 12,544. (13,002 is the whole network, biases included.)' },
-    { q: 'In a = σ(Wa + b), what is row k of W?', o: ['The activations of layer k', 'All the weights going into neuron k', 'The biases', 'The output'], a: 1, why: 'Multiplying row k by the input column gives neuron k’s weighted sum.' },
-    { q: 'Why do networks need activation functions between layers?', o: ['To make them faster', 'Without them, all layers together are still just one linear model', 'To count the parameters', 'To store the pixels'], a: 1, why: 'Linear functions of linear functions are linear. The squish is what lets depth build curved, complex functions.' },
-  ]);
+  
   UL.start();
 })();

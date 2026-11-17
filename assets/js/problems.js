@@ -144,7 +144,7 @@
   /* ------------------------------------------------------------ 05 exercise 4 */
   UL.exercises('ex4-list', [
     { q: 'A fraud model reports 99.5% accuracy, but catches only 2 of the 50 frauds in the test set.', a: '<b>Data imbalance.</b> Cause: “legitimate” is almost always right, so the cost function barely notices the frauds. Fixes: class weights or SMOTE; judge by recall / F1; lower the threshold.' },
-    { q: 'A 30-layer network with sigmoid activations trains for hours; the loss stays almost flat and the first layers hardly change.', a: '<b>Vanishing gradient.</b> Cause: slopes ≤ 0.25 multiplied over 30 layers. Fixes: ReLU; He initialisation, batch normalisation, residual connections. Try it in § 03 with 30 layers.' },
+    { q: 'A 30-layer network with sigmoid activations trains for hours; the loss stays almost flat and the first layers hardly change.', a: '<b>Vanishing gradient.</b> Cause: slopes ≤ 0.25 multiplied over 30 layers. Fixes: ReLU; He initialisation, batch normalisation, residual connections. Try it in the vanishing-gradient lab with 30 layers.' },
     { q: 'An RNN on long sensor sequences trains well for a few hundred steps, then the loss suddenly becomes NaN.', a: '<b>Exploding gradient.</b> Cause: factors &gt; 1 multiplied over many time steps. Fixes: gradient clipping; a smaller learning rate; LSTM / GRU.' },
   ]);
 
@@ -154,7 +154,7 @@
     { q: 'Where may you apply SMOTE?', o: ['The test set only', 'The training set only', 'Both', 'Neither'], a: 1, why: 'The test set must stay like real data, or your results are fiction.' },
     { q: 'Why do deep sigmoid networks suffer from vanishing gradients?', o: ['Sigmoid is slow to compute', 'Its slope is at most 0.25, and backpropagation multiplies one slope per layer', 'It has no bias', 'It outputs negative numbers'], a: 1, why: 'Ten factors of at most 0.25 give at most 0.25¹⁰ ≈ 0.000001.' },
     { q: 'What does gradient clipping do?', o: ['Removes small gradients', 'Shrinks a gradient that is too long to a maximum length, keeping its direction', 'Stops training', 'Deletes layers'], a: 1, why: 'Steps can no longer be huge, so one bad batch cannot throw the weights to NaN.' },
-    { q: 'Which change helps against vanishing gradients?', o: ['More sigmoid layers', 'Residual connections', 'A larger test set', 'A higher threshold'], a: 1, why: 'Shortcuts let the gradient pass back without being multiplied by every layer. Tick “residual connections” in § 03.' },
+    { q: 'Which change helps against vanishing gradients?', o: ['More sigmoid layers', 'Residual connections', 'A larger test set', 'A higher threshold'], a: 1, why: 'Shortcuts let the gradient pass back without being multiplied by every layer. Tick “residual connections” in the vanishing-gradient lab.' },
   ]);
   UL.start();
 })();

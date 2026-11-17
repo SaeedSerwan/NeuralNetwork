@@ -1,10 +1,11 @@
     <section class="hero">
-      <p class="eyebrow">CSIT843A · Lecture 6 · Part 4</p>
+      <p class="eyebrow">CSIT843A · Lecture 6 · Chapter 10 of 10</p>
       <h1>When training <em>goes wrong.</em></h1>
-      <p class="lead">
-        Three classic problems: a model that is 98% accurate and useless, a deep network whose first layers never learn,
-        and a loss that suddenly becomes NaN. For each one: the symptom, the cause and the fix, and an experiment you can run.
-      </p>
+      <p class="lead">Three classic problems: a model that is 98% accurate and useless, a deep network whose first layers never learn, and a loss that suddenly becomes NaN. For each one: the symptom, the cause and the fix, and an experiment you can run.</p>
+      <div class="recap">
+        <div><span class="k">So far</span><p>The whole training loop (chapters 2–6) and the types of networks (chapter 9).</p></div>
+        <div><span class="k">In this chapter</span><p>Data imbalance and how to fix it; why gradients vanish or explode in deep networks and RNNs; a summary of the lecture.</p></div>
+      </div>
       <div class="learn-grid">
         <div><span class="num">01</span>Explain why accuracy hides a rare class</div>
         <div><span class="num">02</span>Use recall, precision and the threshold</div>
@@ -13,9 +14,9 @@
         <div><span class="num">05</span>Explain exploding gradients and clipping</div>
       </div>
     </section>
-
     <section id="imbalance" class="chapter">
       <h2><span class="chap">01</span>Data imbalance: when 98% accuracy means nothing</h2>
+      <p class="bridge">Training does not always work. The three problems in this chapter each break one piece from earlier: imbalance breaks the cost (chapter 4), vanishing and exploding gradients break backpropagation (chapter 5).</p>
       <p>MNIST is balanced: about 10% of each digit. Fraud data is not. Below are 10,000 simulated card payments, 2% of them fraud; 3,000 are held out for testing. A model that simply says “legitimate” every time is 98% accurate and catches no fraud at all. Train a logistic regression (one sigmoid neuron) on the data as it is: the cost function is dominated by the 98%, so the model learns that “legitimate” is almost always right.</p>
       <div class="lab">
         <div class="lab-head"><p class="lab-title">Catch the fraud</p><p class="lab-hint">Pick a strategy, then move the threshold. Red crosses: fraud. Grey dots: a sample of the legitimate payments.</p></div>
@@ -30,7 +31,6 @@
       <div class="formula">\[ \text{recall} = \frac{TP}{TP + FN} \qquad \text{precision} = \frac{TP}{TP + FP} \]</div>
       <p class="takeaway"><b>Key idea:</b> judge a model on a rare class by recall and precision, not accuracy. Rebalancing finds more fraud but raises false alarms: where to stand is a business decision.</p>
     </section>
-
     <section id="smote" class="chapter">
       <h2><span class="chap">02</span>Fixing imbalance: resample, reweight, measure</h2>
       <p><strong>SMOTE</strong> (Chawla et al., 2002) creates synthetic minority examples: pick a fraud, pick one of its nearest fraud neighbours, and place a new point somewhere on the line between them.</p>
@@ -45,7 +45,6 @@
         <div class="card"><span class="n">measure</span><h4>Recall, precision, F1</h4><p>And tune the threshold: lowering it catches more fraud and raises more false alarms.</p></div>
       </div>
     </section>
-
     <section id="vanish" class="chapter">
       <h2><span class="chap">03</span>Vanishing gradients</h2>
       <p>Backpropagation multiplies the gradient by one weight and one activation slope per layer on its way back. The slope of the sigmoid is never more than 0.25. Multiply ten numbers smaller than 0.25 and almost nothing is left: the first layers receive a gradient close to zero and hardly change.</p>
@@ -72,7 +71,6 @@
       </table></div>
       <p class="takeaway"><b>Symptom:</b> the loss stops falling and the first layers hardly change.</p>
     </section>
-
     <section id="explode" class="chapter">
       <h2><span class="chap">04</span>Exploding gradients</h2>
       <p>The same multiplication can go the other way. If the repeated factor is a little larger than 1, the product grows without limit: 1.1 multiplied 100 times is about 14,000. This happens in very deep networks and in RNNs on long sequences, where the same weights are multiplied once per time step (backpropagation through time).</p>
@@ -90,13 +88,11 @@
       </div>
       <div class="callout"><span class="label">Question</span><p>The loss falls for 300 steps, then becomes NaN. Which problem? First fix? <button class="btn ghost small" onclick="this.nextElementSibling.hidden=!this.nextElementSibling.hidden">Show</button><span hidden> An <b>exploding gradient</b>. First fix: gradient clipping (and/or a smaller learning rate).</span></p></div>
     </section>
-
     <section id="ex4" class="chapter">
       <h2><span class="chap">05</span>Exercise 4: diagnose the training problem</h2>
       <p>For each case: name the problem, explain the cause, give two fixes. Five minutes, in pairs. Symptom → cause → fix: say all three.</p>
       <ol class="ex-list" id="ex4-list"></ol>
     </section>
-
     <section id="summary" class="chapter">
       <h2><span class="chap">06</span>Summary of the lecture</h2>
       <div class="table-wrap"><table class="clean">
@@ -125,14 +121,8 @@
         <li>NeuroVision, <a href="https://leonardocofone.github.io/NeuroVision" target="_blank" rel="noopener">leonardocofone.github.io/NeuroVision</a>: the idea of a concrete “dark and motion” scenario stepped through one training cycle</li>
       </ul>
     </section>
-
     <section id="check" class="chapter">
       <h2><span class="chap">07</span>Check yourself</h2>
       <div class="quiz" id="qz"></div>
       <p class="quiz-score" id="qz-score"></p>
-      <a class="next-card" href="code-network.html">
-        <span class="next-eyebrow">Practice</span>
-        <span class="next-title">Build it in Python →</span>
-        <span class="next-text">Three runnable notebooks: a network in NumPy, training it with backpropagation, and filters and training problems.</span>
-      </a>
     </section>

@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Training a Neural Network with Backpropagation in NumPy, Line by Line · Neural Network Lab</title>
-  <meta name="description" content="A complete, runnable notebook for Part 2. Roll a ball down a cost curve, write backpropagation by hand, check it numerically, train the 784 → 16 → 16 → 10 network on 60,000 digits to about 95% accuracy, and look at what it learned and where it fails. Only NumPy and Matplotlib. Hover over (or tap) any line of code to see what it does.">
+  <meta name="description" content="A complete, runnable notebook for chapters 4–6. Roll a ball down a cost curve, write backpropagation by hand, check it numerically, train the 784 → 16 → 16 → 10 network on 60,000 digits to about 95% accuracy, and look at what it learned and where it fails. Only NumPy and Matplotlib. Hover over (or tap) any line of code to see what it does.">
   <meta name="author" content="Eng. Saeed Serwan Abdulsattar">
   <meta property="og:title" content="Training a Neural Network with Backpropagation in NumPy, Line by Line · Neural Network Lab">
-  <meta property="og:description" content="A complete, runnable notebook for Part 2. Roll a ball down a cost curve, write backpropagation by hand, check it numerically, train the 784 → 16 → 16 → 10 network on 60,000 digits to about 95% accuracy, and look at what it learned and where it fails. Only NumPy and Matplotlib. Hover over (or tap) any line of code to see what it does.">
+  <meta property="og:description" content="A complete, runnable notebook for chapters 4–6. Roll a ball down a cost curve, write backpropagation by hand, check it numerically, train the 784 → 16 → 16 → 10 network on 60,000 digits to about 95% accuracy, and look at what it learned and where it fails. Only NumPy and Matplotlib. Hover over (or tap) any line of code to see what it does.">
   <meta property="og:image" content="assets/img/favicon-512.png">
   <meta name="theme-color" content="#ffffff">
   <link rel="icon" type="image/svg+xml" href="assets/img/utb-logo.svg">
@@ -24,18 +24,18 @@
     <img class="brand-logo" src="assets/img/utb-logo.svg" alt="University of Technology Bahrain logo" onerror="this.remove()">
     <span class="brand-title">Neural Network Lab</span>
   </a>
-  <nav class="page-tabs" aria-label="Lessons">
-    <a href="index.html">Overview</a>
-    <a href="shapes.html">Shapes in 5 minutes</a>
-    <a href="neuron.html">Neurons & layers</a>
-    <a href="learning.html">How it learns</a>
-    <a href="digits.html">The digit network</a>
-    <a href="playground.html">Playground</a>
-    <a href="types.html">Types of networks</a>
-    <a href="problems.html">Training problems</a>
-    <a href="code-network.html">A network in Python</a>
-    <a href="code-training.html" class="active" aria-current="page">Training in Python</a>
-    <a href="code-problems.html">Filters & problems in Python</a>
+  <nav class="page-tabs" aria-label="Chapters">
+    <a href="index.html">1 Why</a>
+    <a href="neuron.html">2 Neuron</a>
+    <a href="network.html">3 Network</a>
+    <a href="learning.html">4 Cost</a>
+    <a href="backprop.html">5 Backprop</a>
+    <a href="training.html">6 Training</a>
+    <a href="shapes.html">7 Recap</a>
+    <a href="playground.html">8 Playground</a>
+    <a href="types.html">9 Types</a>
+    <a href="problems.html">10 Problems</a>
+    <a href="code-network.html" class="active" aria-current="page">Notebooks</a>
   </nav>
   <nav class="top-links">
     <a href="https://github.com/SaeedSerwan/NeuralNetwork" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>GitHub</a>
@@ -63,7 +63,7 @@
     <section class="hero">
       <p class="eyebrow">Practice · Training in Python</p>
       <h1>Gradient descent and backpropagation, <em>line by line.</em></h1>
-      <p class="lead">A complete, runnable notebook for Part 2. Roll a ball down a cost curve, write backpropagation by hand, check it numerically, train the 784 → 16 → 16 → 10 network on 60,000 digits to about 95% accuracy, and look at what it learned and where it fails. Only NumPy and Matplotlib. Hover over (or tap) any line of code to see what it does.</p>
+      <p class="lead">A complete, runnable notebook for chapters 4–6. Roll a ball down a cost curve, write backpropagation by hand, check it numerically, train the 784 → 16 → 16 → 10 network on 60,000 digits to about 95% accuracy, and look at what it learned and where it fails. Only NumPy and Matplotlib. Hover over (or tap) any line of code to see what it does.</p>
       <div class="nb-actions">
         <a class="btn" href="https://colab.research.google.com/github/SaeedSerwan/NeuralNetwork/blob/main/notebooks/training_numpy.ipynb" target="_blank" rel="noopener">Open in Google Colab</a>
         <a class="btn ghost" href="notebooks/training_numpy.ipynb" download>Download notebook (.ipynb)</a>
@@ -387,7 +387,7 @@ answer 8  confidence 0.06</pre></div></div>
 </section>
 <section id="what-you-built" class="chapter">
 <h2><span class="chap">10</span>What you built</h2>
-<div class="nb-md"><p>Forward pass, cost, backpropagation, gradient descent: about 30 lines of NumPy, the same loop as <code>loss.backward()</code> and <code>optimizer.step()</code> in PyTorch. <strong>Next notebook:</strong> convolution filters and the three training problems of Part 4.</p></div>
+<div class="nb-md"><p>Forward pass, cost, backpropagation, gradient descent: about 30 lines of NumPy, the same loop as <code>loss.backward()</code> and <code>optimizer.step()</code> in PyTorch. <strong>Next notebook:</strong> convolution filters and the three training problems of chapter 10.</p></div>
 </section>
     <a class="next-card" href="code-problems.html">
       <span class="next-eyebrow">Next notebook</span>

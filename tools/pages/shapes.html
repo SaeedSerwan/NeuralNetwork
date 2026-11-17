@@ -1,19 +1,19 @@
     <section class="hero">
-      <p class="eyebrow">CSIT843A · Lecture 6 · Warm-up · 5 minutes</p>
-      <h1>Circle, square or triangle? <em>A neural network in five minutes.</em></h1>
-      <p class="lead">
-        The whole story of a neural network in one small example. A network looks at a 28 × 28 drawing and says whether it is a circle, a square or a triangle.
-        Draw one yourself, then walk through what happens inside: inputs, channels and weights, bias, activation, forward propagation, the error, and backpropagation.
-      </p>
+      <p class="eyebrow">CSIT843A · Lecture 6 · Chapter 7 of 10</p>
+      <h1>Recap in five minutes: <em>circle, square or triangle?</em></h1>
+      <p class="lead">The whole story of chapters 2–6 told once more, quickly, on a new problem. A small network learns to tell circles, squares and triangles apart. Use it to check that you can name every step.</p>
+      <div class="recap">
+        <div><span class="k">So far</span><p>Neurons, layers, forward pass, cost, gradient descent, backpropagation, training (chapters 2–6).</p></div>
+        <div><span class="k">In this chapter</span><p>The same ideas in the words of a five-minute overview: inputs, channels and weights, bias, activation, forward propagation, error and backpropagation.</p></div>
+      </div>
       <div class="learn-grid">
         <div><span class="num">01</span>Name the three kinds of layers</div>
         <div><span class="num">02</span>Say what weights, bias and activation do</div>
         <div><span class="num">03</span>Describe forward propagation</div>
-        <div><span class="num">04</span>Describe how the error flows back (backpropagation)</div>
+        <div><span class="num">04</span>Describe backpropagation in one sentence</div>
         <div><span class="num">05</span>Give examples of where networks are used</div>
       </div>
     </section>
-
     <section id="try" class="chapter">
       <h2><span class="chap">01</span>Draw a shape</h2>
       <p>This small network was trained a moment ago, in your browser, on 3,000 computer-drawn shapes. Draw a circle, a square or a triangle with the mouse or a finger.</p>
@@ -26,7 +26,6 @@
         </div></div>
       </div>
     </section>
-
     <section id="inside" class="chapter">
       <h2><span class="chap">02</span>What happens inside, step by step</h2>
       <p>Press <b>▶ Play</b> to watch your drawing travel through the network, or <b>Next step</b> to go one step at a time. All numbers are the real ones for the shape on the pad. Draw a different shape and the animation follows it.</p>
@@ -38,7 +37,6 @@
         <div class="lab-foot"><b>Watch for:</b> blue dots = signals moving forward, orange dots = the error moving back. Darker neurons are more active. Green lines are positive weights, red negative.</div>
       </div>
     </section>
-
     <section id="train" class="chapter">
       <h2><span class="chap">03</span>Training: guess, compare, correct</h2>
       <p>A network does not start out knowing shapes. Its weights begin random, so its first answers are guesses. For each training example the network predicts, the prediction is compared with the real answer, the <strong>error</strong> is sent back through the network (<strong>backpropagation</strong>), and every weight is adjusted a little. After enough examples, it predicts correctly most of the time.</p>
@@ -51,7 +49,6 @@
         </div></div>
       </div>
     </section>
-
     <section id="uses" class="chapter">
       <h2><span class="chap">04</span>Where neural networks are used</h2>
       <div class="cards">
@@ -63,15 +60,9 @@
         <div class="card"><span class="n">security</span><h4>Fraud detection</h4><p>Flagging unusual card payments: see <a href="problems.html#imbalance">data imbalance</a>.</p></div>
       </div>
     </section>
-
     <section id="check" class="chapter">
       <h2><span class="chap">05</span>Quiz</h2>
       <div class="quiz" id="qz"></div>
       <p class="quiz-score" id="qz-score"></p>
       <p class="prose" style="color:var(--muted);font-size:.9rem">This lesson follows the structure of Simplilearn’s video <a href="https://www.youtube.com/watch?v=bfmFfD2RIcg" target="_blank" rel="noopener">“Neural Network In 5 Minutes”</a>; the network, drawings and numbers here are our own.</p>
-      <a class="next-card" href="neuron.html">
-        <span class="next-eyebrow">Next · Part 1</span>
-        <span class="next-title">Neurons & layers in detail →</span>
-        <span class="next-text">Now slow down: what exactly does one neuron compute, and how many knobs does a real network have?</span>
-      </a>
     </section>

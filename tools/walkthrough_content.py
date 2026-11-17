@@ -46,7 +46,7 @@ NETWORK = {
     "eyebrow": "Practice · A network in Python",
     "title": "A neural network in NumPy, <em>line by line.</em>",
     "doc_title": "Neurons, Layers and the Forward Pass in NumPy, Line by Line",
-    "lead": "A complete, runnable notebook for Part 1. Compute a neuron by hand, plot sigmoid and ReLU, load the MNIST digits, "
+    "lead": "A complete, runnable notebook for chapters 2–3. Compute a neuron by hand, plot sigmoid and ReLU, load the MNIST digits, "
             "build the 784 → 16 → 16 → 10 network, count its 13,002 parameters and run a forward pass. "
             "Only NumPy and Matplotlib are needed. Hover over (or tap) any line of code to see what it does.",
     "learn": [
@@ -180,7 +180,7 @@ TRAINING = {
     "eyebrow": "Practice · Training in Python",
     "title": "Gradient descent and backpropagation, <em>line by line.</em>",
     "doc_title": "Training a Neural Network with Backpropagation in NumPy, Line by Line",
-    "lead": "A complete, runnable notebook for Part 2. Roll a ball down a cost curve, write backpropagation by hand, check it numerically, "
+    "lead": "A complete, runnable notebook for chapters 4–6. Roll a ball down a cost curve, write backpropagation by hand, check it numerically, "
             "train the 784 → 16 → 16 → 10 network on 60,000 digits to about 95% accuracy, and look at what it learned and where it fails. "
             "Only NumPy and Matplotlib. Hover over (or tap) any line of code to see what it does.",
     "learn": [
@@ -338,7 +338,7 @@ for o in out:  # >>^
 
         ("md", """## 10. What you built
 
-Forward pass, cost, backpropagation, gradient descent: about 30 lines of NumPy, the same loop as `loss.backward()` and `optimizer.step()` in PyTorch. **Next notebook:** convolution filters and the three training problems of Part 4."""),
+Forward pass, cost, backpropagation, gradient descent: about 30 lines of NumPy, the same loop as `loss.backward()` and `optimizer.step()` in PyTorch. **Next notebook:** convolution filters and the three training problems of chapter 10."""),
     ],
 }
 
@@ -350,7 +350,7 @@ PROBLEMS = {
     "eyebrow": "Practice · Filters & problems in Python",
     "title": "Convolution and training problems, <em>line by line.</em>",
     "doc_title": "Convolution Filters, Data Imbalance and Vanishing Gradients in Python, Line by Line",
-    "lead": "A complete, runnable notebook for Parts 3 and 4. Slide filters over a digit and pool the feature maps, "
+    "lead": "A complete, runnable notebook for chapters 9–10. Slide filters over a digit and pool the feature maps, "
             "reproduce the fraud experiment (accuracy against recall, class weights, SMOTE, undersampling), "
             "measure vanishing gradients layer by layer and see why clipping stops exploding gradients. "
             "NumPy, Matplotlib and scikit-learn. Hover over (or tap) any line of code to see what it does.",
@@ -367,7 +367,7 @@ PROBLEMS = {
 import numpy as np  # >> Arrays and maths.
 import matplotlib.pyplot as plt  # >> Charts.
 from sklearn.linear_model import LogisticRegression  # >> A single sigmoid neuron, trained for us.
-from sklearn.metrics import accuracy_score, recall_score, precision_score  # >> The three measures of Part 4.
+from sklearn.metrics import accuracy_score, recall_score, precision_score  # >> The three measures of chapter 10.
 
 """ + STYLE + "\n\n" + LOADER.replace("X_train = ", "X_train = ").replace('print(X_train.shape, y_train.shape, X_test.shape, y_test.shape)  # >> Check the sizes.', 'print(X_test.shape)  # >> We only need a few test digits here.')),
 

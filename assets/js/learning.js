@@ -8,6 +8,7 @@
 
   /* ------------------------------------------------------------ 01 random vs trained */
   (function () {
+    if (!document.getElementById('rd-a')) return;
     let seed = 11, rnd = new UL.MLP([784, 16, 16, 10], { seed }), idx = 0;
     const costLine = (net, d) => { const o = net.forward(S.get(idx)), c = net.cost(onehot(d)); return { o: Float64Array.from(o), c }; };
     function draw() {
@@ -23,6 +24,7 @@
 
   /* ------------------------------------------------------------ 03 gradient descent in 1-D */
   (function () {
+    if (!document.getElementById('g1-plot')) return;
     const C = (w) => 0.05 * w ** 4 - 0.5 * w ** 2 + 0.3 * w + 2.2, dC = (w) => 0.2 * w ** 3 - w + 0.3;
     const P = new UL.Plot('#g1-plot', { w: 560, h: 340, pad: { l: 36, r: 14, t: 14, b: 34 } }), calc = $('#g1-calc'), st = $('#g1-status');
     const eta = UL.range('g1-eta', () => draw(), (v) => v.toFixed(2));
@@ -50,6 +52,7 @@
 
   /* ------------------------------------------------------------ 04 gradient descent in 2-D */
   (function () {
+    if (!document.getElementById('g2-plot')) return;
     const F = (x, y) => 3 - 2.2 * Math.exp(-((x - 1.5) ** 2 + (y - 1) ** 2) / 1.6) - 1.5 * Math.exp(-((x + 1.7) ** 2 + (y + 1.3) ** 2) / 0.9) + 0.06 * (x * x + y * y) + 0.25 * Math.exp(-((x + 0.2) ** 2 + (y - 0.1) ** 2) / 0.4);
     const G = (x, y) => { const h = 1e-4; return [(F(x + h, y) - F(x - h, y)) / (2 * h), (F(x, y + h) - F(x, y - h)) / (2 * h)]; };
     const P = new UL.Plot('#g2-plot', { w: 520, h: 440, pad: { l: 30, r: 10, t: 10, b: 28 } }), calc = $('#g2-calc');
@@ -96,6 +99,7 @@
 
   /* ------------------------------------------------------------ 05 gradient per knob */
   (function () {
+    if (!document.getElementById('kn-plot')) return;
     const P = new UL.Plot('#kn-plot', { w: 560, h: 300, pad: { l: 44, r: 10, t: 16, b: 30 } }), calc = $('#kn-calc');
     let seed = 2, bseed = 1;
     function run() {
@@ -112,6 +116,7 @@
 
   /* ------------------------------------------------------------ 06 backpropagation by hand, animated */
   (function () {
+    if (!document.getElementById('bp-svg')) return;
     const sig = UL.sigmoid, x = [1.0, 0.5], y = 1, eta = 1, f4 = (v) => UL.fmt(v, 4), sg = (v) => (v < 0 ? '− ' : '+ ') + Math.abs(v).toFixed(2);
     let W1, b1, W2, b2, V, round, costs;
     const init = () => { W1 = [[0.4, -0.6], [0.7, 0.2]]; b1 = [0.1, -0.3]; W2 = [0.5, -0.8]; b2 = 0.2; round = 1; costs = []; V = compute(); };
@@ -150,8 +155,36 @@
       { title: 'Update: one gradient descent step (η = 1)', text: () => `Every weight: w ← w − η · ∂C/∂w. Negative slopes make a weight bigger, positive slopes smaller.<br>Run the forward pass again: the cost falls from ${f3(V.C)} to <b>${f3(V.Cn)}</b>.`,
         run: async () => { A.clearEdgeLabels(); await A.morphWeights([V.nW1, [V.nW2]], { ms: 1100 }); }, show: () => { A.setWeights([V.nW1, [V.nW2]], { max: 1.2 }); wl(0, [V.nW1]); wl(1, [V.nW1, V.nW2]); [0, 1].forEach((j) => A.sub(1, j, 'b=' + UL.fmt(V.nb1[j], 2))); A.sub(2, 0, 'cost next time: ' + f3(V.Cn), '#1b8c5c'); } },
     ];
+    const code = new UL.CodePanel('bp-code', [
+      'x = np.array([1.0, 0.5]); y = 1        # input (2,), target',
+      'z1 = W1 @ x + b1                       # (2,2) @ (2,) → (2,)',
+      'a1 = sigmoid(z1)',
+      'z2 = W2 @ a1 + b2                      # (2,) @ (2,) → scalar',
+      'a2 = sigmoid(z2)',
+      'C = (a2 - y) ** 2                      # the cost',
+      'dC_da2 = 2 * (a2 - y)                  # backward pass starts',
+      'd2 = dC_da2 * a2 * (1 - a2)            # δ at the output',
+      'gW2 = d2 * a1                          # (2,): one slope per weight',
+      'd1 = d2 * W2 * a1 * (1 - a1)           # (2,): blame for each hidden neuron',
+      'gW1 = np.outer(d1, x)                  # (2,2): one slope per weight',
+      'W1 -= eta * gW1; b1 -= eta * d1        # gradient descent step',
+      'W2 -= eta * gW2; b2 -= eta * d2',
+    ], { title: 'The same computation in Python (NumPy)' });
+    const v2 = (a) => '[' + a.map((v) => UL.fmt(v, 3)).join(' ') + ']';
+    const L = [[1, 2], [1, 2], [3, 4], 5, 6, 7, 8, 9, 10, [11, 12]];
+    steps.forEach((s2, k) => { s2.line = L[k]; });
+    steps[0].notes = () => ({ 1: `[${f3(V.z1[0])} …]`, 2: `[${f3(V.a1[0])} …]` });
+    steps[1].notes = () => ({ 1: v2(V.z1), 2: v2(V.a1) });
+    steps[2].notes = () => ({ 3: f3(V.z2), 4: f3(V.a2) });
+    steps[3].notes = () => ({ 5: f3(V.C) });
+    steps[4].notes = () => ({ 6: f3(V.dCda2) });
+    steps[5].notes = () => ({ 7: f4(V.d2) });
+    steps[6].notes = () => ({ 8: v2(V.gW2) });
+    steps[7].notes = () => ({ 9: v2(V.d1) });
+    steps[8].notes = () => ({ 10: '[[' + V.gW1.map((r) => r.map((v) => UL.fmt(v, 3)).join(' ')).join('] [') + ']]' });
+    steps[9].notes = () => ({ 11: 'cost next round ' + f3(V.Cn) });
     const commit = () => { costs.push(V.C); W1 = V.nW1; b1 = V.nb1; W2 = V.nW2; b2 = V.nb2; round++; V = compute(); };
-    const P = new UL.Player({ controls: 'bp-ctl', narration: 'bp-narr', progress: 'bp-bar', clock: A.clock, steps, base, loop: true, onLoop: commit, onReset: init, pause: 1000,
+    const P = new UL.Player({ code, controls: 'bp-ctl', narration: 'bp-narr', progress: 'bp-bar', clock: A.clock, steps, base, loop: true, onLoop: commit, onReset: init, pause: 1000,
       intro: `A network with 2 inputs, 2 hidden neurons and 1 output, all sigmoid. Inputs x = (1.0, 0.5); we want the output to be <b>1</b>. Press <b>▶ Play</b>.` });
     const ctl = UL.$('#bp-ctl'); ctl.insertAdjacentHTML('beforeend', '<span class="status" id="bp-status"></span>');
     const st = () => { UL.$('#bp-status').innerHTML = `round <b>${round}</b> · cost now <b>${f3(V.C)}</b>`; };
@@ -159,10 +192,11 @@
   })();
 
   /* ------------------------------------------------------------ 07 training numbers */
-  UL.stats('tr-stats', [{ k: 'Cost on the test set', v: '3.05 → 0.08', hi: 1 }, { k: 'Test accuracy', v: '9.7% → 94.9%', hi: 1 }, { k: 'Mini-batch', v: '32 digits' }, { k: 'Epochs', v: '30' }, { k: 'Learning rate η', v: '3' }]);
+  if (document.getElementById('lr-stats')) UL.stats('lr-stats', [{ k: 'Cost on the test set', v: '3.05 → 0.08', hi: 1 }, { k: 'Test accuracy', v: '9.7% → 94.9%', hi: 1 }, { k: 'Mini-batch', v: '32 digits' }, { k: 'Epochs', v: '30' }, { k: 'Learning rate η', v: '3' }]);
 
   /* ------------------------------------------------------------ 08 exercise 2 */
   (function () {
+    if (!document.getElementById('cc-in')) return;
     const vals = [0.1, 0.6, 0, 0, 0, 0, 0, 0.3, 0, 0]; let want = 1;
     const el = $('#cc-in'), out = $('#cc-out');
     el.innerHTML = vals.map((v, j) => `<label class="ctl">${j} <input class="num" type="number" min="0" max="1" step="0.1" value="${v}" data-j="${j}" style="width:4.2rem"></label>`).join('') + `<label class="ctl">correct digit <select id="cc-want">${[...Array(10).keys()].map((d) => `<option ${d === 1 ? 'selected' : ''}>${d}</option>`).join('')}</select></label>`;
@@ -172,22 +206,9 @@
     }
     $$('input', el).forEach((i) => i.addEventListener('input', () => { vals[+i.dataset.j] = +i.value || 0; upd(); }));
     $('#cc-want').addEventListener('change', (e) => { want = +e.target.value; upd(); }); upd();
-    UL.exercises('ex2-list', [
-      { q: 'A network sees a “1”. Its outputs are 0.1 for “0”, 0.6 for “1”, 0.3 for “7” and 0 for the others. What is the cost of this example?', a: '0.1² + (0.6 − 1)² + 0.3² = 0.01 + 0.16 + 0.09 = <b>0.26</b>.' },
-      { q: 'w = 0.5, gradient = −2, η = 0.1. What is the new w? Did w go up or down, and why?', a: '0.5 − 0.1 · (−2) = <b>0.7</b>: up, because the slope is negative, so the cost falls when w increases.' },
-      { q: 'How many inputs does the cost function of the 784 → 16 → 16 → 10 network have? How many outputs?', a: '<b>13,002 inputs</b> (every weight and bias) and <b>1 output</b> (the cost).' },
-      { q: 'A ball stops in a valley that is not the lowest. What is this called? Name one thing you could try.', a: 'A <b>local minimum</b>. Try a different random start, a larger learning rate, or momentum (as in Adam). Try it in § 04.' },
-      { q: 'Accuracy before training is about 10%. Why exactly 10%?', a: 'Random weights guess one of 10 digits more or less at random: right 1 time in 10.' },
-    ]);
+    
   })();
 
-  UL.quiz('qz', [
-    { q: 'The cost of one example is 0. What does that mean?', o: ['The network is untrained', 'Every output is exactly what we wanted', 'The gradient is very large', 'All weights are 0'], a: 1, why: 'Each squared difference is 0 only when the output equals the wanted value.' },
-    { q: 'The slope ∂C/∂w of a weight is positive. Gradient descent will…', o: ['increase w', 'decrease w', 'leave w unchanged', 'set w to 0'], a: 1, why: 'A positive slope means the cost rises when w rises, so w ← w − η · (positive) makes w smaller.' },
-    { q: 'What happens with a learning rate that is much too large?', o: ['Training is slow but safe', 'The steps overshoot, the cost jumps around or grows', 'The network gets more layers', 'Nothing'], a: 1, why: 'Try η = 1.5 in § 03: the ball jumps over the valley and can fly off the curve.' },
-    { q: 'What does backpropagation compute?', o: ['The output of the network', 'The gradient of the cost with respect to every weight and bias', 'The learning rate', 'The test accuracy'], a: 1, why: 'Backpropagation computes the gradient; gradient descent then uses it to update the weights.' },
-    { q: 'Why train on mini-batches of 32 digits instead of all 60,000 at once?', o: ['It is more accurate', 'Each step is much cheaper, so we take many more steps; on average they still go downhill', 'It avoids the cost function', 'MNIST requires it'], a: 1, why: 'The mini-batch gradient is a noisy but cheap estimate of the full gradient.' },
-    { q: 'In ∂C/∂w = ∂z/∂w · ∂a/∂z · ∂C/∂a, what is ∂z/∂w?', o: ['The learning rate', 'The input activation that the weight multiplies', 'The cost', 'Always 1'], a: 1, why: 'z = w·a + …, so changing w by a little changes z by a times that little.' },
-  ]);
+  
   UL.start();
 })();

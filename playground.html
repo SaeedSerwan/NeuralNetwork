@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Neural Network Lab · Neural network playground</title>
-  <meta name="description" content="Train a small neural network on two-dimensional data and watch its decision boundary, hidden neurons and loss change step by step.">
+  <meta name="description" content="Lecture 6, chapter 8: experiment with layers, activations, learning rate and overfitting.">
   <meta name="author" content="Eng. Saeed Serwan Abdulsattar">
   <meta property="og:title" content="Neural Network Lab · Neural network playground">
-  <meta property="og:description" content="Train a small neural network on two-dimensional data and watch its decision boundary, hidden neurons and loss change step by step.">
+  <meta property="og:description" content="Lecture 6, chapter 8: experiment with layers, activations, learning rate and overfitting.">
   <meta property="og:image" content="assets/img/favicon-512.png">
   <meta name="theme-color" content="#ffffff">
   <link rel="icon" type="image/svg+xml" href="assets/img/utb-logo.svg">
@@ -16,25 +16,25 @@
   <link rel="stylesheet" href="assets/vendor/katex/katex.min.css">
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body>
+<body data-page="playground">
 
 <header class="site-header">
   <a class="brand" href="index.html">
     <img class="brand-logo" src="assets/img/utb-logo.svg" alt="University of Technology Bahrain logo" onerror="this.remove()">
     <span class="brand-title">Neural Network Lab</span>
   </a>
-  <nav class="page-tabs" aria-label="Lessons">
-    <a href="index.html">Overview</a>
-    <a href="shapes.html">Shapes in 5 minutes</a>
-    <a href="neuron.html">Neurons & layers</a>
-    <a href="learning.html">How it learns</a>
-    <a href="digits.html">The digit network</a>
-    <a href="playground.html" class="active" aria-current="page">Playground</a>
-    <a href="types.html">Types of networks</a>
-    <a href="problems.html">Training problems</a>
-    <a href="code-network.html">A network in Python</a>
-    <a href="code-training.html">Training in Python</a>
-    <a href="code-problems.html">Filters & problems in Python</a>
+  <nav class="page-tabs" aria-label="Chapters">
+    <a href="index.html">1 Why</a>
+    <a href="neuron.html">2 Neuron</a>
+    <a href="network.html">3 Network</a>
+    <a href="learning.html">4 Cost</a>
+    <a href="backprop.html">5 Backprop</a>
+    <a href="training.html">6 Training</a>
+    <a href="shapes.html">7 Recap</a>
+    <a href="playground.html" class="active" aria-current="page">8 Playground</a>
+    <a href="types.html">9 Types</a>
+    <a href="problems.html">10 Problems</a>
+    <a href="code-network.html">Notebooks</a>
   </nav>
   <nav class="top-links">
     <a href="https://github.com/SaeedSerwan/NeuralNetwork" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>GitHub</a>
@@ -43,22 +43,36 @@
 
 <div class="layout">
   <aside class="toc" aria-label="Contents">
-    <p class="toc-title">Playground</p>
-    <ol>
-      <li><a href="#lab">The playground</a></li>
-      <li><a href="#challenges">Challenges</a></li>
-      <li><a href="#ideas">What the playground shows</a></li>
+    <p class="toc-title">Lecture 6 · chapters</p>
+    <ol class="chaplist">
+      <li><a href="index.html">Why neural networks?</a></li>
+      <li><a href="neuron.html">One neuron</a></li>
+      <li><a href="network.html">From neurons to a network</a></li>
+      <li><a href="learning.html">Measuring mistakes, rolling downhill</a></li>
+      <li><a href="backprop.html">Backpropagation</a></li>
+      <li><a href="training.html">Training: the whole loop</a></li>
+      <li><a href="shapes.html">Recap in five minutes</a></li>
+      <li class="cur"><a href="playground.html">Playground</a>
+        <ol>
+        <li><a href="#lab">The playground</a></li>
+        <li><a href="#challenges">Challenges</a></li>
+        <li><a href="#ideas">What the playground shows</a></li>
+        </ol>
+      </li>
+      <li><a href="types.html">Types of networks</a></li>
+      <li><a href="problems.html">Training problems</a></li>
     </ol>
   </aside>
 
   <main>
     <section class="hero">
-      <p class="eyebrow">CSIT843A · Lecture 6 · Playground</p>
-      <h1>Build a network, <em>watch it learn.</em></h1>
-      <p class="lead">
-        Orange and blue dots, and a network that must learn to tell them apart. Choose the data, the inputs, the layers and the activation function, press play,
-        and watch every neuron’s picture of the world change as gradient descent turns the knobs.
-      </p>
+      <p class="eyebrow">CSIT843A · Lecture 6 · Chapter 8 of 10</p>
+      <h1>Playground: <em>experiment with a network.</em></h1>
+      <p class="lead">Orange and blue dots, and a network that must learn to tell them apart. Choose the inputs, the layers and the activation function, press play, and watch every neuron’s picture of the world change as gradient descent turns the knobs.</p>
+      <div class="recap">
+        <div><span class="k">So far</span><p>How a network computes (chapters 2–3) and learns (chapters 4–6).</p></div>
+        <div><span class="k">In this chapter</span><p>Experiments that make the earlier ideas visible: one neuron draws a straight line, hidden layers bend it, the activation is what allows curves, the learning rate can be too large, and big networks can overfit.</p></div>
+      </div>
       <div class="learn-grid">
         <div><span class="num">01</span>See that one neuron draws a straight line</div>
         <div><span class="num">02</span>See hidden layers bend the decision boundary</div>
@@ -67,9 +81,9 @@
         <div><span class="num">05</span>Spot overfitting: training cost vs test cost</div>
       </div>
     </section>
-
     <section id="lab" class="chapter">
       <h2><span class="chap">01</span>The playground</h2>
+      <p class="bridge">You know how a network computes and how it learns. Now experiment: change the data, the layers, the activation and the learning rate, and see what each one does. Each square is a neuron from chapter 2; the lines are its weights; Play runs the training loop from chapter 6.</p>
       <p>Each square in the network is one neuron. Its little picture shows its activation for every point of the plane: blue where it is high, orange where it is low (or negative). The lines are weights: blue positive, orange negative, thicker = larger. The big picture on the right is the output neuron: the network’s <strong>decision boundary</strong>.</p>
       <div class="lab">
         <div class="lab-head"><p class="lab-title">Neural network playground</p><p class="lab-hint">Hover a neuron to see its picture large. Click a dataset to start again.</p></div>
@@ -100,13 +114,11 @@
         </div>
       </div>
     </section>
-
     <section id="challenges" class="chapter">
       <h2><span class="chap">02</span>Challenges</h2>
       <p>Each button sets the playground up. Press <b>Play</b>, watch, then answer the question before reading the explanation.</p>
       <ol class="ex-list" id="pg-ch"></ol>
     </section>
-
     <section id="ideas" class="chapter">
       <h2><span class="chap">03</span>What the playground shows</h2>
       <div class="cards">
@@ -115,12 +127,11 @@
         <div class="card"><span class="n">activation</span><h4>The bend</h4><p>With “none”, any number of layers still draws only a straight line. The activation is what allows curves.</p></div>
         <div class="card"><span class="n">train vs test</span><h4>Overfitting</h4><p>With few training points and a big network, the training cost keeps falling while the test cost rises: it memorises the noise.</p></div>
       </div>
-      <a class="next-card" href="types.html">
-        <span class="next-eyebrow">Next · Part 3</span>
-        <span class="next-title">Types of neural networks →</span>
-        <span class="next-text">Same neurons, same gradient descent, different wiring: CNN, RNN, GAN and transformers.</span>
-      </a>
     </section>
+    <nav class="chapnav">
+      <a class="prev" href="shapes.html"><span class="next-eyebrow">← Chapter 7</span><span class="next-title">Recap in five minutes</span></a>
+      <a class="next-card" href="types.html"><span class="next-eyebrow">Next · Chapter 9</span><span class="next-title">Types of networks →</span><span class="next-text">Same neurons and training, different wiring for images, sequences and creation.</span></a>
+    </nav>
   </main>
 </div>
 
@@ -141,5 +152,6 @@
 <script src="assets/js/anim.js"></script>
 <script src="assets/js/tips.js"></script>
 <script src="assets/js/playground.js"></script>
+<script src="assets/js/quizzes.js"></script>
 </body>
 </html>

@@ -1,10 +1,11 @@
     <section class="hero">
-      <p class="eyebrow">CSIT843A · Lecture 6 · Part 3</p>
-      <h1>One recipe, <em>different wiring.</em></h1>
-      <p class="lead">
-        Every network in this part uses the same neurons and the same gradient descent you met in Parts 1 and 2. What changes is how the neurons are connected,
-        to fit the shape of the data: a table, an image, a sequence, or something new to create.
-      </p>
+      <p class="eyebrow">CSIT843A · Lecture 6 · Chapter 9 of 10</p>
+      <h1>Types of networks: <em>one recipe, different wiring.</em></h1>
+      <p class="lead">Every network in this chapter uses the neurons, cost, gradient descent and backpropagation of chapters 2–6. What changes is how the neurons are connected, to fit the shape of the data: a table, an image, a sequence, or something new to create.</p>
+      <div class="recap">
+        <div><span class="k">So far</span><p>Fully connected networks (MLPs) and how they are trained (chapters 2–8).</p></div>
+        <div><span class="k">In this chapter</span><p>CNNs for images, RNNs and LSTMs for sequences, GANs for creating data, transformers and attention for long text, and how to choose between them.</p></div>
+      </div>
       <div class="learn-grid">
         <div><span class="num">01</span>Match a network to the shape of its data</div>
         <div><span class="num">02</span>Slide a filter over an image and read the feature map</div>
@@ -13,9 +14,9 @@
         <div><span class="num">05</span>See what attention looks at</div>
       </div>
     </section>
-
     <section id="recipe" class="chapter">
       <h2><span class="chap">01</span>The family</h2>
+      <p class="bridge">Every network so far was a multilayer perceptron: each neuron connected to every neuron of the layer before. That works for 784 pixels, but not well for big photos, sentences or creating new data. The answer is the same neurons and the same training, with different wiring.</p>
       <div class="table-wrap"><table class="clean">
         <thead><tr><th>Network</th><th>Main idea</th><th>Typical data</th></tr></thead>
         <tbody>
@@ -29,7 +30,6 @@
       </table></div>
       <p class="takeaway"><b>Key idea:</b> same neurons, same gradient descent. Only the wiring changes, to fit the data.</p>
     </section>
-
     <section id="cnn" class="chapter">
       <h2><span class="chap">02</span>CNN: small filters that slide over the image</h2>
       <p>Our dense network flattens the image into a list of 784 numbers and forgets which pixels are neighbours. Shuffle the pixels in the same fixed way for every image and it would learn just as well, although no person could read the result.</p>
@@ -58,14 +58,13 @@
         </div>
         <div class="lab-foot">A dense layer from 784 pixels to 16 neurons needs 12,544 weights. One 3 × 3 filter needs 9, and it finds its pattern anywhere in the picture.</div>
       </div>
-      <p>A real CNN learns dozens of filters per layer instead of us choosing them, shrinks the maps with <strong>pooling</strong>, and stacks layers: edges → parts → objects. Here the “hope” of Part 1 really happens. On the same 28 × 28 digits a small CNN (LeNet) reaches about 99%, against our 95%.</p>
+      <p>A real CNN learns dozens of filters per layer instead of us choosing them, shrinks the maps with <strong>pooling</strong>, and stacks layers: edges → parts → objects. Here the “hope” of chapter 3 really happens. On the same 28 × 28 digits a small CNN (LeNet) reaches about 99%, against our 95%.</p>
       <div class="lab">
         <div class="lab-head"><p class="lab-title">One layer of a CNN: four filters, ReLU, 2 × 2 max-pooling</p><p class="lab-hint">Pick a digit; each row is one filter.</p></div>
         <div class="controls"><div class="thumbs" id="pl-thumbs"></div></div>
         <div class="lab-body"><div id="pl-rows" style="display:grid;gap:.6rem"></div></div>
       </div>
     </section>
-
     <section id="rnn" class="chapter">
       <h2><span class="chap">03</span>RNN: a network with memory</h2>
       <p>Text, speech and sensor readings come one element at a time, in any length. An <strong>RNN</strong> reads one word (or value) at a time and updates a <strong>hidden state</strong> h, its memory, using the same weights at every step:</p>
@@ -82,9 +81,8 @@
         </div>
         <div class="lab-foot" id="rn-foot"></div>
       </div>
-      <p>“This morning I took my cat for a ___” → <em>walk</em>. To predict the last word the network must still remember “cat” and “took … for a”. In a simple RNN the memory of early words fades step by step: the same <strong>vanishing gradient</strong> problem as in <a href="problems.html#vanish">Part 4</a>. An <strong>LSTM</strong> adds gates that decide what to keep and what to forget, so useful information can travel much further. For long text, <strong>transformers</strong> replaced RNNs.</p>
+      <p>“This morning I took my cat for a ___” → <em>walk</em>. To predict the last word the network must still remember “cat” and “took … for a”. In a simple RNN the memory of early words fades step by step: the same <strong>vanishing gradient</strong> problem as in <a href="problems.html#vanish">chapter 10</a>. An <strong>LSTM</strong> adds gates that decide what to keep and what to forget, so useful information can travel much further. For long text, <strong>transformers</strong> replaced RNNs.</p>
     </section>
-
     <section id="gan" class="chapter">
       <h2><span class="chap">04</span>GAN: a forger and a detective</h2>
       <p>A <strong>GAN</strong> has two networks. The <strong>generator</strong> turns random noise into a fake; the <strong>discriminator</strong> looks at real and fake examples and says “real or fake?” (a digit reader with one output). Each trains against the other: the detective gets better at spotting fakes, so the forger must get better at making them.</p>
@@ -101,7 +99,6 @@
       </div>
       <p>Real GANs use deep networks for both players and produce faces, digits or artwork that never existed. Uses: synthetic training data, image editing, super-resolution. Risk: <strong>deepfakes</strong>. Cousins: <strong>autoencoders</strong> (compress and rebuild; badly rebuilt inputs are anomalies) and <strong>diffusion models</strong> (learn to remove noise step by step; behind most text-to-image systems).</p>
     </section>
-
     <section id="attention" class="chapter">
       <h2><span class="chap">05</span>Transformers: attention</h2>
       <p>A <strong>transformer</strong> does not read one word at a time. Every word looks at every other word directly and decides how much each one matters to it: <strong>attention</strong>. Nothing has to survive a long chain of steps, so long texts are no problem. This is the architecture behind ChatGPT and Claude.</p>
@@ -111,7 +108,6 @@
         <div class="lab-body"><div class="tokens" id="at-tokens" style="font-size:1.05rem;gap:.45rem"></div><p class="plot-cap" id="at-cap" style="text-align:left;margin-top:1rem"></p></div>
       </div>
     </section>
-
     <section id="compare" class="chapter">
       <h2><span class="chap">06</span>Comparing them</h2>
       <div class="table-wrap"><table class="clean">
@@ -126,21 +122,14 @@
       </table></div>
       <p class="takeaway"><b>Key idea:</b> choose by the shape of the data: table → MLP, image → CNN, sequence → RNN / transformer, create → GAN.</p>
     </section>
-
     <section id="ex3" class="chapter">
       <h2><span class="chap">07</span>Exercise 3: name that network</h2>
       <p>Choose from MLP · CNN · RNN / LSTM · GAN · transformer, then check.</p>
       <div class="select-q" id="ex3-q"></div>
       <p style="margin-top:1rem"><button class="btn" id="ex3-check">Check my answers</button> <span class="status" id="ex3-score"></span></p>
     </section>
-
     <section id="check" class="chapter">
       <h2><span class="chap">08</span>Check yourself</h2>
       <div class="quiz" id="qz"></div>
       <p class="quiz-score" id="qz-score"></p>
-      <a class="next-card" href="problems.html">
-        <span class="next-eyebrow">Next · Part 4</span>
-        <span class="next-title">Training problems →</span>
-        <span class="next-text">Data imbalance, vanishing and exploding gradients: why training goes wrong and how to fix it.</span>
-      </a>
     </section>

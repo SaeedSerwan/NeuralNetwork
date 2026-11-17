@@ -178,7 +178,7 @@
   UL.quiz('qz', [
     { q: 'Why is a CNN better than a dense network for photos?', o: ['It has more weights', 'It looks at small neighbourhoods with shared filters, so it keeps the grid structure and needs far fewer weights', 'It has memory', 'It uses two networks'], a: 1, why: 'A 3 × 3 filter has 9 weights and finds its pattern anywhere in the image.' },
     { q: 'What does the hidden state of an RNN hold?', o: ['The final answer', 'A memory of the sequence read so far', 'The filter weights', 'Random noise'], a: 1, why: 'h_t is updated at every step from h_{t−1} and the new input.' },
-    { q: 'Why do simple RNNs struggle with long sentences?', o: ['They are too fast', 'The influence of early words fades step by step (vanishing gradient)', 'They cannot read words', 'They need images'], a: 1, why: 'Watch the memory chart in § 03. LSTMs and transformers fix this in different ways.' },
+    { q: 'Why do simple RNNs struggle with long sentences?', o: ['They are too fast', 'The influence of early words fades step by step (vanishing gradient)', 'They cannot read words', 'They need images'], a: 1, why: 'Watch the memory chart in the RNN lab. LSTMs and transformers fix this in different ways.' },
     { q: 'In a GAN, what does the discriminator do?', o: ['Generates images', 'Says whether an example is real or fake', 'Compresses data', 'Chooses the learning rate'], a: 1, why: 'It is a classifier with one output; its feedback is how the generator learns.' },
     { q: 'Which network type is behind ChatGPT and Claude?', o: ['CNN', 'GAN', 'Transformer', 'Perceptron'], a: 2, why: 'Transformers use attention: every word looks at every other word directly.' },
   ]);

@@ -118,6 +118,31 @@
   }
   UL.NetAnim = NetAnim;
 
+
+  /* ------------------------------------------------------------ code panel synced with the animation */
+  class CodePanel {
+    // lines: array of strings (Python). hl(i | [i]) highlights lines; note(i, text) writes a live comment after a line
+    constructor(el, lines, o = {}) {
+      this.el = typeof el === 'string' ? document.getElementById(el) : el; this.set(lines, o.title);
+    }
+    set(lines, title) {
+      this.lines = lines; this.notes = {};
+      this.el.classList.add('codepanel');
+      this.el.innerHTML = (title ? `<div class="cp-title">${title}</div>` : '') + '<pre>' + lines.map((l, i) => `<div class="cp-line" data-i="${i}"><div class="cp-row"><span class="cp-n">${i + 1}</span><code>${UL.pyHL ? UL.pyHL(l) : l}</code></div><div class="cp-note"></div></div>`).join('') + '</pre>';
+      this.rows = Array.from(this.el.querySelectorAll('.cp-line'));
+    }
+    hl(idx) { const set = new Set([].concat(idx == null ? [] : idx)); this.rows.forEach((r, i) => r.classList.toggle('on', set.has(i))); const f = this.rows.find((r, i) => set.has(i)); if (f && f.scrollIntoViewIfNeeded) f.scrollIntoViewIfNeeded(false); }
+    note(i, text) { if (this.rows[i]) this.rows[i].querySelector('.cp-note').innerHTML = text ? '# → ' + text : ''; }
+    clearNotes() { this.rows.forEach((r) => { r.querySelector('.cp-note').innerHTML = ''; }); }
+  }
+  UL.CodePanel = CodePanel;
+  // tiny Python syntax colouring
+  UL.pyHL = function (l) {
+    const esc = l.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const m = esc.match(/^(.*?)(\s*#.*)?$/), code = m[1], com = m[2] || '';
+    return code.replace(/\b(import|as|for|in|def|return|if|else|np|range)\b/g, '<span class="kw">$1</span>').replace(/\b(\d+\.?\d*)\b/g, '<span class="nu">$1</span>') + (com ? `<span class="co">${com}</span>` : '');
+  };
+
   /* ------------------------------------------------------------ narrated steps with controls */
   class Player {
     // steps: [{title, text: () => html, run: async () => {}, show: () => {}}]; show() draws the finished state instantly
@@ -140,10 +165,11 @@
       const s = this.steps[this.k];
       this.narr.innerHTML = this.k < 0 ? (this.o.intro || 'Press <b>▶ Play</b> to watch, or <b>Next step</b> to go one step at a time.') : `<div class="nhead"><span class="nstep">${this.k + 1} / ${this.steps.length}</span> ${s.title}</div><div class="nbody">${typeof s.text === 'function' ? s.text() : s.text}</div>`;
       if (this.bar) this.bar.querySelectorAll('span').forEach((e, i) => { e.className = i < this.k ? 'done' : i === this.k ? 'on' : ''; });
+      if (this.o.code) { const cp = this.o.code; if (this.k < 0) { cp.hl(null); } else { cp.hl(s.line); if (s.notes) { const n = s.notes(); Object.keys(n).forEach((i) => cp.note(+i, n[i])); } } }
     }
     goto(k) { // jump without animation
       this.clock.cancel(); this.busy = false; k = Math.max(-1, Math.min(this.steps.length - 1, k));
-      if (this.o.base) this.o.base(); for (let i = 0; i <= k; i++) if (this.steps[i].show) this.steps[i].show();
+      if (this.o.base) this.o.base(); if (this.o.code) this.o.code.clearNotes(); for (let i = 0; i <= k; i++) { if (this.steps[i].show) this.steps[i].show(); if (this.o.code && this.steps[i].notes && i < k) { const n = this.steps[i].notes(); Object.keys(n).forEach((j) => this.o.code.note(+j, n[j])); } }
       this.k = k; this.narrate();
     }
     async next() {
